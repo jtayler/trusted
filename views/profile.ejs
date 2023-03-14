@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js" integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13" crossorigin="anonymous"></script>
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" integrity="sha512-SzlrxWUlpfuzQ+pcUCosxcglQRNAq/DZjVsC0lE40xsADsfeQoEypE+enwcOiGjk/bSuGGKHEyjSoQ1zVisanQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/shards-ui@3.0.0/dist/css/shards.min.css">
+      <script src="https://cdn.jsdelivr.net/npm/shards-ui@3.0.0/dist/js/shards.min.js"></script>
+      <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab&display=swap" rel="stylesheet">
+      <link rel="stylesheet" href="/css/styles.css">
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title> <%= user.full_name %> (@<%= user.username %>) - Profile</title>
+
+<meta property="og:title" content="<%= user.full_name %> (@<%= user.username %>) - Profile">
+<meta property="og:description" content="View the profile of <%= user.full_name %> (@<%= user.username %>) on our site.">
+<meta property="og:image" content="<%= user.photo %>">
+<meta property="og:url" content="https://demo.truanon.com/users/<%= user.username %>">
+<meta name="twitter:title" content="<%= user.full_name %> (@<%= user.username %>) - Profile">
+<meta name="twitter:description" content="View the profile of <%= user.full_name %> (@<%= user.username %>) on our site.">
+<meta name="twitter:image" content="<%= user.photo %>">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/x-icon" href="https://truanon.s3.amazonaws.com/img/dogsquare.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://truanon.s3.amazonaws.com/img/dogsquare.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="https://truanon.s3.amazonaws.com/img/dogsquare.ico">
+<link rel="icon" type="image/png" sizes="64x64" href="https://truanon.s3.amazonaws.com/img/dogsquare.ico">
+<link rel="icon" type="image/png" sizes="128x128" href="https://truanon.s3.amazonaws.com/img/dogsquare.ico">
+<link rel="icon" type="image/png" sizes="256x256" href="https://truanon.s3.amazonaws.com/img/dogsquare.ico">
+
+   </head>
+   <body>
+      <!-- Breadcrumb -->
+      <nav class="navbar navbar-expand-lg navbar-light bg-light shadow">
+         <div class="container-fluid">
+            <a class="navbar-brand px-3" href="#">
+            <img src="https://truanon.s3.amazonaws.com/img/dogwalklogo.png" alt="logo" height="72" class="d-inline-block align-text-top">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+               <ol class="breadcrumb mb-0 navbar-nav me-auto">
+                  <li class="breadcrumb-item"><a href="/">Home</a></li>
+                  <li class="breadcrumb-item"><a href="/users">Members</a></li>
+                  <li class="breadcrumb-item active" aria-current="page">Member Profile</li>
+               </ol>
+    <% if (session.user) { %>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle text-decoration-none" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <img src="<%= session.user.photo %>" alt="User Photo" class="rounded-circle border border-dark me-2" style="width: 30px;">
+              <%= session.user.username %>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+              <li><a class="dropdown-item" href="/users/<%= session.user.username %>">Profile</a></li>
+              <li><a class="dropdown-item" href="/">Settings</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="/login">Logout</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    <% } %>
+               <form class="d-flex">
+                  <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                  <button class="btn btn-outline-success" type="submit">Search</button>
+               </form>
+            </div>
+         </div>
+      </nav>
+      <!-- /Breadcrumb -->
+      </div>
+      <div class="container-xxl my-md-4 bd-layout" >
+      <div id="containerDiv">
+      <div class="container-xxl my-md-4 bd-layout">
+         <div class="row gutters-sm">
+            <div class="col-md-4 mb-3">
+               <div class="card">
+                  <div class="card-body">
+                     <div class="align-items-center text-center">
+                        <img id="photo" src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="Admin" class="rounded-circle border border-secondary" width="150">
+                        <div class="mt-3">
+                           <h4 id="fullname">John Doe</h4>
+                           <p id="username" class="text-secondary mb-1">Full Stack Developer</p>
+                           <p id="location" class="text-muted font-size-sm">Bay Area, San Francisco, CA</p>
+                           <div id="badge-area"></div>
+                           <button class="btn btn-primary">Follow</button>
+                           <button class="btn btn-outline-primary">Message</button>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <div id="new-slot" class="card mt-3">
+                  <ul class="list-group list-group-flush">
+                     <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+                        <h6 class="mb-0">Website </h6>
+                        <span id="ta-profile" class="text-secondary">https://bootdey.com</span>
+                     </li>
+                  </ul>
+               </div>
+            </div>
+            <div id="personal-space" class="col-md-8"></div>
+         </div>
+         <% if (isCurrentUser) { %>
+         <div class="container-xxl my-md-4 bd-layout">
+            <hr>
+            <a class="btn btn-primary text-decoration-none" type="submit" href="/users/<%= user.username %>/edit">Edit Profile</a>
+         </div>
+         <% } %>
+      </div>
+      <script>
+         var verifiedDetails = JSON.parse(JSON.parse(decodeURIComponent('<%= encodeURIComponent(JSON.stringify(verifiedDetails)) %>')));
+         var containerDivOld = $('#containerDiv');
+         
+         var photo = $('#photo');
+         photo.attr('src', '<%= user.photo %>');
+         photo.attr('alt', 'Profile photo');
+         photo.attr('className', 'rounded-circle');
+         photo.attr('width', '150');
+         
+         
+         //containerDivOld.append(photo);
+         
+         const name = $('#fullname');
+         name.text('<%= user.full_name %>');
+         
+         const name2 = $('#fullname2');
+         name2.text('<%= user.full_name %>');
+         
+         const username = $('#username');
+         username.text('@<%= user.username %> ');
+         
+         const ulocation = $('#location');
+         ulocation.text('<%= user.location %>');
+         
+         const address2 = $('#address2');
+         address2.text('<%= user.location %>');
+         
+         
+         function filterDataConfigurations(myData, dataPointType, dataPointKind) {
+         // Return an empty array if myData is empty or myData.dataConfigurations is not defined
+         if (!myData || !myData.dataConfigurations) {
+         return [];
+         }
+         
+         // Use the filter() method to filter the objects from myData.dataConfigurations
+         // that match the specified dataPointType and dataPointKind.
+         var filteredData = myData.dataConfigurations.filter(function(config) {
+         if (dataPointType.length) {
+         return config.dataPointType === dataPointType && config.dataPointKind === dataPointKind;
+         }
+         return config.dataPointKind === dataPointKind;
+         });
+         
+         return filteredData;
+         }
+         
+         var badge = document.createElement("span");
+         badge.className = "w-100 btn disabled btn-outline-warning mb-4";
+         
+         var badgeLogo = document.createElement("span");
+         badgeLogo.className = "fas fa-check-circle fa-5x align-middle p-2";
+         badge.appendChild(badgeLogo);
+         
+         var badgeRank = document.createElement("div");
+         badgeRank.className = "badge-rank h3";
+         badgeRank.innerText = "Unknown";
+         badge.appendChild(badgeRank);
+         
+         var badgeScore = document.createElement("div");
+         badgeScore.className = "badge-score h5";
+         badgeScore.innerText = "This Member Has Not Turned On Verified Identity";
+         badge.appendChild(badgeScore);
+         
+         //containerDivOld.append(badge);
+         $('#badge-area').html(badge);
+         
+      </script>
+      <% if (user.switch_state) { %>
+      <script>
+         var verifiedDetails = JSON.parse(JSON.parse(decodeURIComponent('<%= encodeURIComponent(JSON.stringify(verifiedDetails)) %>')));
+         var containerDivOld = $('#containerDiv');
+         
+         // var photo = $('#photo');
+         // photo.attr('src', verifiedDetails.authorPhoto);
+         // photo.attr('alt', 'Profile photo');
+         // photo.attr('className', 'rounded-circle');
+         // photo.attr('width', '150');
+         
+         
+         var fulocation = $('#location');
+         fulocation.text(verifiedDetails.authorTitle);
+         
+         var address23 = $('#address2');
+         address23.text(verifiedDetails.authorTitle);
+         
+         var badge = document.createElement("a");
+         badge.className = "w-100 btn btn-outline-primary mb-4";
+         badge.href = "https://" + filterDataConfigurations(verifiedDetails, "truanon", "social")[0].displayValue;
+         badge.target = "_blank";
+         
+         var badgeLogo = document.createElement("span");
+         badgeLogo.className = "fas fa-check-circle fa-5x  align-middle p-2";
+         badge.appendChild(badgeLogo);
+         
+         var badgeRank = document.createElement("div");
+         badgeRank.className = "badge-rank h3";
+         badgeRank.innerText = verifiedDetails.authorRank;
+         badge.appendChild(badgeRank);
+         
+         var badgeScore = document.createElement("div");
+         badgeScore.className = "badge-score h5";
+         badgeScore.innerText = "(" + verifiedDetails.authorRankScore + " of 5)";
+         badge.appendChild(badgeScore);
+         
+         // var badgeText = document.createElement("div");
+         // badgeText.className = "badge-text";
+         // var badgeLink = document.createElement("a");
+         // badgeLink.className = "btn btn-dark m-4";
+         // badgeLink.href = "https://truanon.com/p/" + filterDataConfigurations(verifiedDetails, "truanon", "social")[0].displayName;
+         // badgeLink.target = "_blank";
+         // badgeLink.innerHTML = "Review my Public TruAnon Profile";
+         // badgeText.appendChild(badgeLink);
+         //badge.appendChild(badgeText);
+         
+         //containerDivOld.append(badge);
+         $('#badge-area').html(badge);
+         
+         const dataConfigurationsList = document.createElement("ul");
+         
+         // var filteredData = filterDataConfigurations(verifiedDetails, "", "social");
+         // var dataConfigurationsListHTML = createDataConfigurationsList(filteredData);
+         var filteredData = filterDataConfigurations(verifiedDetails, "", "social");
+         var truanonOnly = filterDataConfigurations(verifiedDetails, "truanon", "social");
+         
+         // Create a new array that includes all elements in `filteredData` that are NOT in `truanonOnly`
+         var filteredDataMinusTruanon = filteredData.filter(function(config) {
+         // Return true if `config` is not in `truanonOnly`
+         return !truanonOnly.includes(config);
+         });
+         
+         var dataConfigurationsListHTML = createDataConfigurationsList(filteredDataMinusTruanon);
+         
+         document.body.appendChild(dataConfigurationsListHTML);
+         
+         var filteredData = filterDataConfigurations(verifiedDetails, "", "contact").concat(filterDataConfigurations(verifiedDetails, "", "primary")).concat(filterDataConfigurations(verifiedDetails, "bio", "personal"));
+         var dataConfigurationsListHTML = createContactList(filteredData);
+         $('#personal-space').append(dataConfigurationsListHTML);
+         
+         //var filteredData = filterDataConfigurations(verifiedDetails, "", "personal");
+         //var dataConfigurationsListHTML = createContactList(filteredData);
+         //$('#personal-space').append(dataConfigurationsListHTML);
+         
+         
+         function createContactList(filteredData) {
+         const dataConfigurationsList = document.createElement("div");
+         dataConfigurationsList.classList.add("card", "mb-3");
+         const cardBody = document.createElement("div");
+         cardBody.classList.add("card-body");
+         dataConfigurationsList.appendChild(cardBody);
+         
+         filteredData.forEach((dataConfig, index) => {
+         const row = document.createElement("div");
+         row.classList.add("row");
+         cardBody.appendChild(row);
+         var data = dataConfig;
+         
+         const col1 = document.createElement("div");
+         col1.classList.add("col-sm-3");
+         row.appendChild(col1);
+         
+         const titleHeader = document.createElement("h6");
+         titleHeader.classList.add("mb-0");
+         titleHeader.innerText = data.dataPointName;
+         col1.appendChild(titleHeader);
+         
+         const col2 = document.createElement("div");
+         col2.classList.add("col-sm-9", "text-secondary");
+         col2.innerText = data.displayValue;
+         row.appendChild(col2);
+         
+         if (index < filteredData.length - 1) {
+         const hr = document.createElement("hr");
+         cardBody.appendChild(hr);
+         }
+         });
+         
+         return dataConfigurationsList;
+         }
+         
+         function createDataConfigurationsList(filteredData) {
+         dataConfigurationsList.classList.add("list-group");
+         
+         filteredData.forEach((dataConfig) => {
+         const listItem = document.createElement("li");
+         listItem.classList.add("list-group-item", "d-flex", "justify-content-between", "align-items-center", "flex-wrap");
+         
+         const iconSpan = document.createElement("span");
+         iconSpan.className = dataConfig.dataPointIconClass + " fa-2x  align-middle";
+         
+         const titleSpan = document.createElement("span");
+         titleSpan.innerText = ` ${dataConfig.dataPointName}`;
+         
+         const titleHeader = document.createElement("h6");
+         titleHeader.classList.add("mb-0");
+         titleHeader.appendChild(iconSpan);
+         titleHeader.appendChild(titleSpan);
+         
+         // const valueSpan = document.createElement("span");
+         // valueSpan.classList.add("text-secondary");
+         
+         // valueSpan.innerText = dataConfig.displayValue;
+         // valueSpan.id = "ta-profile";
+         // valueSpan.style.textOverflow = 'ellipsis';
+         
+         const valueSpan = document.createElement("span");
+         valueSpan.classList.add("text-secondary");
+         valueSpan.innerText = dataConfig.displayValue;
+         valueSpan.id = "ta-profile";
+         valueSpan.style.textOverflow = 'ellipsis';
+         
+         const link = document.createElement("a");
+         link.href = "https://" + dataConfig.displayValue;
+         link.innerText = dataConfig.displayValue;
+         valueSpan.innerHTML = link.outerHTML;
+         
+         listItem.appendChild(titleHeader);
+         listItem.appendChild(valueSpan);
+         
+         dataConfigurationsList.appendChild(listItem);
+         });
+         
+         return dataConfigurationsList;
+         }
+         
+         const newSlot = document.getElementById("new-slot");
+         newSlot.innerHTML = '';
+         newSlot.appendChild(dataConfigurationsList);
+         
+         
+      </script>
+      <% } %>
+   
+     <%- include('footer') %>
+</body>
+
+</html>

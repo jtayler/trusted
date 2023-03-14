@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Profile</title>
+  </head>
+  <body>
+    <h1>Profile</h1>
+    <p>Welcome to your profile, <span id="username"></span>!</p>
+    <ul>
+      <li><strong>Photo:</strong> <span id="photo"></span></li>
+      <li><strong>Title:</strong> <span id="title"></span></li>
+      <li><strong>Bio:</strong> <span id="bio"></span></li>
+    </ul>
+    <a href="/users/jtayler/edit">Edit Profile</a>
+
+    <script>
+      // Fetch the profile data and update the HTML elements
+      fetch('/api/profile')
+        .then(response => response.json())
+        .then(profile => {
+          document.getElementById('username').textContent = profile.username;
+          document.getElementById('photo').textContent = profile.photo;
+          document.getElementById('title').textContent = profile.title;
+          document.getElementById('bio').textContent = profile.bio;
+        })
+        .catch(error => console.error(error));
+    </script>
+  </body>
+</html>

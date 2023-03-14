@@ -1,0 +1,24 @@
+{
+  "hosting": {
+    "public": "public",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  },
+  "functions": {
+    "source": ".",
+    "codebase": "default",
+    "ignore": [
+      "node_modules",
+      ".git",
+      "firebase-debug.log",
+      "firebase-debug.*.log"
+    ],
+    "environment": {
+      "PRIVATE_KEY": "z24acdhznmlocpop4embib4fj3hrkeaqv3oadt3dykuvln4ghqka"
+    },
+    "runtime": "nodejs18"
+  }
+}

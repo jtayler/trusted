@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js" integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13" crossorigin="anonymous"></script>
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/shards-ui@3.0.0/dist/css/shards.min.css">
+      <script src="https://cdn.jsdelivr.net/npm/shards-ui@3.0.0/dist/js/shards.min.js"></script>
+      <link rel="stylesheet" href="/css/styles.css">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" integrity="sha512-SzlrxWUlpfuzQ+pcUCosxcglQRNAq/DZjVsC0lE40xsADsfeQoEypE+enwcOiGjk/bSuGGKHEyjSoQ1zVisanQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+      <title><%= user.username %> - Edit Profile</title>
+ <link rel="icon" type="image/x-icon" href="https://truanon.s3.amazonaws.com/img/dogsquare.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://truanon.s3.amazonaws.com/img/dogsquare.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="https://truanon.s3.amazonaws.com/img/dogsquare.ico">
+<link rel="icon" type="image/png" sizes="64x64" href="https://truanon.s3.amazonaws.com/img/dogsquare.ico">
+<link rel="icon" type="image/png" sizes="128x128" href="https://truanon.s3.amazonaws.com/img/dogsquare.ico">
+<link rel="icon" type="image/png" sizes="256x256" href="https://truanon.s3.amazonaws.com/img/dogsquare.ico">
+  </head>
+   <body>
+      <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab&display=swap" rel="stylesheet">
+      <style>
+         .form-switch .form-check-input {
+         height:2.0rem;
+         width:4.8rem;
+         }
+         .form-label {
+         padding-top:1rem;
+         }
+      </style>
+      <!-- Breadcrumb -->
+      <nav class="navbar navbar-expand-lg navbar-light bg-light shadow">
+         <div class="container-fluid">
+            <a class="navbar-brand px-3" href="#">
+            <img src="https://truanon.s3.amazonaws.com/img/dogwalklogo.png" alt="logo" height="72" class="d-inline-block align-text-top">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+               <ol class="breadcrumb mb-0 navbar-nav me-auto">
+                  <li class="breadcrumb-item"><a href="/">Home</a></li>
+                  <li class="breadcrumb-item"><a href="/users">Members</a></li>
+                  <li class="breadcrumb-item active" aria-current="page">Edit Profile</li>
+               </ol>
+    <% if (session.user) { %>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle text-decoration-none" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <img src="<%= session.user.photo %>" alt="User Photo" class="rounded-circle border border-primary me-2" style="width: 30px;">
+              <%= session.user.username %>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+              <li><a class="dropdown-item" href="/users/<%= session.user.username %>">Profile</a></li>
+              <li><a class="dropdown-item" href="/">Settings</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="/login">Logout</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    <% } %>
+               <form class="d-flex">
+                  <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                  <button class="btn btn-outline-success" type="submit">Search</button>
+               </form>
+            </div>
+      </nav>
+      <!-- /Breadcrumb -->
+      <div class="container-xxl my-md-4 bd-layout">
+      <div class="container">
+      <div class="row justify-content-center mt-5">
+      <div class="col-md-8">
+      <div class="card">
+      <div class="card-header">
+      <h1 class="text-center">Edit Profile</h1>
+      </div>
+      <div class="card-body">
+      <div class="row">
+      <div class="col-md-6">
+      <form method="POST" action="/users/<%= user.username %>/edit">
+      <div class="form-group">
+      <label for="full_name-input" class="form-label">Full Name:</label>
+      <input type="text" name="full_name" id="full_name-input" value="<%= user.full_name %>" class="form-control" />
+      </div>
+      <div class="form-group">
+      <label for="location-input" class="form-label">Location:</label>
+      <input type="text" name="location" id="location-input" value="<%= user.location %>" class="form-control" />
+      </div>
+      </div>
+      <div class="col-md-6">
+      <div class="form-group">
+      <label for="photo-input" class="form-label">Profile Photo:</label>
+      <input type="text" name="photo" id="photo-input" value="<%= user.photo %>" class="form-control" />
+      </div>
+      <div class="form-group">
+      <label for="verified-switch" class="form-label">Verified Identity:</label>
+      <div class="switch-container form-check form-switch form-switch-pill mx-4">
+      <input class="form-check-input" type="checkbox" name="switch_state" id="verified-switch" <% if (user.verified) { %>checked<% } %>  />
+      <label for="verified-switch" class="switch"></label>
+      <div id="verify-link-div"><a class="btn btn-outline-primary btn-pill" href="#" id="verify-link" style="display:none;"></a></div>
+      </div>
+      </div>
+      </div>
+      </div>
+      <div class="pt-4 p-1">
+      <h5>A Verified Identity Badge Will Boost Your Profile</h5>
+      <ul>
+      <li>You gain trust and respect from the community.</li>
+      <li>You are immediately recognized as an influencer or authority.</li>
+      <li>You can protect yourself against impersonation.</li>
+      <li>You will get more followers and more visibility.</li>
+      </ul>
+      <p>A verification badge signals that you are real, credible, authentic, and of interest to other members. It means that you are worthy of respect and understanding. It means that you care.</p>
+      </div>
+      </div>
+      <div class="card-footer text-center">
+      <button class="btn btn-primary" type="submit">Save Changes</button>
+      </div>
+      </div>
+      </form>
+      </div>
+      </div>
+      </div>
+      </div>
+      <script>
+         window.onload = function() {
+           const user = {
+             username: '<%= user.username %>',
+             switch_state: '<%= user.switch_state %>' === 'on' ? true : false
+           };
+           // Set initial state of verified switch
+           const switchElem = document.getElementById("verified-switch");
+           switchElem.checked = user.switch_state;
+           const linkElem = document.getElementById("verify-link-div");
+         
+         function handleVerification() {
+         
+         if (switchElem.checked) {
+         const url = `/users/${user.username}/token`;
+         // Update switch state in user object
+         user.switch_state = true;
+         
+         fetch(url)
+         .then(response => response.json())
+         .then(data => {
+         if (!Object.keys(data).length || (data.type && data.type === "error")) {
+         linkElem.style.display = "none";
+         return;
+         }
+         
+         const { token } = data;
+         const link = `https://truanon.com/api/verifyProfile?id=${user.username}&service=cryptoniteventures&token=${token}`;
+         const linkHtml = `<a href="${link}" class="btn btn-primary rounded-pill" id="verify-link">Click To Confirm</a>`;
+         
+         linkElem.style.display = "block";
+         
+         linkElem.innerHTML = linkHtml;
+         linkElem.addEventListener("click", function(e) {
+         e.preventDefault();
+         const popupUrl = link;
+         const popupWidth = 480;
+         const popupHeight = 820;
+         const popupTop = (window.innerHeight - popupHeight) / 2;
+         const popupLeft = (window.innerWidth - popupWidth) / 2;
+         var win = window.open(
+         popupUrl,
+         "ta-popup",
+         `width=${popupWidth},height=${popupHeight},top=${popupTop},left=${popupLeft}`
+         );
+         var timer = setInterval(function() {
+         if (win.closed) {
+         clearInterval(timer);
+         linkElem.style.display = "none";
+         }
+         }, 1000);
+         
+         });
+         })
+         .catch(error => {
+         console.error(error);
+         linkElem.style.display = "none";
+         });
+         } else {
+         linkElem.innerHTML = "";
+         linkElem.style.display = "none";
+         
+         // Update switch state in user object
+         user.switch_state = false;
+         }
+         }
+         
+         
+           // Bind handleVerification function to verified switch
+           if (switchElem) {
+             switchElem.addEventListener("click", handleVerification);
+           }
+         }
+      </script>
+      </div>
+           <%- include('footer') %>
+
+   </body>
+</html>

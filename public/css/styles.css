@@ -1,0 +1,13 @@
+selector,* {
+  font-family: 'Roboto Slab', sans-serif;
+}
+.bg-light {
+  background-color: #F5EBDB !important;
+}
+body {
+  background-color: #FDF5E6 !important;
+}
+.card, .list-group li {
+  background-color: #FEF9F3 !important;
+}
+
