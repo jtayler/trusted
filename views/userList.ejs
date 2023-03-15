@@ -7,6 +7,7 @@
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" integrity="sha512-SzlrxWUlpfuzQ+pcUCosxcglQRNAq/DZjVsC0lE40xsADsfeQoEypE+enwcOiGjk/bSuGGKHEyjSoQ1zVisanQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
       <meta charset="UTF-8" />
       <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/shards-ui@3.0.0/dist/css/shards.min.css">
+      <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab&display=swap" rel="stylesheet">
       <link rel="stylesheet" href="/css/styles.css">
       <script src="https://cdn.jsdelivr.net/npm/shards-ui@3.0.0/dist/js/shards.min.js"></script>
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -19,7 +20,6 @@
 <link rel="icon" type="image/png" sizes="256x256" href="https://truanon.s3.amazonaws.com/img/dogsquare.ico">
   </head>
    <body>
-      <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab&display=swap" rel="stylesheet">
       <!-- Breadcrumb -->
       <nav class="navbar navbar-expand-lg navbar-light bg-light shadow">
          <div class="container-fluid">
@@ -35,10 +35,10 @@
                   <li class="breadcrumb-item active" aria-current="page">Members</li>
                </ol>
     <% if (session.user) { %>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavCollapse" aria-controls="navbarNavCollapse" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
+      <div class="collapse navbar-collapse" id="navbarNavCollapse">
         <ul class="navbar-nav ms-auto">
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle text-decoration-none" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -64,22 +64,45 @@
       </nav>
       <!-- /Breadcrumb -->
       <style>
+        .col {
+          opacity: 0;
+          visibility: hidden;
+          transition: opacity 1.5s ease-in-out;
+        }
+
+        .col.show {
+          opacity: 1;
+          visibility: visible;
+          transition: opacity 1.5s ease-in-out;
+        }
          .card {
-         width: 15rem;
+         min-width: 18rem;
+         max-width: 18rem;
          }
          .row {
          display: flex;
          flex-wrap: wrap;
+         margin:0;
          }
+         @media only screen and (max-width: 768px) {
+         .card {
+         min-width: 14rem;
+         max-width: 28rem;
+         }
+
+        }
       </style>
-      <div class="container mt-5">
-<div class="row g-4 justify-content-center">
+      <div class="container mt-5 ">
+   <div class="p-4 pb-0 pt-0">
    <div class="form-check form-switch">
       <input class="form-check-input" type="checkbox" id="verifiedSwitch">
       <label class="form-check-label" for="verifiedSwitch">Show Verified Users Only</label>
    </div>
+   </div>
+ 
+<div class="row g-4 justify-content-center">
   <% users.forEach(function(user) { %>
-    <div class="col<% if (user.switch_state) { %> verified<% } %>">
+    <div class="show col<% if (user.switch_state) { %> verified<% } %>">
       <div class="card<% if (user.switch_state) { %> border-primary<% } %>">
         <a href="/users/<%= user.username %>">
           <img src="<%= user.photo %>" class="card-img-top" alt="User Photo">
@@ -108,26 +131,31 @@
 <script>
   const verifiedSwitch = document.querySelector('#verifiedSwitch');
 const cards = document.querySelectorAll('.col');
+cards.forEach(card => card.classList.add('show'));
 
 verifiedSwitch.addEventListener('change', (event) => {
    if (event.target.checked) {
       cards.forEach(card => {
          if (card.querySelector('.text-primary')) {
             card.style.display = 'block';
+            card.classList.add('show');
+
          } else {
             card.style.display = 'none';
+            card.classList.remove('show');
+
          }
       });
    } else {
       cards.forEach(card => card.style.display = 'block');
+      cards.forEach(card => card.classList.add('show'));
    }
 });
 </script>
       </div>
       </div>
-      </div>
-           <%- include('footer') %>
+      </div>  </div></div> 
+          <%- include('footer') %>
 
    </body>
 </html>
-</div>

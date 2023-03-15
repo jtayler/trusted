@@ -83,7 +83,7 @@
                <div class="card">
                   <div class="card-body">
                      <div class="align-items-center text-center">
-                        <img id="photo" src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="Admin" class="rounded-circle border border-secondary" width="150">
+                        <img id="photo" src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="Admin" class="rounded-circle border" width="150">
                         <div class="mt-3">
                            <h4 id="fullname">John Doe</h4>
                            <p id="username" class="text-secondary mb-1">Full Stack Developer</p>
@@ -117,12 +117,37 @@
          var verifiedDetails = JSON.parse(JSON.parse(decodeURIComponent('<%= encodeURIComponent(JSON.stringify(verifiedDetails)) %>')));
          var containerDivOld = $('#containerDiv');
          
-         var photo = $('#photo');
-         photo.attr('src', '<%= user.photo %>');
-         photo.attr('alt', 'Profile photo');
-         photo.attr('className', 'rounded-circle');
-         photo.attr('width', '150');
-         
+
+
+         function getPhotoBorderColor(authorRank) {
+  switch (authorRank) {
+    case 'Dangerous':
+      return 'danger';
+    case 'Cautioned':
+      return 'warning';
+    case 'Credible':
+      return 'secondary';
+    case 'Reliable':
+      return 'success';
+    case 'Genuine':
+      return 'primary';
+    default:
+      return 'warning';
+  }
+}
+
+// if a user switch_state is true
+// the author verifiedDetails.authorRank will show one of five levels
+// Dangerous, Cautioned, Creditble, Reliable and Genuin
+// we want bootstrap colors danger, warning, secondary, success and primary to relate to each state
+// we want a short javascript function that returns the css class to be added to rounded-circle
+// in order to set the color of this user's photo border to their proper color
+var photo = $('#photo');
+photo.attr('src', '<%= user.photo %>');
+photo.attr('alt', 'Profile photo');
+photo.attr('className', 'rounded-circle');
+photo.attr('max-width', '280');
+photo.addClass("border-" + getPhotoBorderColor(verifiedDetails.authorRank));
          
          //containerDivOld.append(photo);
          
@@ -186,11 +211,13 @@
          var verifiedDetails = JSON.parse(JSON.parse(decodeURIComponent('<%= encodeURIComponent(JSON.stringify(verifiedDetails)) %>')));
          var containerDivOld = $('#containerDiv');
          
-         // var photo = $('#photo');
+         var photo = $('#photo');
          // photo.attr('src', verifiedDetails.authorPhoto);
          // photo.attr('alt', 'Profile photo');
          // photo.attr('className', 'rounded-circle');
          // photo.attr('width', '150');
+         //photo.addClass("border-secondary");
+
          
          
          var fulocation = $('#location');
@@ -200,7 +227,7 @@
          address23.text(verifiedDetails.authorTitle);
          
          var badge = document.createElement("a");
-         badge.className = "w-100 btn btn-outline-primary mb-4";
+         badge.className = "w-100 btn mb-4 btn-outline-" + getPhotoBorderColor(verifiedDetails.authorRank);
          badge.href = "https://" + filterDataConfigurations(verifiedDetails, "truanon", "social")[0].displayValue;
          badge.target = "_blank";
          
