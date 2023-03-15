@@ -1,17 +1,20 @@
 # Introduction
 
-TruAnon APIs provide access to the data containing information about users on your website. This document provides details on how to use these APIs to populate data on the profile view page. The data is provided in JSON format, and proper parsing and decoding are necessary to present the data correctly.
+This Node.js demonstration site showcases TruAnon APIs and their potential to help build trust and stop abuse on your service. This simple application allows sign up and login and editing of user profile data. This also provides a verified identity "Switch" that turns on and off the badge feature on all user profiles. This simple demonstration shows the power of using TruAnon and why members prefer this verify option above all others.
+
+TruAnon APIs provide access to the data containing information about profile owners on your website. This document provides details on how to use these APIs to populate data on the profile view page. The API data is provided in JSON format, and proper parsing and decoding are necessary to present the data correctly.
 
 ## JSON Parsing and Decoding
 
-1. The profile view page needs to display an identity owner’s choice of public information. The badge and photo border are also expected to have a border that matches their author rank, which can be dangerous, cautioned, credible, reliable, or genuine. 
+1. The profile view page needs to display an identity owner’s choice of public information. The badge along with the photo border are  expected to have a border that matches their author rank, which can be dangerous, cautioned, credible, reliable, or genuine. 
 2. To parse the JSON data returned from the API, first, it needs to be encoded using `encodeURIComponent()`. Then, it needs to be parsed using `JSON.parse()` twice. The result is a JSON object containing `verifiedDetails`, which can be accessed using `verifiedDetails.authorRank`.
 3. The `getPhotoBorderColor()` function receives a user's author rank and returns a CSS class to add to the profile picture's border. This class sets the color of the border to the user's corresponding rank color. The function uses a switch statement to match the rank with a bootstrap color.
+4. Note that the  `verifiedDetails` array contains dictionaries of matching data points you can display and use. The parsing and decoding of this are especially noteworthy but the concept is very simple; display more and ask less of your users.
+
 
 ## API Usage
 
 To use TruAnon APIs, an HTTP GET request must be sent to the desired endpoint. For example, to get a user's verified details, the following endpoint should be used:
-
 
 The response contains the user's verified details, including their author rank, which can be used to determine the color of their profile badge color. The response needs to be parsed and decoded properly to get the necessary data.
 
