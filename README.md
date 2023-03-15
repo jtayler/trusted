@@ -34,3 +34,14 @@ The first route, defined with `app.get('/users/:username', ...)`, retrieves a us
 4. If the user is found, the route checks their `switch_state` property. If it is set to `true`, the route constructs a URL to fetch the user's profile data from the TruAnon API. It includes the `username` and `service` parameters, as well as the `Authorization` header, which is set to a private key.
 5. The route then calls the `fetch` function to make a GET request to the TruAnon API using the constructed URL and the `tokenOptions` object that contains the `Authorization` header.
 
+## Route 2: Get User Token
+
+The second route, defined with `app.get('/users/:username/token', ...)`, generates a token for a user using the TruAnon API. Here's how the code works:
+
+1. The route extracts the `username` parameter from the request URL.
+2. It then constructs a URL to fetch the user's token from the TruAnon API. It includes the `username` and `service` parameters, as well as the `Authorization` header, which is set to a private key.
+3. The route then calls the `fetch` function to make a GET request to the TruAnon API using the constructed URL and the options object that contains the `Authorization` header.
+4. The `fetch` function returns a Promise that resolves to the response object. The route uses the `json` method of the response object to parse the JSON data and obtain the user's token.
+5. The route then sends a JSON response with the user's token.
+
+In both routes, the `fetch` function is used to make requests to the TruAnon API. The `Authorization` header is set to a private key, which is passed in via environment variable.
