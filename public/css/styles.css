@@ -7,11 +7,19 @@ selector,* {
 body {
   background-color: #FDF5E6 !important;
 }
+.card-header, .card-footer {
+  background-color: #F5EBDB !important;
+}
 .card, .list-group li {
   background-color: #FEF9F3 !important;
 }
 
 @media only screen and (max-width: 768px) {
+  .navbar-brand img {
+    display:none !important;
+  }
+
+
   .card {
     margin-top:2rem;
   }

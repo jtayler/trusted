@@ -12,22 +12,20 @@
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <title> <%= user.full_name %> (@<%= user.username %>) - Profile</title>
-
-<meta property="og:title" content="<%= user.full_name %> (@<%= user.username %>) - Profile">
-<meta property="og:description" content="View the profile of <%= user.full_name %> (@<%= user.username %>) on our site.">
-<meta property="og:image" content="<%= user.photo %>">
-<meta property="og:url" content="https://demo.truanon.com/users/<%= user.username %>">
-<meta name="twitter:title" content="<%= user.full_name %> (@<%= user.username %>) - Profile">
-<meta name="twitter:description" content="View the profile of <%= user.full_name %> (@<%= user.username %>) on our site.">
-<meta name="twitter:image" content="<%= user.photo %>">
-<meta name="twitter:card" content="summary_large_image">
-<link rel="icon" type="image/x-icon" href="https://truanon.s3.amazonaws.com/img/dogsquare.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="https://truanon.s3.amazonaws.com/img/dogsquare.ico">
-<link rel="icon" type="image/png" sizes="32x32" href="https://truanon.s3.amazonaws.com/img/dogsquare.ico">
-<link rel="icon" type="image/png" sizes="64x64" href="https://truanon.s3.amazonaws.com/img/dogsquare.ico">
-<link rel="icon" type="image/png" sizes="128x128" href="https://truanon.s3.amazonaws.com/img/dogsquare.ico">
-<link rel="icon" type="image/png" sizes="256x256" href="https://truanon.s3.amazonaws.com/img/dogsquare.ico">
-
+      <meta property="og:title" content="<%= user.full_name %> (@<%= user.username %>) - Profile">
+      <meta property="og:description" content="View the profile of <%= user.full_name %> (@<%= user.username %>) on our site.">
+      <meta property="og:image" content="<%= user.photo %>">
+      <meta property="og:url" content="https://demo.truanon.com/users/<%= user.username %>">
+      <meta name="twitter:title" content="<%= user.full_name %> (@<%= user.username %>) - Profile">
+      <meta name="twitter:description" content="View the profile of <%= user.full_name %> (@<%= user.username %>) on our site.">
+      <meta name="twitter:image" content="<%= user.photo %>">
+      <meta name="twitter:card" content="summary_large_image">
+      <link rel="icon" type="image/x-icon" href="https://truanon.s3.amazonaws.com/img/dogsquare.ico">
+      <link rel="icon" type="image/png" sizes="16x16" href="https://truanon.s3.amazonaws.com/img/dogsquare.ico">
+      <link rel="icon" type="image/png" sizes="32x32" href="https://truanon.s3.amazonaws.com/img/dogsquare.ico">
+      <link rel="icon" type="image/png" sizes="64x64" href="https://truanon.s3.amazonaws.com/img/dogsquare.ico">
+      <link rel="icon" type="image/png" sizes="128x128" href="https://truanon.s3.amazonaws.com/img/dogsquare.ico">
+      <link rel="icon" type="image/png" sizes="256x256" href="https://truanon.s3.amazonaws.com/img/dogsquare.ico">
    </head>
    <body>
       <!-- Breadcrumb -->
@@ -45,24 +43,26 @@
                   <li class="breadcrumb-item"><a href="/users">Members</a></li>
                   <li class="breadcrumb-item active" aria-current="page">Member Profile</li>
                </ol>
-    <% if (session.user) { %>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle text-decoration-none" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <img src="<%= session.user.photo %>" alt="User Photo" class="rounded-circle border border-primary me-2" style="width: 30px;">
-              <%= session.user.username %>
-            </a>
-            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-              <li><a class="dropdown-item" href="/users/<%= session.user.username %>">Profile</a></li>
-              <li><a class="dropdown-item" type="submit" href="/users/<%= session.user.username %>/edit">Edit</a></li>
-              <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="/login">Logout</a></li>
-            </ul>
-          </li>
-        </ul>
-      </div>
-    <% } %>
+               <% if (session.user) { %>
+               <div class="collapse navbar-collapse" id="navbarNav">
+                  <ul class="navbar-nav ms-auto">
+                     <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle text-decoration-none" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <img src="<%= session.user.photo %>" alt="User Photo" class="rounded-circle border border-primary me-2" style="width: 30px;">
+                        <%= session.user.username %>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                           <li><a class="dropdown-item" href="/users/<%= session.user.username %>">Profile</a></li>
+                           <li><a class="dropdown-item" type="submit" href="/users/<%= session.user.username %>/edit">Edit</a></li>
+                           <li>
+                              <hr class="dropdown-divider">
+                           </li>
+                           <li><a class="dropdown-item" href="/login">Logout</a></li>
+                        </ul>
+                     </li>
+                  </ul>
+               </div>
+               <% } %>
                <form class="d-flex">
                   <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
                   <button class="btn btn-outline-success" type="submit">Search</button>
@@ -71,80 +71,81 @@
          </div>
       </nav>
       <!-- /Breadcrumb -->
-      </div>
       <div class="container-xxl my-md-4 bd-layout" >
-      <div id="containerDiv">
-      <div class="container-xxl my-md-4 bd-layout">
-         <div class="row gutters-sm">
-            <div class="col-md-4 mb-3">
-               <div class="card">
-                  <div class="card-body">
-                     <div class="align-items-center text-center">
-                        <img id="photo" src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="Admin" class="rounded-circle border" width="150">
-                        <div class="mt-3">
-                           <h4 id="fullname">John Doe</h4>
-                           <p id="username" class="text-secondary mb-1">Full Stack Developer</p>
-                           <p id="location" class="text-muted font-size-sm">Bay Area, San Francisco, CA</p>
-                           <div id="badge-area"></div>
-                           <button class="btn btn-primary">Follow</button>
-                           <button class="btn btn-outline-primary">Message</button>
+         <div id="containerDiv">
+            <div class="container-xxl my-md-4 bd-layout">
+               <div class="row gutters-sm">
+                  <div class="col-md-4 mb-3">
+                     <div class="card">
+                        <div class="card-body">
+                           <div class="align-items-center text-center">
+                              <img id="photo" src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="Admin" class="rounded-circle border" width="150">
+                              <div class="mt-3">
+                                 <h4 id="fullname">John Doe</h4>
+                                 <p id="username" class="text-secondary mb-1">Full Stack Developer</p>
+                                 <p id="location" class="text-muted font-size-sm">Bay Area, San Francisco, CA</p>
+                                 <div id="badge-area"></div>
+                                 <button class="btn btn-primary">Follow</button>
+                                 <button class="btn btn-outline-primary">Message</button>
+                              </div>
+                           </div>
                         </div>
                      </div>
+                     <div id="new-slot" class="card mt-3">
+                        <ul class="list-group list-group-flush">
+                           <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+                              <h6 class="mb-0">Website </h6>
+                              <span id="ta-profile" class="text-secondary">https://bootdey.com</span>
+                           </li>
+                        </ul>
+                     </div>
                   </div>
+                  <div id="personal-space" class="col-md-8"></div>
                </div>
-               <div id="new-slot" class="card mt-3">
-                  <ul class="list-group list-group-flush">
-                     <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
-                        <h6 class="mb-0">Website </h6>
-                        <span id="ta-profile" class="text-secondary">https://bootdey.com</span>
-                     </li>
-                  </ul>
+               <% if (isCurrentUser) { %>
+               <div class="container-xxl my-md-4 bd-layout">
+                  <hr>
+                  <a class="btn btn-primary text-decoration-none" type="submit" href="/users/<%= user.username %>/edit">Edit Profile</a>
                </div>
+               <% } %>
             </div>
-            <div id="personal-space" class="col-md-8"></div>
          </div>
-         <% if (isCurrentUser) { %>
-         <div class="container-xxl my-md-4 bd-layout">
-            <hr>
-            <a class="btn btn-primary text-decoration-none" type="submit" href="/users/<%= user.username %>/edit">Edit Profile</a>
-         </div>
-         <% } %>
       </div>
       <script>
          var verifiedDetails = JSON.parse(JSON.parse(decodeURIComponent('<%= encodeURIComponent(JSON.stringify(verifiedDetails)) %>')));
          var containerDivOld = $('#containerDiv');
          
-
-
+         
+         
          function getPhotoBorderColor(authorRank) {
-  switch (authorRank) {
-    case 'Dangerous':
-      return 'danger';
-    case 'Cautioned':
-      return 'warning';
-    case 'Credible':
-      return 'secondary';
-    case 'Reliable':
-      return 'success';
-    case 'Genuine':
-      return 'primary';
-    default:
-      return 'warning';
-  }
-}
-
-// if a user switch_state is true
-// the author verifiedDetails.authorRank will show one of five levels
-// Dangerous, Cautioned, Creditble, Reliable and Genuin
-// we want bootstrap colors danger, warning, secondary, success and primary to relate to each state
-// we want a short javascript function that returns the css class to be added to rounded-circle
-// in order to set the color of this user's photo border to their proper color
-var photo = $('#photo');
-photo.attr('src', '<%= user.photo %>');
-photo.attr('alt', 'Profile photo');
-photo.attr('className', 'rounded-circle');
-photo.attr('max-width', '280');
-photo.addClass("border-" + getPhotoBorderColor(verifiedDetails.authorRank));
+         switch (authorRank) {
+         case 'Dangerous':
+         return 'danger';
+         case 'Cautioned':
+         return 'warning';
+         case 'Credible':
+         return 'secondary';
+         case 'Reliable':
+         return 'success';
+         case 'Genuine':
+         return 'primary';
+         default:
+         return 'warning';
+         }
+         }
+         
+         // if a user switch_state is true
+         // the author verifiedDetails.authorRank will show one of five levels
+         // Dangerous, Cautioned, Creditble, Reliable and Genuin
+         // we want bootstrap colors danger, warning, secondary, success and primary to relate to each state
+         // we want a short javascript function that returns the css class to be added to rounded-circle
+         // in order to set the color of this user's photo border to their proper color
+         var photo = $('#photo');
+         photo.attr('src', '<%= user.photo %>');
+         photo.attr('alt', 'Profile photo');
+         photo.attr('className', 'rounded-circle');
+         photo.attr('max-width', '280');
+         photo.addClass("border-" + getPhotoBorderColor(verifiedDetails.authorRank));
          
          //containerDivOld.append(photo);
          
@@ -214,7 +215,7 @@ photo.addClass("border-" + getPhotoBorderColor(verifiedDetails.authorRank));
          // photo.attr('className', 'rounded-circle');
          // photo.attr('width', '150');
          //photo.addClass("border-secondary");
-
+         
          
          
          var fulocation = $('#location');
@@ -369,8 +370,6 @@ photo.addClass("border-" + getPhotoBorderColor(verifiedDetails.authorRank));
          
       </script>
       <% } %>
-   
-     <%- include('footer') %>
-</body>
-
+      <%- include('footer') %>
+   </body>
 </html>
