@@ -42,7 +42,7 @@ The second route, defined with `app.get('/users/:username/token', ...)`, generat
 4. The `fetch` function returns a Promise that resolves to the response object. The route uses the `json` method of the response object to parse the JSON data and obtain the user's expiring token.
 5. The route then sends a JSON response with the user's token and this securely assigns ownership of that identity with the requesting service's unique username identifier.
 
-##How to Use the Token to Create a Public Confirmation Link
+## How to Use the Token to Create a Public Confirmation Link
 
 After fetching the token using the get_token endpoint, you can use it to create a public confirmation link. This link can be displayed as a button or a link on your website or social media profile to allow others to confirm ownership of your account or profile. This token will expire if the user does not use it.
 
