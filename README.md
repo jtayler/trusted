@@ -1,8 +1,10 @@
 # Introduction: Trust and Safety
 
-This simple Node.js demo showcases TruAnon APIs and their ability to immediately build trust and stop abuse on your service. This simple application allows sign up and login and editing of user profile data. This also provides a verified identity "Switch" that turns on and off the badge-of-trust feature available on all user profiles. This simple demonstration shows the power of using TruAnon and why members prefer this verify option above all other choices or offerings.
+This demo showcases the TruAnon APIs and their ability to quickly establish trust and prevent abuse on your service. The demo is a simple Node.js application that enables users to sign up, log in, and edit their profile data. Additionally, it features a 'Switch' that allows users to turn on or off the 'badge-of-trust' feature, which is available on all user profiles.
 
-TruAnon APIs provide access to the data containing information about profile owners on your website. This document provides details on how to use these APIs to populate display informatino including a badge-of-trust to augment and amplify user profiles so people can do more, more safely. The API data is provided in JSON format, and proper parsing and decoding are necessary to present the data correctly.
+By demonstrating how easy it is to use TruAnon, this demo highlights the advantages of using this identity verification option. Members appreciate the simplicity and effectiveness of TruAnon, making it their preferred choice above all other options or offerings
+
+The TruAnon APIs allow access to data containing information about the owners of profiles on your website. This document provides instructions on how to use these APIs to display information, including a 'badge-of-trust,' which enhances and amplifies user profiles for safer and more effective interactions. The API data is provided in JSON format, and proper parsing and decoding are required to present the data correctly.
 
 ## JSON Parsing and Decoding
 
@@ -42,6 +44,6 @@ The second route, defined with `app.get('/users/:username/token', ...)`, generat
 
 ## Conclusion
 
-This is faster onbaording. TruAnon APIs provide a convenient way to access confirmed user data for use on the profile view page and in any way your service can make this information useful. JSON parsing and decoding are necessary to use the data correctly, and proper use of jQuery can populate the data on the page.
+This is faster onboarding. TruAnon APIs provide a convenient way to access confirmed user data for use on the profile view page and in any way your service can make this information useful. JSON parsing and decoding are necessary to use the data correctly, and proper use of jQuery can populate the data on the page.
 
 In both routes, the `fetch` function is used to make requests to the TruAnon API. The `Authorization` header is set to a private key, which is passed in via environment variable.
