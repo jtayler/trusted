@@ -42,6 +42,18 @@ The second route, defined with `app.get('/users/:username/token', ...)`, generat
 4. The `fetch` function returns a Promise that resolves to the response object. The route uses the `json` method of the response object to parse the JSON data and obtain the user's expiring token.
 5. The route then sends a JSON response with the user's token and this securely assigns ownership of that identity with the requesting service's unique username identifier.
 
+##How to Use the Token to Create a Public Confirmation Link
+
+After fetching the token using the get_token endpoint, you can use it to create a public confirmation link. This link can be displayed as a button or a link on your website or social media profile to allow others to confirm ownership of your account or profile. This token will expire if the user does not use it.
+
+To create the public confirmation link, use the following URL format: `https://staging.truanon.com/api/verifyProfile?id=[YOUR_USERNAME]&service=[YOUR_SERVICENAME]&token=[YOUR_TOKEN]`
+
+The resulting link will open a popup window where the user can securely confirm ownership of your account or profile. This link is a one-time use only and will expire after the user confirms ownership.
+
+To use this link, display it as a button or a link on your website or social media profile. When the user clicks the link, the popup window will open, and they can confirm ownership of your account or profile.
+
+For example, here is how you can create a link with a popup window: `<a href="https://staging.truanon.com/api/verifyProfile?id=[YOUR_USERNAME]&service=[YOUR_SERVICENAME]&token=[YOUR_TOKEN]" target="ta-popup" width="480" height="820" top="327.5" left="397">Confirm Ownership</a>` In this example, the target="ta-popup" attribute will open the link in a popup window with the specified width, height, top, and left values.
+
 ## Conclusion
 
 Get faster onboarding with a convenient way to access confirmed user data for display in any way that is useful. Proper use of JSON parsing and decoding is necessary to ensure the data is used correctly, and the data can be populated on the page through the correct implementation of jQuery
