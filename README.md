@@ -44,6 +44,6 @@ The second route, defined with `app.get('/users/:username/token', ...)`, generat
 
 ## Conclusion
 
-Get faster onboarding with a convenient way to access confirmed user data for use in any way that makes this information useful. Proper use of JSON parsing and decoding is necessary to ensure the data is used correctly, and the data can be populated on the page through the correct implementation of jQuery
+Get faster onboarding with a convenient way to access confirmed user data for display in any way that is useful. Proper use of JSON parsing and decoding is necessary to ensure the data is used correctly, and the data can be populated on the page through the correct implementation of jQuery
 
 In both routes, the `fetch` function is used to make requests to the TruAnon API. The `Authorization` header is set to a private key, which is passed in via environment variable.
