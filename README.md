@@ -20,9 +20,6 @@ The response contains the user's verified details, including their author rank, 
 
 To populate data on the profile view page, jQuery can be used to select the desired elements by their ID and change their text or attributes. For example, to change the profile picture's border color, the jQuery `.addClass()` method can be used to add the CSS class returned by the `getPhotoBorderColor()` function to the profile picture's element.
 
-## Conclusion
-
-TruAnon APIs provide a convenient way to access user data for use on the profile view page. JSON parsing and decoding are necessary to use the data correctly, and proper use of jQuery can populate the data on the page.
 
 ## Route 1: Get User Profile
 
@@ -42,5 +39,9 @@ The second route, defined with `app.get('/users/:username/token', ...)`, generat
 3. The route then calls the `truanon.com/api/get_token?id=[YOUR_USERNAME]&service=[YOUR_SERVICENAME]` function to make a GET request to the TruAnon API using the constructed public "smart link" URL and associated options object that contains the `Authorization` header.
 4. The `fetch` function returns a Promise that resolves to the response object. The route uses the `json` method of the response object to parse the JSON data and obtain the user's expiring token.
 5. The route then sends a JSON response with the user's token and this securely assigns ownership of that identity with the requesting service's unique username identifier.
+
+## Conclusion
+
+This is faster onbaording. TruAnon APIs provide a convenient way to access confirmed user data for use on the profile view page and in any way your service can make this information useful. JSON parsing and decoding are necessary to use the data correctly, and proper use of jQuery can populate the data on the page.
 
 In both routes, the `fetch` function is used to make requests to the TruAnon API. The `Authorization` header is set to a private key, which is passed in via environment variable.
