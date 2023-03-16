@@ -37,9 +37,6 @@
                   <li class="breadcrumb-item active" aria-current="page">Login</li>
                </ol>
     <% if (session.user) { %>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
           <li class="nav-item dropdown">
@@ -49,7 +46,7 @@
             </a>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
               <li><a class="dropdown-item" href="/users/<%= session.user.username %>">Profile</a></li>
-              <li><a class="dropdown-item" href="/">Settings</a></li>
+              <li><a class="dropdown-item" type="submit" href="/users/<%= session.user.username %>/edit">Edit</a></li>
               <li><hr class="dropdown-divider"></li>
               <li><a class="dropdown-item" href="/login">Logout</a></li>
             </ul>
@@ -62,9 +59,8 @@
                   <button class="btn btn-outline-success" type="submit">Search</button>
                </form>
             </div>
-            </div>
+         </div>
       </nav>
-      <div class="container-xxl my-md-4 bd-layout">
       <!-- /Breadcrumb -->
       <div class="row justify-content-center mt-5">
       <div class="col-md-6">
