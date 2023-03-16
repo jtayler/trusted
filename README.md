@@ -30,9 +30,8 @@ The first route, defined with `app.get('/users/:username', ...)`, retrieves a us
 
 1. The route extracts the `username` parameter from the request URL and the `userId` from the session.
 2. It then queries the database to retrieve the user's data using their `username`.
-3. If an error occurs during the database query, the server responds with a `500 Internal Server Error` status code and a message explaining the error. If the user is not found, the server responds with a `404 Not Found` status code and a message indicating that the user was not found.
-4. If the user is found, the route checks their `switch_state` property. If it is set to `true`, the route constructs a URL to fetch the user's profile data from the TruAnon API. It includes the `username` and `service` parameters, as well as the `Authorization` header, which is set to a private key.
-5. The route then calls the `fetch` function to make a GET request to the TruAnon API using the constructed URL and the `tokenOptions` object that contains the `Authorization` header.
+3. If the user is found, the route checks their `switch_state` property. If it is set to `true`, the route constructs a URL to fetch the user's profile data from the TruAnon API. It includes the `username` and `service` parameters, as well as the `Authorization` header, which is set to a private key.
+4. The route then calls the `truanon.com/api/get_profile?id=[YOUR_USERNAME]&service=[YOUR_SERVICENAME]` function to make a GET request to the TruAnon API using the constructed URL and the `tokenOptions` object that contains the `Authorization` header.
 
 ## Route 2: Get User Token
 
@@ -40,7 +39,7 @@ The second route, defined with `app.get('/users/:username/token', ...)`, generat
 
 1. The route extracts the `username` parameter from the request URL.
 2. It then constructs a URL to fetch the user's token from the TruAnon API. It includes the `username` and `service` parameters, as well as the `Authorization` header, which is set to a private key.
-3. The route then calls the `fetch` function to make a GET request to the TruAnon API using the constructed URL and the options object that contains the `Authorization` header.
+3. The route then calls the `truanon.com/api/get_token?id=[YOUR_USERNAME]&service=[YOUR_SERVICENAME]` function to make a GET request to the TruAnon API using the constructed URL and the options object that contains the `Authorization` header.
 4. The `fetch` function returns a Promise that resolves to the response object. The route uses the `json` method of the response object to parse the JSON data and obtain the user's token.
 5. The route then sends a JSON response with the user's token.
 
