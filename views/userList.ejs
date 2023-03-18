@@ -89,9 +89,9 @@
 
         }
       </style>
-      <div class="container mt-5 ">
+      <div class="container mt-3 ">
 <div class="d-flex ">
-  <div class="p-4 pb-0 pt-0">
+  <div class="p-3 pb-0 pt-0">
     <div class="form-check form-switch">
       <input class="form-check-input" type="checkbox" id="verifiedSwitch">
       <label class="form-check-label" for="verifiedSwitch">Show Verified Users Only</label>
@@ -100,7 +100,7 @@
 </div>
  
 <div class="row g-4 justify-content-center">
-  <% users.forEach(function(user) { %>
+  <% users.reverse().forEach(function(user) { %>
     <div class="show col<% if (user.switch_state) { %> verified<% } %>">
       <div class="card<% if (user.switch_state) { %> border-primary<% } %>">
         <a href="/users/<%= user.username %>">

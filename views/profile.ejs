@@ -79,7 +79,7 @@
                      <div class="card">
                         <div class="card-body">
                            <div class="align-items-center text-center">
-                              <img id="photo" src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="Admin" class="rounded-circle border" width="150">
+                              <img id="photo" src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="Admin" class="rounded-circle border border-4" width="150">
                               <div class="mt-3">
                                  <h4 id="fullname">John Doe</h4>
                                  <p id="username" class="text-secondary mb-1">Full Stack Developer</p>
@@ -145,6 +145,7 @@
          photo.attr('alt', 'Profile photo');
          photo.attr('className', 'rounded-circle');
          photo.attr('max-width', '280');
+         photo.addClass("border-4");
          photo.addClass("border-" + getPhotoBorderColor(verifiedDetails.authorRank));
          
          //containerDivOld.append(photo);
@@ -243,23 +244,10 @@
          badgeScore.innerText = "(" + verifiedDetails.authorRankScore + " of 5)";
          badge.appendChild(badgeScore);
          
-         // var badgeText = document.createElement("div");
-         // badgeText.className = "badge-text";
-         // var badgeLink = document.createElement("a");
-         // badgeLink.className = "btn btn-dark m-4";
-         // badgeLink.href = "https://truanon.com/p/" + filterDataConfigurations(verifiedDetails, "truanon", "social")[0].displayName;
-         // badgeLink.target = "_blank";
-         // badgeLink.innerHTML = "Review my Public TruAnon Profile";
-         // badgeText.appendChild(badgeLink);
-         //badge.appendChild(badgeText);
-         
-         //containerDivOld.append(badge);
          $('#badge-area').html(badge);
          
          const dataConfigurationsList = document.createElement("ul");
          
-         // var filteredData = filterDataConfigurations(verifiedDetails, "", "social");
-         // var dataConfigurationsListHTML = createDataConfigurationsList(filteredData);
          var filteredData = filterDataConfigurations(verifiedDetails, "", "social");
          var truanonOnly = filterDataConfigurations(verifiedDetails, "truanon", "social");
          
@@ -273,14 +261,9 @@
          
          document.body.appendChild(dataConfigurationsListHTML);
          
-         var filteredData = filterDataConfigurations(verifiedDetails, "", "contact").concat(filterDataConfigurations(verifiedDetails, "", "primary")).concat(filterDataConfigurations(verifiedDetails, "bio", "personal"));
+         var filteredData = filterDataConfigurations(verifiedDetails, "", "contact").concat(filterDataConfigurations(verifiedDetails, "", "primary")).concat(filterDataConfigurations(verifiedDetails, "", "additional")).concat(filterDataConfigurations(verifiedDetails, "bio", "personal"));
          var dataConfigurationsListHTML = createContactList(filteredData);
          $('#personal-space').append(dataConfigurationsListHTML);
-         
-         //var filteredData = filterDataConfigurations(verifiedDetails, "", "personal");
-         //var dataConfigurationsListHTML = createContactList(filteredData);
-         //$('#personal-space').append(dataConfigurationsListHTML);
-         
          
          function createContactList(filteredData) {
          const dataConfigurationsList = document.createElement("div");
@@ -351,6 +334,7 @@
          
          const link = document.createElement("a");
          link.href = "https://" + dataConfig.displayValue;
+         link.target = "_blank";
          link.innerText = dataConfig.displayValue;
          valueSpan.innerHTML = link.outerHTML;
          
@@ -365,6 +349,11 @@
          
          const newSlot = document.getElementById("new-slot");
          newSlot.innerHTML = '';
+         const headerDiv = document.createElement("div");
+         headerDiv.classList.add("card-header","text-center", "h5", "text-secondary");
+         headerDiv.innerText = "Confirmed Properties";
+         newSlot.appendChild(headerDiv);
+
          newSlot.appendChild(dataConfigurationsList);
          
          
