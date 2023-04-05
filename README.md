@@ -22,7 +22,6 @@ The response contains the user's verified details, including their author rank, 
 
 To populate data on the profile view page, jQuery can be used to select the desired elements by their ID and change their text or attributes. For example, to change the profile picture's border color, the jQuery `.addClass()` method can be used to add the CSS class returned by the `getPhotoBorderColor()` function to the profile picture's element.
 
-
 ## Route 1: Get User Profile
 
 The first route, defined with `app.get('/users/:username', ...)`, retrieves a user's profile from the TruAnon API if the user's `switch_state` is set to `true`. Here's how the code works:
@@ -31,6 +30,48 @@ The first route, defined with `app.get('/users/:username', ...)`, retrieves a us
 2. It then queries the database to retrieve the user's data using their `username`.
 3. If the user is found, the route checks their `switch_state` property. If it is set to `true`, the route constructs a URL to fetch the user's profile data from the TruAnon API. It includes the `username` and `service` parameters, as well as the `Authorization` header, which is set to a private key.
 4. The route then calls the `truanon.com/api/get_profile?id=[YOUR_USERNAME]&service=[YOUR_SERVICENAME]` endpoint to make a GET request to the TruAnon API using the constructed URL and the `tokenOptions` object that contains the `Authorization` header.
+
+## Display Badge of Trust
+
+A badge has a rank and score you can associate with colors and various display properties on your service.
+Using a few simple javascript loops, we can identify items by type and kind and loop through this JSON data in order to display useful things members have offered.
+
+```js
+function getPhotoBorderColor(authorRank) {
+  switch (authorRank) {
+    case 'Dangerous':
+      return 'border-danger';
+    case 'Cautioned':
+      return 'border-warning';
+    case 'Credible':
+      return 'border-secondary';
+    case 'Reliable':
+      return 'border-success';
+    case 'Genuine':
+      return 'border-primary';
+    default:
+      return '';
+  }
+}
+
+// If a user switch_state is true
+// The author verifiedDetails.authorRank will show one of five levels:
+// - Dangerous
+// - Cautioned
+// - Creditble
+// - Reliable
+// - Genuine
+// We want bootstrap colors danger, warning, secondary, success and primary to relate to each state.
+// We want a short javascript function that returns the css class to be added to rounded-circle
+// in order to set the color of this user's photo border to their proper color.
+
+var photo = $('#photo');
+photo.attr('src', '<%= user.photo %>');
+photo.attr('alt', 'Profile photo');
+photo.attr('className', 'rounded-circle');
+photo.attr('width', '280');
+photo.addClass(getPhotoBorderColor('<%= user.authorRank %>'));
+```
 
 ## Route 2: Get User Token
 
