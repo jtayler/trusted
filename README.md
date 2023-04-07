@@ -124,7 +124,7 @@ To use this link, display it as a button or a link on your website or social med
 
 For example, here is how you can create a link with a popup window: `<a href="https://staging.truanon.com/api/verifyProfile?id=[YOUR_USERNAME]&service=[YOUR_SERVICENAME]&token=[YOUR_TOKEN]" target="ta-popup" width="480" height="820" top="327.5" left="397">Confirm Ownership</a>` In this example, the target="ta-popup" attribute will open the link in a popup window with the specified width, height, top, and left values.
 
-Best practice is to offer a privacy "Switch". If this switch is OFF, there is no need to query the API. However, if the privacy switch is turned ON, the user will either be identified as "Unknown" or their profile data can be obtained from the get_profile endpoint. You only need to call for a token if the user is both "Unknown" to TruAnon and is turning ON this switch for the first and only time.
+Best practice is to offer a privacy "Switch". If this switch is OFF, there is no need to query the API. However, if the privacy switch is turned ON, the user will either be identified as "Unknown" or their profile data can be obtained from the get_profile endpoint. You only need to call for a token if the user is both "Unknown" to TruAnon and is turning ON this switch for the first time. This smart confirmation link must securely assign ownership one time only.
 
 ## Conclusion
 
