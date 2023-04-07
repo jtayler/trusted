@@ -26,10 +26,8 @@ To populate data on the profile view page, jQuery can be used to select the desi
 
 The first route, defined with `app.get('/users/:username', ...)`, retrieves a user's profile from the TruAnon API if the user's `switch_state` is set to `true`. Here's how the code works:
 
-1. The route extracts the `username` parameter from the request URL and the `userId` from the session.
-2. It then queries the database to retrieve the user's data using their `username`.
-3. If the user is found, the route checks their `switch_state` property. If it is set to `true`, the route constructs a URL to fetch the user's profile data from the TruAnon API. It includes the `username` and `service` parameters, as well as the `Authorization` header, which is set to a private key.
-4. The route then calls the `truanon.com/api/get_profile?id=[YOUR_USERNAME]&service=[YOUR_SERVICENAME]` endpoint to make a GET request to the TruAnon API using the constructed URL and the `tokenOptions` object that contains the `Authorization` header.
+1. The route extracts the `username` parameter from the request URL and if the user is found, the route checks their `switch_state` property. If it is set to `true`, the route constructs a URL to fetch the user's profile data from the TruAnon API.
+2. The route then calls the `truanon.com/api/get_profile?id=[YOUR_USERNAME]&service=[YOUR_SERVICENAME]` endpoint to make a GET request to the TruAnon API using the constructed URL and the `tokenOptions` object that contains the `Authorization` header. It includes the `username` and `service` parameters, as well as the `Authorization` header, which is set to a private key.
 
 ## Display Badge of Trust
 
