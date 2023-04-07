@@ -54,7 +54,7 @@ function getPhotoBorderColor(authorRank) {
   }
 }
 
-// If a user switch_state is true
+// If a user identity switch_state is true or ON
 // The author verifiedDetails.authorRank will show one of five levels:
 // - Dangerous
 // - Cautioned
@@ -62,20 +62,49 @@ function getPhotoBorderColor(authorRank) {
 // - Reliable
 // - Genuine
 // We want bootstrap colors danger, warning, secondary, success and primary to relate to each state.
-// We want a short javascript function that returns the css class to be added to rounded-circle
+// We use a short javascript function that returns the css class to be added to rounded-circle
 // in order to set the color of this user's photo border to their proper color.
 
 var photo = $('#photo');
 photo.attr('src', '<%= user.photo %>');
-photo.attr('alt', 'Profile photo');
-photo.attr('className', 'rounded-circle');
-photo.attr('width', '280');
 photo.addClass(getPhotoBorderColor('<%= user.authorRank %>'));
+```
+
+# Javascript Function to Filter Data Configurations
+
+This is a JavaScript function that filters data configurations based on their "type" and "kind". It can be used to display different arrays of data based on different categories.
+
+Here is an example that concatonates both verified contacts along with the owner's bio:
+
+```javascript
+var filteredData = filterDataConfigurations(verifiedDetails, "", "contact").concat(filterDataConfigurations(verifiedDetails, "bio", "personal"));
+
+var dataConfigurationsListHTML = createContactList(filteredData);
+$('#personal-space').append(dataConfigurationsListHTML);
+
+function filterDataConfigurations(myData, dataPointType, dataPointKind) {
+  // Return an empty array if myData is empty or myData.dataConfigurations is not defined
+  if (!myData || !myData.dataConfigurations) {
+    return [];
+  }
+  
+  // Use the filter() method to filter the objects from myData.dataConfigurations
+  // that match the specified dataPointType and dataPointKind.
+  var filteredData = myData.dataConfigurations.filter(function(config) {
+    if (dataPointType.length) {
+      return config.dataPointType === dataPointType && config.dataPointKind === dataPointKind;
+    }
+    return config.dataPointKind === dataPointKind;
+  });
+  
+  return filteredData;
+}
+
 ```
 
 ## Route 2: Get User Token
 
-The second route, defined with `app.get('/users/:username/token', ...)`, generates a token for a user using the TruAnon API. This operation securly connects the user via public hyperlink and expiring token and this process happens only once. Here's how the code works:
+The second route, defined with `app.get('/users/:username/token', ...)`, generates a one-time-use expiring token for a user via the TruAnon API. This operation securly connects the user as the one and only profile owner via public hyperlink along with this expiring token and this process happens only once. Here's how the code works:
 
 1. The route extracts the `username` parameter from the request URL.
 2. It then constructs a URL to fetch the user's token from the TruAnon API. It includes the `username` and `service` parameters, as well as the `Authorization` header, which is set to a private key.
