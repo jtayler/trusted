@@ -72,9 +72,9 @@ photo.addClass(getPhotoBorderColor('<%= user.authorRank %>'));
 
 # Javascript Function to Filter Data Configurations
 
-This is a JavaScript function that filters data configurations based on their "type" and "kind". It can be used to display different arrays of data based on different categories.
+This is a JavaScript function that filters data configurations based on their "type" and "kind". It can be used to display different arrays of data based on different categories. This can provide common profile information as well as power merit badges such as those for a Dot-MIL or Dot-Edu confirmed email or a special badge for those having GitHub etc.
 
-Here is an example that concatonates both verified contacts along with the owner's bio:
+Here is an example that concatonates verified contacts along with the owner's bio:
 
 ```javascript
 var filteredData = filterDataConfigurations(verifiedDetails, "", "contact").concat(filterDataConfigurations(verifiedDetails, "bio", "personal"));
