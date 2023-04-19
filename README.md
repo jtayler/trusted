@@ -2,6 +2,8 @@
 
 This demo showcases the TruAnon APIs and their ability to quickly establish trust and prevent abuse on your service. The demo is a simple Node.js application that enables users to sign up, log in, and edit their profile data. Additionally, it features a 'Switch' that allows users to turn on or off the 'badge-of-trust' feature, which is available on all user profiles.
 
+A video demo of the results can be found here: https://vimeo.com/807486646
+
 By demonstrating how easy it is to use TruAnon, this demo highlights the advantages of using this identity verification option. Members appreciate the simplicity and effectiveness of TruAnon, making it their preferred choice above all other options or offerings
 
 The TruAnon APIs allow access to data containing information about the owners of profiles on your website. This document provides instructions on how to use these APIs to display information, including a 'badge-of-trust,' which enhances and amplifies user profiles for safer and more effective interactions. The API data is provided in JSON format, and proper parsing and decoding are required to present the data correctly.
