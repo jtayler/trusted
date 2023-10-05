@@ -29,47 +29,7 @@
    </head>
    <body>
       <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab&display=swap" rel="stylesheet">
-      <!-- Breadcrumb -->
-      <nav class="navbar navbar-expand-lg navbar-light bg-light shadow">
-         <div class="container-fluid">
-            <a class="navbar-brand px-3" href="#">
-            <img src="https://truanon.s3.amazonaws.com/img/dogwalklogo.png" alt="logo" height="72" class="d-inline-block align-text-top">
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-               <ol class="breadcrumb mb-0 navbar-nav me-auto">
-                  <li class="breadcrumb-item"><a href="/">Home</a></li>
-                  <li class="breadcrumb-item"><a href="/users">Members</a></li>
-                  <li class="breadcrumb-item active" aria-current="page">Edit Profile</li>
-               </ol>
-    <% if (session.user) { %>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle text-decoration-none" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <img src="<%= session.user.photo %>" alt="User Photo" class="rounded-circle border border-primary me-2" style="width: 30px;">
-              <%= session.user.username %>
-            </a>
-            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-              <li><a class="dropdown-item" href="/users/<%= session.user.username %>">Profile</a></li>
-              <li><a class="dropdown-item" type="submit" href="/users/<%= session.user.username %>/edit">Edit</a></li>
-              <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="/login">Logout</a></li>
-            </ul>
-          </li>
-        </ul>
-      </div>
-    <% } %>
-               <form class="d-flex">
-                  <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                  <button class="btn btn-outline-success" type="submit">Search</button>
-               </form>
-            </div>
-         </div>
-      </nav>
-      <!-- /Breadcrumb -->
+<%- include('header', { currentPage: 'Edit' }) %> <!-- Include your header -->
       <div class="container-xxl my-md-4 bd-layout">
       <div class="container">
       <div class="row justify-content-center mt-5">
@@ -152,7 +112,12 @@
          }
          
          const { token } = data;
+
+         //https://truanon.com/api
          const link = `https://truanon.com/api/verifyProfile?id=${user.username}&service=cryptoniteventures&token=${token}`;
+
+
+
          const linkHtml = `<a href="${link}" class="btn btn-primary rounded-pill" id="verify-link">Click To Confirm</a>`;
          
          linkElem.style.display = "block";

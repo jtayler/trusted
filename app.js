@@ -29,10 +29,11 @@ app.use(function(req, res, next) {
     res.locals.session = req.session;
     next();
 });
-// Connect to the database
-    console.log(process.env.SERVICE_NAME);
-    console.log(process.env.PRIVATE_KEY);
 
+console.log("service name: " + process.env.SERVICE_NAME);
+console.log("private key: " + process.env.PRIVATE_KEY);
+
+// Connect to the database
 const db = new sqlite3.Database('./users.db', sqlite3.OPEN_READWRITE, (err) => {
     if (err) {
         console.error(err.message);
@@ -49,10 +50,23 @@ db.all('SELECT username FROM users ORDER BY id DESC LIMIT 5', [], (err, rows) =>
 });
 
 // Handle HTTP requests
+// Handle logout request
+app.get('/logout', (req, res) => {
+  // Clear the session user
+  req.session.user = null;
+
+  // Redirect to the login page
+  res.redirect('/login');
+});
+
 app.get('/', (req, res) => {
-    res.redirect('/login');
+    res.redirect('/home');
 });
 module.exports = app;
+app.get('/home', (req, res) => {
+    res.render('home');
+    //res.render('login');
+});
 app.get('/login', (req, res) => {
     res.render('login', { lastFiveUsers: req.app.locals.lastFiveUsers });
     //res.render('login');
