@@ -21,11 +21,12 @@
             </ol>
             <% if (!session.user) { %>
                 <div class="navbar-nav ms-auto">
-                    <ul class="navbar-nav m-1">
-                        <li class="breadcrumb-item <% if (currentPage === 'Signup') { %>active<% } %>">
+                    <ul class="navbar-nav ">
+                        <li class="mx-2 <% if (currentPage === 'Signup') { %>active<% } %>">
                             <% if (currentPage === 'Signup') { %>Signup<% } else { %><a href="/signup">Signup</a><% } %>
                         </li>
-                        <li class="breadcrumb-item <% if (currentPage === 'Login') { %>active<% } %>">
+                        &bull;
+                        <li class="mx-2 <% if (currentPage === 'Login') { %>active<% } %>">
                             <% if (currentPage === 'Login') { %>Login<% } else { %><a href="/login">Login</a><% } %>
                         </li>
                     </ul>
@@ -52,7 +53,7 @@
                     </ul>
                 </div>
             <% } %>
-            <form class="d-flex">
+            <form class="d-flex mx-4">
                 <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
                 <button class="btn btn-outline-success" type="submit">Search</button>
             </form>
