@@ -28,8 +28,18 @@
       <link rel="icon" type="image/png" sizes="256x256" href="https://truanon.s3.amazonaws.com/img/dogsquare.ico">
    </head>
    <body>
-<%- include('header', { currentPage: 'Member Profile' }) %> <!-- Include your header -->
-       <div class="container-xxl my-md-4 bd-layout" >
+      <%- include('header', { currentPage: 'Member Profile' }) %> <!-- Include your header -->
+       
+       <style>
+.title-span {
+  white-space: normal;
+  display: inline; /* Keep it inline for wrapping */
+  max-width: 100%; /* Ensure it doesn't exceed its container width */
+  text-align: center; /* Center the text if needed */
+  word-wrap: break-word; /* Allow breaking long words */
+}
+       </style>
+      <div class="container-xxl my-md-4 bd-layout" >
          <div id="containerDiv">
             <div class="container-xxl my-md-4 bd-layout">
                <div class="row gutters-sm">
@@ -216,13 +226,13 @@
          function createContactList(filteredData) {
          const dataConfigurationsList = document.createElement("div");
          dataConfigurationsList.classList.add("card", "mb-3");
-
+         
          const headerDiv = document.createElement("div");
          headerDiv.classList.add("card-header","text-center", "h5", "text-secondary");
          headerDiv.innerText = "Identity Information";
          dataConfigurationsList.appendChild(headerDiv);
-
-
+         
+         
          const cardBody = document.createElement("div");
          cardBody.classList.add("card-body");
          dataConfigurationsList.appendChild(cardBody);
@@ -257,50 +267,35 @@
          }
          
          function createDataConfigurationsList(filteredData) {
-         dataConfigurationsList.classList.add("list-group");
+         dataConfigurationsList.classList.add("d-flex", "flex-wrap", "text-center"); // Add flex properties for horizontal alignment
          
          filteredData.forEach((dataConfig) => {
-         const listItem = document.createElement("li");
-         listItem.classList.add("list-group-item", "d-flex", "justify-content-between", "align-items-center", "flex-wrap");
+         const badge = document.createElement("div"); // Create a block element for the badge
+         badge.classList.add("badge", "text-secondary", "p-2", "m-1"); // Add CSS classes for styling the badge
          
          const iconSpan = document.createElement("span");
-         iconSpan.className = dataConfig.dataPointIconClass + " fa-2x  align-middle";
+         iconSpan.className = dataConfig.dataPointIconClass + " fa-6x mb-1"; // Add Font Awesome class and size
+         iconSpan.style.display = "block"; // Display the icon as a block for vertical alignment
          
          const titleSpan = document.createElement("span");
-         titleSpan.innerText = ` ${dataConfig.dataPointName}`;
-         
-         const titleHeader = document.createElement("h6");
-         titleHeader.classList.add("mb-0");
-         titleHeader.appendChild(iconSpan);
-         titleHeader.appendChild(titleSpan);
-         
-         // const valueSpan = document.createElement("span");
-         // valueSpan.classList.add("text-secondary");
-         
-         // valueSpan.innerText = dataConfig.displayValue;
-         // valueSpan.id = "ta-profile";
-         // valueSpan.style.textOverflow = 'ellipsis';
-         
-         const valueSpan = document.createElement("span");
-         valueSpan.classList.add("text-secondary");
-         valueSpan.innerText = dataConfig.displayValue;
-         valueSpan.id = "ta-profile";
-         valueSpan.style.textOverflow = 'ellipsis';
-         
+         titleSpan.innerText = dataConfig.dataPointName; // Display the social platform name
+         titleSpan.classList.add("title-span"); // Add CSS classes for styling the badge
+         // Create a link to the URL
          const link = document.createElement("a");
-         link.href = "https://" + dataConfig.displayValue;
+         link.href = "https://" + dataConfig.displayValue; // Replace with the URL you want to link to
          link.target = "_blank";
-         link.innerText = dataConfig.displayValue;
-         valueSpan.innerHTML = link.outerHTML;
+         link.appendChild(iconSpan); // Add the Font Awesome icon to the link
          
-         listItem.appendChild(titleHeader);
-         listItem.appendChild(valueSpan);
+         // Append the icon, title, and link to the badge
+         badge.appendChild(link);
+         badge.appendChild(titleSpan);
          
-         dataConfigurationsList.appendChild(listItem);
+         dataConfigurationsList.appendChild(badge);
          });
          
          return dataConfigurationsList;
          }
+         
          
          const newSlot = document.getElementById("new-slot");
          newSlot.innerHTML = '';
@@ -308,13 +303,12 @@
          headerDiv.classList.add("card-header","text-center", "h5", "text-secondary");
          headerDiv.innerText = "Verified Profiles";
          newSlot.appendChild(headerDiv);
-
+         
          newSlot.appendChild(dataConfigurationsList);
          
          
       </script>
       <% } %>
       <%- include('footer') %>
-
    </body>
 </html>
