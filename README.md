@@ -1,20 +1,18 @@
 # Introduction: Trust and Safety
 
-This demo showcases the TruAnon APIs and their ability to quickly establish trust and prevent abuse on your service. The demo is a simple Node.js application that enables users to sign up, log in, and edit their profile data. Additionally, it features a 'Switch' that allows users to turn on or off the 'badge-of-trust' feature, which is available on all user profiles.
+This is a demonstration of inherently safe identity APIs from TruAnon. 
 
-A video demo of the results can be found here: https://vimeo.com/807486646
+The demo app highlights three key value propositions:
 
-By demonstrating how easy it is to use TruAnon, this demo highlights the advantages of using this identity verification option. Members appreciate the simplicity and effectiveness of TruAnon, making it their preferred choice above all other options or offerings
+1. **Universal 'Badge-of-Trust':** Protect your community with a universal, customizable, and continuous 'Badge-of-Trust' that fosters transparency and trust among users.
 
-The TruAnon APIs allow access to data containing information about the owners of profiles on your website. This document provides instructions on how to use these APIs to display information, including a 'badge-of-trust,' which enhances and amplifies user profiles for safer and more effective interactions. The API data is provided in JSON format, and proper parsing and decoding are required to present the data correctly.
+2. **Access to Valuable Data:** Display useful and confirmed data, including badges for confirmed social profiles and bio details, enabling your service to show more while requesting less.
 
-## JSON Parsing and Decoding
+3. **User-Empowered Trust:** It's automatic. Members make it work without sacrificing privacy, aligning trustworthiness with the inherent utility of your platform.
 
-1. The profile view page needs to display an identity owner’s choice of public information. The badge-of-trust, along with the photo border are expected to indicate a border that matches their author rank, which can be Dangerous, Cautioned, Credible, Reliable, or Genuine. This rank is provide along with a score you can use as a credible identity requirement or visual indicator of trust.
-2. To parse the JSON data returned from the API, first, it needs to be encoded using `encodeURIComponent()`. Then, it needs to be parsed using `JSON.parse()` and this unparsing must happen twice. The result is a JSON object containing `verifiedDetails`, which can be accessed using `verifiedDetails.authorRank` dot notation.
-3. The `getPhotoBorderColor()` function receives a user's rank and returns a CSS class to add to color the profile picture's border and badge-of-trust. This class sets the color of the border to the user's corresponding rank color.
-4. Note that the  `verifiedDetails` array contains dictionaries of matching data points you can display and use. The parsing and decoding of this are especially noteworthy but the concept is very simple; display more and ask less of your users.
+These tools provide everything you need to safeguard your service from abuse and empower legitimate members who share the expectation of meeting other good people.
 
+Watch the demo video [here](https://vimeo.com/807486646).
 
 ## API Usage
 
