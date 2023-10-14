@@ -4,6 +4,8 @@ const bodyParser = require('body-parser');
 const ejs = require('ejs');
 const bcrypt = require('bcrypt');
 const session = require('express-session');
+const fs = require('fs');
+
 // Create an Express app
 const app = express();
 const port = 3000;
@@ -33,8 +35,23 @@ app.use(function(req, res, next) {
 console.log("service name: " + process.env.SERVICE_NAME);
 console.log("private key: " + process.env.PRIVATE_KEY);
 
+const dbFilePath = './users.db';
+
+if (!fs.existsSync(dbFilePath)) {
+    console.log("Database does not exist. Creating a backup from users.db.bak...");
+    
+    // Copy the backup file to users.db
+    fs.copyFile(dbFilePath + ".bak", dbFilePath, (err) => {
+        if (err) {
+            console.error("Error copying database file: " + err.message);
+        } else {
+            console.log("Database file copied successfully.");
+        }
+    });
+}
+
 // Connect to the database
-const db = new sqlite3.Database('./users.db', sqlite3.OPEN_READWRITE, (err) => {
+const db = new sqlite3.Database(dbFilePath, sqlite3.OPEN_READWRITE, (err) => {
     if (err) {
         console.error(err.message);
     }

@@ -22,17 +22,17 @@
    <body>
 <%- include('header', { currentPage: 'Members' }) %> <!-- Include your header -->
       <style>
-        .col {
-          opacity: 0;
-          visibility: hidden;
-          transition: opacity 1.5s ease-in-out;
-        }
+.col {
+  opacity: 1;
+  height: auto;
+  transition: opacity 0.5s ease-in-out, width 0.5s ease-in-out, height 0.5s ease-in-out;
+}
 
-        .col.show {
-          opacity: 1;
-          visibility: visible;
-          transition: opacity 1.5s ease-in-out;
-        }
+.col.hide {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
          .card {
          min-width: 18rem;
          max-width: 18rem;
@@ -51,11 +51,12 @@
         }
       </style>
       <div class="container mt-3 ">
-<div class="d-flex ">
-  <div class="p-3 pb-0 pt-0">
+<div class="alert">
+  <div class="banner filter-switch">
     <div class="form-check form-switch">
-      <input class="form-check-input" type="checkbox" id="verifiedSwitch">
-      <label class="form-check-label" for="verifiedSwitch">Show Verified Users Only</label>
+    <span class="m-2 fas fa-filter"></span>
+      <input class="m-2 form-check-input fs-4" type="checkbox" id="verifiedSwitch">
+      <label class="m-2 form-check-label" for="verifiedSwitch">Show Verified Users Only</label>
     </div>
   </div>
 </div>
@@ -72,7 +73,6 @@
             <a href="/users/<%= user.username %>">@<%= user.username %></a>
           </h5>
           <p class="card-text"><%= user.fullname %></p>
-          <p class="card-text"><small class="text-muted"><%= user.location %></small></p>
         </div>
         <div class="card-footer">
           <% if (user.switch_state) { %>
@@ -94,22 +94,19 @@ const cards = document.querySelectorAll('.col');
 cards.forEach(card => card.classList.add('show'));
 
 verifiedSwitch.addEventListener('change', (event) => {
-   if (event.target.checked) {
-      cards.forEach(card => {
-         if (card.querySelector('.text-primary')) {
-            card.style.display = 'block';
-            card.classList.add('show');
-
-         } else {
-            card.style.display = 'none';
-            card.classList.remove('show');
-
-         }
-      });
-   } else {
-      cards.forEach(card => card.style.display = 'block');
-      cards.forEach(card => card.classList.add('show'));
-   }
+  if (event.target.checked) {
+    cards.forEach((card) => {
+      if (card.querySelector('.text-primary')) {
+        card.classList.remove('hide');
+      } else {
+        card.classList.add('hide');
+      }
+    });
+  } else {
+    cards.forEach((card) => {
+      card.classList.remove('hide');
+    });
+  }
 });
 </script>
       </div>
