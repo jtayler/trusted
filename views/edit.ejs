@@ -29,139 +29,139 @@
    </head>
    <body>
       <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab&display=swap" rel="stylesheet">
-<%- include('header', { currentPage: 'Edit' }) %> <!-- Include your header -->
+      <%- include('header', { currentPage: 'Edit' }) %> <!-- Include your header -->
       <div class="container-xxl my-md-4 bd-layout">
-      <div class="container">
-      <div class="row justify-content-center mt-5">
-      <div class="col-md-8">
-      <div class="card">
-      <div class="card-header">
-      <h1 class="text-center">Edit Profile</h1>
-      </div>
-      <div class="card-body">
-      <div class="row">
-      <div class="col-md-6">
-      <form method="POST" action="/users/<%= user.username %>/edit">
-      <div class="form-group">
-      <label for="full_name-input" class="form-label">Full Name:</label>
-      <input type="text" name="full_name" id="full_name-input" value="<%= user.full_name %>" class="form-control" />
-      </div>
-      <div class="form-group">
-      <label for="location-input" class="form-label">Location:</label>
-      <input type="text" name="location" id="location-input" value="<%= user.location %>" class="form-control" />
-      </div>
-      </div>
-      <div class="col-md-6">
-      <div class="form-group">
-      <label for="photo-input" class="form-label">Profile Photo:</label>
-      <input type="text" name="photo" id="photo-input" value="<%= user.photo %>" class="form-control" />
-      </div>
-      <div class="form-group">
-      <label for="verified-switch" class="form-label">Verified Identity:</label>
-      <div class="switch-container form-check form-switch form-switch-pill">
-      <input class="mx-1 form-check-input" type="checkbox" name="switch_state" id="verified-switch" <% if (user.verified) { %>checked<% } %>  />
-      <label for="verified-switch" class="switch"><span id="verify-link-div"><a class="btn btn-outline-primary btn-pill" href="#" id="verify-link" style="display:none;"></a></span></label>
-      </div>
-      </div>
-      </div>
-      </div>
-      <div class="pt-4 p-1">
-      <h5>A Verified Identity Badge Will Boost Your Profile</h5>
-      <ul>
-      <li>You gain trust and respect from the community.</li>
-      <li>You are immediately recognized as an influencer or authority.</li>
-      <li>You can protect yourself against impersonation.</li>
-      <li>You will get more followers and more visibility.</li>
-      </ul>
-      <p>A verification badge signals that you are real, credible, authentic, and of interest to other members. It means that you are worthy of respect and understanding. It means that you care.</p>
-      </div>
-      </div>
-      <div class="card-footer text-center">
-      <button class="btn btn-primary" type="submit">Save Changes</button>
-      </div>
-      </div>
-      </form>
-      </div>
-      </div>
-      </div>
-<script>
-   window.onload = function() {
-     const user = {
-       username: '<%= user.username %>',
-       switch_state: '<%= user.switch_state %>' === 'on' ? true : false
-     };
-     // Set initial state of verified switch
-     const switchElem = document.getElementById("verified-switch");
-     switchElem.checked = user.switch_state;
-     const linkElem = document.getElementById("verify-link-div");
-   
-   function handleVerification() {
-   
-   if (switchElem.checked) {
-   const url = `/users/${user.username}/token`;
-   // Update switch state in user object
-   user.switch_state = true;
-   
-   fetch(url)
-   .then(response => response.json())
-   .then(data => {
-   if (!Object.keys(data).length || (data.type && data.type === "error")) {
-   linkElem.style.display = "none";
-   return;
-   }
-   
-   const { token } = data;
-   
-   //https://truanon.com/api
-   const link = `https://truanon.com/api/verifyProfile?id=${user.username}&service=cryptoniteventures&token=${token}`;
-   
-   
-   
-   const linkHtml = `<a href="${link}" class="btn btn-primary rounded-pill" id="verify-link">Click To Confirm</a>`;
-   
-   linkElem.style.display = "block";
-   
-   linkElem.innerHTML = linkHtml;
-   linkElem.addEventListener("click", function(e) {
-   e.preventDefault();
-   const popupUrl = link;
-   const popupWidth = 480;
-   const popupHeight = 820;
-   const popupTop = (window.innerHeight - popupHeight) / 2;
-   const popupLeft = (window.innerWidth - popupWidth) / 2;
-   var win = window.open(
-   popupUrl,
-   "ta-popup",
-   `width=${popupWidth},height=${popupHeight},top=${popupTop},left=${popupLeft}`
-   );
-   var timer = setInterval(function() {
-   if (win.closed) {
-   clearInterval(timer);
-   linkElem.style.display = "none";
-       window.location.href = '/users/' + `${user.username}`; // Replace 'username' with the actual username
-   }
-   }, 1000);
-   
-   });
-   })
-   .catch(error => {
-   console.error(error);
-   linkElem.style.display = "none";
-   });
-   } else {
-   linkElem.innerHTML = "";
-   linkElem.style.display = "none";
-   
-   // Update switch state in user object
-   user.switch_state = false;
-   }
-   }
-     // Bind handleVerification function to verified switch
-     if (switchElem) {
-       switchElem.addEventListener("click", handleVerification);
-     }
-   }
-</script>
+         <div class="container">
+            <div class="row justify-content-center mt-5">
+               <div class="col-md-8">
+                  <div class="card">
+                     <div class="card-header">
+                        <h1 class="text-center">Edit Profile</h1>
+                     </div>
+                     <div class="card-body">
+                        <div class="row">
+                           <div class="col-md-6">
+                              <form method="POST" action="/users/<%= user.username %>/edit">
+                                 <div class="form-group">
+                                    <label for="full_name-input" class="form-label">Full Name:</label>
+                                    <input type="text" name="full_name" id="full_name-input" value="<%= user.full_name %>" class="form-control" />
+                                 </div>
+                                 <div class="form-group">
+                                    <label for="location-input" class="form-label">Location:</label>
+                                    <input type="text" name="location" id="location-input" value="<%= user.location %>" class="form-control" />
+                                 </div>
+                           </div>
+                           <div class="col-md-6">
+                           <div class="form-group">
+                           <label for="photo-input" class="form-label">Profile Photo:</label>
+                           <input type="text" name="photo" id="photo-input" value="<%= user.photo %>" class="form-control" />
+                           </div>
+                           <div class="form-group">
+                           <label for="verified-switch" class="form-label">Verified Identity:</label>
+                           <div class="switch-container form-check form-switch form-switch-pill">
+                           <input class="mx-1 form-check-input" type="checkbox" name="switch_state" id="verified-switch" <% if (user.verified) { %>checked<% } %>  />
+                           <label for="verified-switch" class="switch"><span id="verify-link-div"><a class="btn btn-outline-primary btn-pill" href="#" id="verify-link" style="display:none;"></a></span></label>
+                           </div>
+                           </div>
+                           </div>
+                        </div>
+                        <div class="pt-4 p-1">
+                        <h5>A Verified Identity Badge Will Boost Your Profile</h5>
+                        <ul>
+                        <li>You gain trust and respect from the community.</li>
+                        <li>You are immediately recognized as an influencer or authority.</li>
+                        <li>You can protect yourself against impersonation.</li>
+                        <li>You will get more followers and more visibility.</li>
+                        </ul>
+                        <p>A verification badge signals that you are real, credible, authentic, and of interest to other members. It means that you are worthy of respect and understanding. It means that you care.</p>
+                        </div>
+                     </div>
+                     <div class="card-footer text-center">
+                     <button class="btn btn-primary" type="submit">Save Changes</button>
+                     </div>
+                  </div>
+                  </form>
+               </div>
+            </div>
+         </div>
+         <script>
+            window.onload = function() {
+              const user = {
+                username: '<%= user.username %>',
+                switch_state: '<%= user.switch_state %>' === 'on' ? true : false
+              };
+              // Set initial state of verified switch
+              const switchElem = document.getElementById("verified-switch");
+              switchElem.checked = user.switch_state;
+              const linkElem = document.getElementById("verify-link-div");
+            
+            function handleVerification() {
+            
+            if (switchElem.checked) {
+            const url = `/users/${user.username}/token`;
+            // Update switch state in user object
+            user.switch_state = true;
+            
+            fetch(url)
+            .then(response => response.json())
+            .then(data => {
+            if (!Object.keys(data).length || (data.type && data.type === "error")) {
+            linkElem.style.display = "none";
+            return;
+            }
+            
+            const { token } = data;
+            
+            //https://truanon.com/api
+            const link = `https://truanon.com/api/verifyProfile?id=${user.username}&service=cryptoniteventures&token=${token}`;
+            
+            
+            
+            const linkHtml = `<a href="${link}" class="btn btn-primary rounded-pill" id="verify-link">Click To Confirm</a>`;
+            
+            linkElem.style.display = "block";
+            
+            linkElem.innerHTML = linkHtml;
+            linkElem.addEventListener("click", function(e) {
+            e.preventDefault();
+            const popupUrl = link;
+            const popupWidth = 480;
+            const popupHeight = 820;
+            const popupTop = (window.innerHeight - popupHeight) / 2;
+            const popupLeft = (window.innerWidth - popupWidth) / 2;
+            var win = window.open(
+            popupUrl,
+            "ta-popup",
+            `width=${popupWidth},height=${popupHeight},top=${popupTop},left=${popupLeft}`
+            );
+            var timer = setInterval(function() {
+            if (win.closed) {
+            clearInterval(timer);
+            linkElem.style.display = "none";
+                window.location.href = '/users/' + `${user.username}`; // Replace 'username' with the actual username
+            }
+            }, 1000);
+            
+            });
+            })
+            .catch(error => {
+            console.error(error);
+            linkElem.style.display = "none";
+            });
+            } else {
+            linkElem.innerHTML = "";
+            linkElem.style.display = "none";
+            
+            // Update switch state in user object
+            user.switch_state = false;
+            }
+            }
+              // Bind handleVerification function to verified switch
+              if (switchElem) {
+                switchElem.addEventListener("click", handleVerification);
+              }
+            }
+         </script>
       </div>
       <%- include('footer') %>
    </body>

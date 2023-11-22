@@ -272,8 +272,14 @@ function createDataConfigurationsList(filteredData) {
 badge.style.textAlign = "center"; // Center the title horizontally
 
     const link = document.createElement("a");
+   try {
+     const url = new URL("https://" + dataConfig.displayValue);
     link.href = "https://" + dataConfig.displayValue; // Replace with the URL you want to link to
     link.target = "_blank";
+   } catch (error) {
+     link.style.pointerEvents = "none"; // Disable link
+     link.style.color = "gray"; // Change text color to indicate it's disabled
+   }
 
     const iconSpan = document.createElement("span");
     iconSpan.className = dataConfig.dataPointIconClass + " fa-5x mb-1"; // Add Font Awesome class and size
