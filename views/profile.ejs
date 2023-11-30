@@ -263,46 +263,51 @@
          return dataConfigurationsList;
          }
          
-function createDataConfigurationsList(filteredData) {
-  dataConfigurationsList.classList.add("d-flex", "flex-wrap", "text-center"); // Add flex properties for horizontal alignment
+         function createDataConfigurationsList(filteredData) {
+           dataConfigurationsList.classList.add("d-flex", "flex-wrap", "text-center"); // Add flex properties for horizontal alignment
 
-  filteredData.forEach((dataConfig) => {
-    const badge = document.createElement("div"); // Create a block element for the badge
-    badge.classList.add("text-secondary", "p-2", "m-1"); // Add CSS classes for styling the badge
-badge.style.textAlign = "center"; // Center the title horizontally
+           filteredData.forEach((dataConfig) => {
+             const badge = document.createElement("div"); // Create a block element for the badge
+             badge.classList.add("text-secondary", "p-2", "m-1"); // Add CSS classes for styling the badge
+             badge.style.textAlign = "center"; // Center the title horizontally
 
-    const link = document.createElement("a");
-   try {
-     const url = new URL("https://" + dataConfig.displayValue);
-    link.href = "https://" + dataConfig.displayValue; // Replace with the URL you want to link to
-    link.target = "_blank";
-   } catch (error) {
-     link.style.pointerEvents = "none"; // Disable link
-     link.style.color = "gray"; // Change text color to indicate it's disabled
-   }
+            const link = document.createElement("a");
+            if (dataConfig.displayValue.includes("Privately")) {
+              link.style.pointerEvents = "none"; // Disable link
+              link.style.color = "gray"; // Change text color to indicate it's disabled
+            } else {
+               try {
+                 const url = new URL("https://" + dataConfig.displayValue);
+                 link.href = "https://" + dataConfig.displayValue; // Replace with the URL you want to link to
+                 link.target = "_blank";
+               } catch (error) {
+                 link.style.pointerEvents = "none"; // Disable link
+                 link.style.color = "gray"; // Change text color to indicate it's disabled
+               }
+            }
 
-    const iconSpan = document.createElement("span");
-    iconSpan.className = dataConfig.dataPointIconClass + " fa-5x mb-1"; // Add Font Awesome class and size
+             const iconSpan = document.createElement("span");
+             iconSpan.className = dataConfig.dataPointIconClass + " fa-5x mb-1"; // Add Font Awesome class and size
 
-    const titleDiv = document.createElement("div");
-titleDiv.style.textAlign = "center"; // Center the title horizontally
-titleDiv.style.width = "92px"; // Center the title within the surrounding box and allow it to break into two lines when needed
-    const titleSpan = document.createElement("div");
-    titleSpan.innerText = dataConfig.dataPointName; // Display the social platform name
-    titleSpan.classList.add("title-span"); // Add CSS classes for styling the title
-    titleSpan.style.textAlign = "center"; // Center the title horizontally
-    titleDiv.appendChild(titleSpan);
+             const titleDiv = document.createElement("div");
+             titleDiv.style.textAlign = "center"; // Center the title horizontally
+             titleDiv.style.width = "92px"; // Center the title within the surrounding box and allow it to break into two lines when needed
+             const titleSpan = document.createElement("div");
+             titleSpan.innerText = dataConfig.dataPointName; // Display the social platform name
+             titleSpan.classList.add("title-span"); // Add CSS classes for styling the title
+             titleSpan.style.textAlign = "center"; // Center the title horizontally
+             titleDiv.appendChild(titleSpan);
 
-    // Append the icon, link, and titleDiv to the badge
-    link.appendChild(iconSpan);
-    badge.appendChild(link);
-    badge.appendChild(titleDiv);
+             // Append the icon, link, and titleDiv to the badge
+             link.appendChild(iconSpan);
+             badge.appendChild(link);
+             badge.appendChild(titleDiv);
 
-    dataConfigurationsList.appendChild(badge);
-  });
+             dataConfigurationsList.appendChild(badge);
+           });
 
-  return dataConfigurationsList;
-}
+           return dataConfigurationsList;
+         }
          
          
          const newSlot = document.getElementById("new-slot");
