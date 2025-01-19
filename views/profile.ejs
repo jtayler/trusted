@@ -32,8 +32,8 @@
        
        <style>
          .custom-border-4 {
-  border-width: 2.25px !important;
-}
+            border-width: 10.25px !important;
+         }
          ul {
             padding: 1rem;
          }
@@ -42,30 +42,87 @@
          <div id="containerDiv">
             <div class="container-xxl my-md-4 bd-layout">
                <div class="row gutters-sm">
-                  <div class="col-md-4 mb-3">
+                  <div class="col-md-4 mb-3 ">
                      <div class="card">
                         <div class="card-body">
-                           <div class="align-items-center text-center">
+                           <div class="align-items-center text-center ">
                               <img id="photo" src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="Admin" class="rounded-circle border custom-border-4" width="150">
-                              <div class="mt-3">
+                              <div class="mt-3 ">
                                  <h4 id="fullname">John Doe</h4>
                                  <p id="username" class="text-secondary mb-1">Full Stack Developer</p>
                                  <p id="location" class="text-muted font-size-sm">Bay Area, San Francisco, CA</p>
                                  <div id="badge-area"></div>
-                                 <button class="btn btn-primary">Follow</button>
-                                 <button class="btn btn-outline-primary">Message</button>
+                                 <div   class="pt-3 ">
+                                   <button class="btn btn-primary ">Follow</button>
+                                   <button class="btn btn-outline-primary">Message</button>
+                                  </div>
                               </div>
                            </div>
                         </div>
                      </div>
-                     <div id="new-slot" class="card mt-3">
-                     </div>
                   </div>
-                  <div id="personal-space" class="col-md-8"></div>
+                  <div id="personal-space" class="col-md-8"> 
+                     <div id="new-slot" class="card mb-3"></div>
+                  </div>
                </div>
             </div>
          </div>
       </div>
+
+<script>
+    window.onload = function () {
+        const badgeArea = document.getElementById("badge-area");
+        if (!badgeArea) {
+            alert("Badge area not found in the DOM.");
+            return; 
+        }
+
+        // Always create the GitHub badge
+        const githubBadge = document.createElement("div");
+        githubBadge.classList.add("card", "text-center", "p-3", "m-3");
+
+        const icon = document.createElement("span");
+        icon.className = "fab fa-github fa-3x mb-2";
+
+        const title = document.createElement("h5");
+        title.classList.add("card-title", "mb-1");
+
+        const description = document.createElement("p");
+        description.classList.add("card-text", "text-muted");
+
+        const githubConfig = verifiedDetails.dataConfigurations.find(
+            config => config.dataPointName === "GitHub"
+        );
+
+        if (githubConfig) {
+            // Validated GitHub property
+            githubBadge.appendChild(icon);
+            title.innerText = "Engineer Status Validated";
+            title.classList.add("text-success");
+            title.classList.remove("text-secondary", "border-secondary");
+            description.innerText = "Developer account confirmed.";
+            description.classList.remove("text-muted");
+            description.classList.add("text-success"); 
+            githubBadge.classList.remove("text-secondary", "border-secondary");
+            githubBadge.classList.add("text-success"); 
+            githubBadge.classList.remove("border-secondary", "border-secondary");
+            githubBadge.classList.add("border-success"); 
+        } else {
+            // Placeholder for no GitHub property
+            title.innerText = "No Validated Engineering Available";
+            description.innerText = "No developer account found.";
+            githubBadge.classList.add("text-secondary", "border-secondary"); // Dim the card for no validation
+        }
+
+        githubBadge.appendChild(title);
+        githubBadge.appendChild(description);
+
+        // Add the GitHub badge to the badge area
+        badgeArea.insertAdjacentElement("afterend", githubBadge);
+    };
+</script>
+
+
       <script>
          var verifiedDetails = JSON.parse(JSON.parse(decodeURIComponent('<%= encodeURIComponent(JSON.stringify(verifiedDetails)) %>')));
          var containerDivOld = $('#containerDiv');
@@ -91,11 +148,20 @@
          
          // if a user switch_state is true
          // the author verifiedDetails.authorRank will show one of five levels
-         // Dangerous, Cautioned, Creditble, Reliable and Genuin
+         // Dangerous, Cautioned, Creditble, Reliable and Genuine
          // we want bootstrap colors danger, warning, secondary, success and primary to relate to each state
          // we want a short javascript function that returns the css class to be added to rounded-circle
          // in order to set the color of this user's photo border to their proper color
-         var photo = $('#photo');
+
+
+      // Select the photo element
+      var photo = $('#photo');
+
+      // Default user photo
+      var defaultPhoto = '<%= user.photo %>';
+
+
+         //var photo = $('#photo');
          photo.attr('src', '<%= user.photo %>');
          photo.attr('alt', 'Profile photo');
          photo.attr('className', 'rounded-circle');
@@ -161,8 +227,12 @@
          
       </script>
       <% if (user.switch_state) { %>
+
+<script>
+    var verifiedDetails = JSON.parse(JSON.parse(decodeURIComponent('<%= encodeURIComponent(JSON.stringify(verifiedDetails)) %>')));
+</script>
       <script>
-         var verifiedDetails = JSON.parse(JSON.parse(decodeURIComponent('<%= encodeURIComponent(JSON.stringify(verifiedDetails)) %>')));
+         //var verifiedDetails = JSON.parse(JSON.parse(decodeURIComponent('<%= encodeURIComponent(JSON.stringify(verifiedDetails)) %>')));
          var containerDivOld = $('#containerDiv');
          
          var photo = $('#photo');
@@ -216,9 +286,11 @@
          
          document.body.appendChild(dataConfigurationsListHTML);
          
-         var filteredData = filterDataConfigurations(verifiedDetails, "", "contact").concat(filterDataConfigurations(verifiedDetails, "", "primary")).concat(filterDataConfigurations(verifiedDetails, "", "additional")).concat(filterDataConfigurations(verifiedDetails, "bio", "personal"));
+         var filteredData = filterDataConfigurations(verifiedDetails, "", "contact").concat(filterDataConfigurations(verifiedDetails, "", "primary")).concat(filterDataConfigurations(verifiedDetails, "", "additional"));
+         //removed .concat(filterDataConfigurations(verifiedDetails, "bio", "personal")
+
          var dataConfigurationsListHTML = createContactList(filteredData);
-         $('#personal-space').append(dataConfigurationsListHTML);
+         $('#personal-space').prepend(dataConfigurationsListHTML);
          
          function createContactList(filteredData) {
          const dataConfigurationsList = document.createElement("div");
@@ -226,7 +298,7 @@
          
          const headerDiv = document.createElement("div");
          headerDiv.classList.add("card-header","text-center", "h5", "text-secondary");
-         headerDiv.innerText = "Verified Identity Details";
+         headerDiv.innerText = "Verified Contacts";
          dataConfigurationsList.appendChild(headerDiv);
          
          
@@ -266,7 +338,9 @@
          function createDataConfigurationsList(filteredData) {
            dataConfigurationsList.classList.add("d-flex", "flex-wrap", "text-center"); // Add flex properties for horizontal alignment
 
-           filteredData.forEach((dataConfig) => {
+           var filteredDataMinusGitHub = filteredDataMinusTruanon.filter(config => config.dataPointName !== "GitHub");
+
+           filteredDataMinusGitHub.forEach((dataConfig) => {
              const badge = document.createElement("div"); // Create a block element for the badge
              badge.classList.add("text-secondary", "p-2", "m-1"); // Add CSS classes for styling the badge
              badge.style.textAlign = "center"; // Center the title horizontally
@@ -309,18 +383,33 @@
            return dataConfigurationsList;
          }
          
-         
+
          const newSlot = document.getElementById("new-slot");
          newSlot.innerHTML = '';
          const headerDiv = document.createElement("div");
          headerDiv.classList.add("card-header","text-center", "h5", "text-secondary");
-         headerDiv.innerText = "Verified Properties";
+         headerDiv.innerText = "Verifed Properties";
          newSlot.appendChild(headerDiv);
          
          newSlot.appendChild(dataConfigurationsList);
          
          
       </script>
+
+      <script>
+         const switchElem = document.getElementById("verified-identity");
+
+         var photo = $('#photo');
+         photo.attr('src', verifiedDetails.authorPhoto);
+         photo.attr('alt', 'Profile photo');
+         photo.attr('className', 'rounded-circle');
+         // photo.attr('width', '150');
+         //photo.addClass("border-secondary");
+
+   </script>
+
+
+
       <% } %>
       <%- include('footer') %>
    </body>

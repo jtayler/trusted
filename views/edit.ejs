@@ -84,8 +84,15 @@
                </div>
             </div>
          </div>
+
          <script>
             window.onload = function() {
+
+
+
+              const apiRoute = "<%= process.env.API_ROUTE %>";
+              const serviceName = "<%= process.env.SERVICE_NAME %>";
+
               const user = {
                 username: '<%= user.username %>',
                 switch_state: '<%= user.switch_state %>' === 'on' ? true : false
@@ -113,12 +120,12 @@
             const { token } = data;
             
             //https://truanon.com/api
-            const link = `https://truanon.com/api/verifyProfile?id=${user.username}&service=cryptoniteventures&token=${token}`;
-            
-            
+            const link = `${apiRoute}verifyProfile?id=${user.username}&service=${serviceName}&token=${token}`;
+            console.log("Generated verification URL:", link);
             
             const linkHtml = `<a href="${link}" class="btn btn-primary rounded-pill" id="verify-link">Click To Confirm</a>`;
-            
+            console.log("Generated linkHtml:", linkHtml);
+
             linkElem.style.display = "block";
             
             linkElem.innerHTML = linkHtml;
@@ -162,6 +169,9 @@
               }
             }
          </script>
+
+
+
       </div>
       <%- include('footer') %>
    </body>

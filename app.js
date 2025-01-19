@@ -10,9 +10,17 @@ const fs = require('fs');
 const app = express();
 const port = 3000;
 
-const privateKey = process.env.PRIVATE_KEY;
-const serviceName = process.env.SERVICE_NAME;
-const apiRoute = process.env.API_ROUTE;
+require('dotenv').config();
+
+
+const privateKey = process.env.TRUANON_API_KEY || "default-private-key";
+const serviceName = process.env.SERVICE_NAME || "default-app"; // Default fallback
+const apiRoute = process.env.API_ROUTE || "https://truanon.com/api/";
+
+console.log(`TRUANON_API_KEY: ${process.env.TRUANON_API_KEY}`);
+console.log(`SERVICE_NAME: ${process.env.SERVICE_NAME}`);
+console.log(`API_ROUTE: ${process.env.API_ROUTE}`);
+
 
 app.use(express.static('public'));
 
@@ -31,9 +39,6 @@ app.use(function(req, res, next) {
     res.locals.session = req.session;
     next();
 });
-
-console.log("service name: " + process.env.SERVICE_NAME);
-console.log("private key: " + process.env.PRIVATE_KEY);
 
 const dbFilePath = './users.db';
 
@@ -183,7 +188,8 @@ app.get('/users/:username', (req, res) => {
         const isCurrentUser = userId === user.id;
         // Check if user's switch_state is ON
         if (user.switch_state) {
-            const profileUrl = `https://truanon.com/api/get_profile?id=${username}&service=cryptoniteventures`;
+            const profileUrl = `${apiRoute}get_profile?id=${username}&service=${serviceName}`;
+            console.log(`Fetch Profile URL: ${profileUrl}`);
             const tokenOptions = {
               headers: {
                 Authorization: privateKey,
@@ -217,28 +223,27 @@ app.get('/users/:username', (req, res) => {
 });
 // Define endpoint to get token
 app.get('/users/:username/token', (req, res) => {
-    const {
-        username
-    } = req.params;
-    const url = `https://truanon.com/api/get_token?id=${username}&service=cryptoniteventures`;
+    const { username } = req.params;
+    const tokenURL = `${apiRoute}get_token?id=${username}&service=${serviceName}`;
+    console.log(`Token URL: ${tokenURL}`);
+    
     const options = {
         headers: {
             Authorization: privateKey,
         },
     };
-    fetch(url, options)
+
+    fetch(tokenURL, options)
         .then(response => response.json())
         .then(data => {
-            const {
-                id: token
-            } = data;
-            res.json({
-                token
-            });
+            console.log("Fetched data:", data); // Log the entire returned data
+
+            const { id: token } = data; // Destructure the token ID
+            res.json({ token }); // Return the token as JSON
         })
         .catch(error => {
-            console.error(error);
-            res.status(500).send('Failed to generate token');
+            console.error("Error fetching token:", error); // Log errors if any
+            res.status(500).json({ error: "Failed to fetch token" });
         });
 });
 // Handle edit user form submission

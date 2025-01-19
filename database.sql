@@ -15,3 +15,5 @@ VALUES ('john', 'secret', 'John Smith', 'New York', 'https://bootdey.com/img/Con
 
 
 ALTER TABLE users ADD COLUMN switch_state BOOLEAN DEFAULT 0;
+ALTER TABLE users ADD COLUMN authorRank TEXT;
+ALTER TABLE users ADD COLUMN authorPhoto TEXT;
