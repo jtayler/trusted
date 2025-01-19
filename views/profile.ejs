@@ -102,10 +102,8 @@
             title.classList.remove("text-secondary", "border-secondary");
             description.innerText = "Developer account confirmed.";
             description.classList.remove("text-muted");
-            description.classList.add("text-success"); 
             githubBadge.classList.remove("text-secondary", "border-secondary");
             githubBadge.classList.add("text-success"); 
-            githubBadge.classList.remove("border-secondary", "border-secondary");
             githubBadge.classList.add("border-success"); 
         } else {
             // Placeholder for no GitHub property
@@ -161,13 +159,12 @@
       var defaultPhoto = '<%= user.photo %>';
 
 
-         //var photo = $('#photo');
          photo.attr('src', '<%= user.photo %>');
          photo.attr('alt', 'Profile photo');
          photo.attr('className', 'rounded-circle');
          photo.attr('max-width', '280');
          photo.addClass("custom-border-4");
-         photo.addClass("border-" + getPhotoBorderColor(verifiedDetails.authorRank));
+         photo.addClass("border-light");
          
          //containerDivOld.append(photo);
          
@@ -206,19 +203,19 @@
          }
          
          var badge = document.createElement("span");
-         badge.className = "w-100 btn disabled btn-outline-warning mb-4";
+         badge.className = "w-100 btn disabled btn-outline-secondary mb-4";
          
          var badgeLogo = document.createElement("span");
          badgeLogo.className = "fas fa-check-circle fa-5x align-middle p-2";
          badge.appendChild(badgeLogo);
          
          var badgeRank = document.createElement("div");
-         badgeRank.className = "badge-rank h3";
+         badgeRank.className = "badge-rank text-muted h3";
          badgeRank.innerText = "Unknown";
          badge.appendChild(badgeRank);
          
          var badgeScore = document.createElement("div");
-         badgeScore.className = "badge-score h5";
+         badgeScore.className = "badge-score text-muted h5";
          badgeScore.innerText = "Ask This Member To Verify Their Identity";
          badge.appendChild(badgeScore);
          
@@ -395,22 +392,34 @@
          
          
       </script>
-
-      <script>
-         const switchElem = document.getElementById("verified-identity");
-
-         var photo = $('#photo');
-         photo.attr('src', verifiedDetails.authorPhoto);
-         photo.attr('alt', 'Profile photo');
-         photo.attr('className', 'rounded-circle');
-         // photo.attr('width', '150');
-         //photo.addClass("border-secondary");
-
-   </script>
-
-
-
       <% } %>
+
+<script>
+   // Use `user.switch_state` from the backend
+   const userSwitchState = "<%= user.switch_state %>" === "on"; // Ensure it's boolean
+
+   // Handle the profile photo based on `user.switch_state`
+   //const photo = $('#photo');
+   if (userSwitchState) {
+       photo.attr('src', '<%= user.authorPhoto %>'); // Use authorPhoto from the backend
+       photo.attr('alt', 'Verified Profile Photo');
+       photo.attr('className', 'rounded-circle');
+       photo.addClass("custom-border-4");
+       photo.removeClass("border-light"); // Verified users can get a specific border color
+       photo.addClass("border-" + getPhotoBorderColor(verifiedDetails.authorRank));
+   } else {
+       photo.attr('src', '<%= user.photo %>'); // Use the user's default photo
+       photo.attr('alt', 'Default Profile Photo');
+       photo.attr('className', 'rounded-circle');
+       photo.addClass("custom-border-4");
+       photo.removeClass("border-light"); // Verified users can get a specific border color
+       photo.removeClass("border-" + getPhotoBorderColor(verifiedDetails.authorRank));
+       photo.addClass("border-light"); // Non-verified users get a different border color
+   }
+</script>
+
+
+
       <%- include('footer') %>
    </body>
 </html>
