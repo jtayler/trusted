@@ -37,24 +37,5 @@
 		</div>
 	</div>
 
-            <script>
-         //alert("Script loaded successfully!"); // Test alert
-          alert("verifiedDetails " + verifiedDetails);
-
-         // Correct IDs from the form
-         const switchElem = document.getElementById("verified-identity");
-         const photoInput = document.getElementById("photo-title");
-
-
-         switchElem.addEventListener("change", function () {
-            if (switchElem.checked) {
-               // Set photo input value to the TruAnon photo URL
-               photoInput.value = verifiedDetails.authorPhoto;
-            } else {
-               // Reset the photo input value when the switch is turned off
-               photoInput.value = "https://bootdey.com/img/Content/avatar/avatar6.png";
-            }
-         });
-   </script>
 </body>
 </html>

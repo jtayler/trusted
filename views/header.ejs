@@ -1,15 +1,18 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light shadow">
     <div class="container-fluid">
         <!-- Brand Logo -->
-        <a class="navbar-brand px-3" href="#">
+        <a class="navbar-brand px-3" href="/">
             <img src="https://truanon.s3.amazonaws.com/img/dogwalklogo.png" alt="logo" height="72" class="d-inline-block align-text-top">
         </a>
+
         <!-- Toggler for Mobile View -->
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <!-- Navbar Links -->
+
+        <!-- Navbar Content -->
         <div class="collapse navbar-collapse" id="navbarNav">
+            <!-- Breadcrumb Navigation -->
             <ol class="breadcrumb mb-0 navbar-nav me-auto">
                 <li class="breadcrumb-item <% if (currentPage === 'Home') { %>active<% } %>">
                     <% if (currentPage === 'Home') { %>Home<% } else { %><a href="/">Home</a><% } %>
@@ -23,13 +26,12 @@
             </ol>
 
             <% if (!session.user) { %>
-                <!-- Non-Logged-In User -->
+                <!-- Non-Logged-In User Links -->
                 <div class="navbar-nav ms-auto">
                     <ul class="navbar-nav">
                         <li class="mx-2 <% if (currentPage === 'Signup') { %>active<% } %>">
                             <% if (currentPage === 'Signup') { %>Signup<% } else { %><a href="/signup">Signup</a><% } %>
                         </li>
-                        &bull;
                         <li class="mx-2 <% if (currentPage === 'Login') { %>active<% } %>">
                             <% if (currentPage === 'Login') { %>Login<% } else { %><a href="/login">Login</a><% } %>
                         </li>
@@ -40,9 +42,11 @@
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle text-decoration-none" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <!-- Dynamic Border Color Based on Rank -->
-                            <img class="rounded-circle border border-light me-2" 
-                                 src="<%= session.user.photo %>" 
+                            <% 
+                                const userDisplayData = getUserDisplayData(session.user); 
+                            %>
+                            <img class="rounded-circle border border-<%= userDisplayData.borderColor %> me-2" 
+                                 src="<%= userDisplayData.photo %>" 
                                  alt="<%= session.user.username %> Photo" 
                                  style="width: 30px;">
                             <%= session.user.username %>
@@ -56,6 +60,7 @@
                     </li>
                 </ul>
             <% } %>
+
             <!-- Search Form -->
             <form class="d-flex mx-4">
                 <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">

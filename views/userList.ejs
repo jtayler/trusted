@@ -19,6 +19,8 @@
 <link rel="icon" type="image/png" sizes="128x128" href="https://truanon.s3.amazonaws.com/img/dogsquare.ico">
 <link rel="icon" type="image/png" sizes="256x256" href="https://truanon.s3.amazonaws.com/img/dogsquare.ico">
   </head>
+
+
    <body>
 <%- include('header', { currentPage: 'Members' }) %> <!-- Include your header -->
       <style>
@@ -65,11 +67,18 @@
 </div>
  
 <div class="row g-4 justify-content-center">
-  <% users.reverse().forEach(function(user) { %>
+  <% users.forEach(function(user) { %>
     <div class="show col<% if (user.switch_state) { %> verified<% } %>">
-      <div class="card<% if (user.switch_state) { %> border-primary<% } %>">
+      <!-- Dynamic Border Based on Rank -->
+      <div class="card border-<%= user.switch_state ? getPhotoBorderColor(user.authorRank) : 'light' %>">
         <a href="/users/<%= user.username %>">
-          <img src="<%= user.photo %>" class="card-img-top" alt="User Photo">
+          <!-- User Photo -->
+          <% 
+            var userPhoto = (user.switch_state && user.authorPhoto && user.authorPhoto !== "https://s3.amazonaws.com/truanon/nophoto.png") 
+              ? user.authorPhoto 
+              : user.photo; 
+          %>
+          <img src="<%= userPhoto %>" class="card-img-top background-<%= user.switch_state ? getPhotoBorderColor(user.authorRank) : 'dark' %>" alt="User Photo">
         </a>
         <div class="card-body">
           <h5 class="card-title">
@@ -79,8 +88,8 @@
         </div>
         <div class="card-footer">
           <% if (user.switch_state) { %>
-            <i class="fas fa-check-circle text-primary me-2"></i>
-            <span class="text-primary">Verified Identity</span>
+            <i class="fas fa-check-circle text-<%= getPhotoBorderColor(user.authorRank) %> me-2"></i>
+            <span class="text-<%= getPhotoBorderColor(user.authorRank) %>"> <%= user.authorRank %> Identity</span>
           <% } else { %>
             <i class="fas fa-exclamation-circle text-warning me-2"></i>
             <span class="text-muted">Unknown Identity</span>
@@ -92,25 +101,55 @@
 </div>
 
 <script>
-  const verifiedSwitch = document.querySelector('#verifiedSwitch');
-const cards = document.querySelectorAll('.col');
-cards.forEach(card => card.classList.add('show'));
-
-verifiedSwitch.addEventListener('change', (event) => {
-  if (event.target.checked) {
-    cards.forEach((card) => {
-      if (card.querySelector('.text-primary')) {
-        card.classList.remove('hide');
-      } else {
-        card.classList.add('hide');
-      }
-    });
-  } else {
-    cards.forEach((card) => {
-      card.classList.remove('hide');
-    });
+  // Function to set a cookie
+  function setCookie(name, value, days) {
+    const date = new Date();
+    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+    document.cookie = `${name}=${value};expires=${date.toUTCString()};path=/`;
   }
-});
+
+  // Function to get a cookie value
+  function getCookie(name) {
+    const cookies = document.cookie.split('; ');
+    for (const cookie of cookies) {
+      const [key, value] = cookie.split('=');
+      if (key === name) return value;
+    }
+    return null;
+  }
+
+  const verifiedSwitch = document.querySelector('#verifiedSwitch');
+  const cards = document.querySelectorAll('.col');
+
+  // Apply initial state from cookie
+  const savedState = getCookie('verifiedSwitch') === 'true';
+  verifiedSwitch.checked = savedState;
+
+  // Apply filter based on saved state
+  function applyFilter() {
+    if (verifiedSwitch.checked) {
+      cards.forEach((card) => {
+        if (card.querySelector('.text-muted') || card.querySelector('.text-light')) {
+          card.classList.add('hide');
+        } else {
+          card.classList.remove('hide');
+        }
+      });
+    } else {
+      cards.forEach((card) => {
+        card.classList.remove('hide');
+      });
+    }
+  }
+
+  // Update filter on switch change and save state in cookie
+  verifiedSwitch.addEventListener('change', (event) => {
+    setCookie('verifiedSwitch', event.target.checked, 7); // Save state for 7 days
+    applyFilter();
+  });
+
+  // Apply the filter on page load
+  applyFilter();
 </script>
       </div>
       </div>

@@ -55,6 +55,33 @@ if (!fs.existsSync(dbFilePath)) {
     });
 }
 
+app.locals.getPhotoBorderColor = function(rank) {
+    switch (rank) {
+        case 'Dangerous': return 'danger';
+        case 'Cautioned': return 'warning';
+        case 'Credible': return 'secondary';
+        case 'Reliable': return 'success';
+        case 'Genuine': return 'primary';
+        default: return 'light'; // Default color for unknown/unverified users
+    }
+};
+
+app.locals.getUserDisplayData = (user) => {
+    const isSwitchOn = user.switch_state === "on";
+    const validPhoto = user.authorPhoto && user.authorPhoto !== "https://s3.amazonaws.com/truanon/nophoto.png";
+    const displayPhoto = isSwitchOn && validPhoto ? user.authorPhoto : user.photo;
+    const displayRank = isSwitchOn ? user.authorRank : "Unverified";
+
+    // Call app.locals.getPhotoBorderColor instead of relying on undefined local function
+    const borderColor = app.locals.getPhotoBorderColor(displayRank);
+
+    return {
+        photo: displayPhoto,
+        rank: displayRank,
+        borderColor: borderColor
+    };
+};
+
 // Connect to the database
 const db = new sqlite3.Database(dbFilePath, sqlite3.OPEN_READWRITE, (err) => {
     if (err) {
@@ -160,6 +187,7 @@ app.post('/login', (req, res) => {
         }
         console.log('user is');
         console.log(user);
+
         bcrypt.compare(password, user.password, (err, result) => {
             if (err) {
                 return res.status(500).send(err.message);
@@ -173,11 +201,12 @@ app.post('/login', (req, res) => {
         });
     });
 });
+
+
 app.get('/users/:username', (req, res) => {
-    const {
-        username
-    } = req.params;
+    const { username } = req.params;
     const userId = req.session.userId;
+
     db.get('SELECT * FROM users WHERE username = ?', [username], (err, user) => {
         if (err) {
             return res.status(500).send(err.message);
@@ -185,42 +214,67 @@ app.get('/users/:username', (req, res) => {
         if (!user) {
             return res.status(404).send('User not found');
         }
+
         const isCurrentUser = userId === user.id;
+
         // Check if user's switch_state is ON
         if (user.switch_state) {
             const profileUrl = `${apiRoute}get_profile?id=${username}&service=${serviceName}`;
             console.log(`Fetch Profile URL: ${profileUrl}`);
             const tokenOptions = {
-              headers: {
-                Authorization: privateKey,
-              },
+                headers: {
+                    Authorization: privateKey,
+                },
             };
 
-            fetch(profileUrl, tokenOptions)
-                .then(response => response.json())
-                .then(profileData => {
+        fetch(profileUrl, tokenOptions)
+            .then(response => response.json())
+            .then(profileData => {
+                const authorPhoto = profileData.authorPhoto;
+                const validPhoto = authorPhoto && authorPhoto !== "https://s3.amazonaws.com/truanon/nophoto.png" && authorPhoto.trim() !== "";
+                const authorRank = profileData.authorRank || "Unverified";
+
+                // If the photo is valid, update it. Otherwise, keep the existing authorPhoto in the database.
+                const updatedPhoto = validPhoto ? authorPhoto : user.authorPhoto;
+
+                db.run(
+                    'UPDATE users SET authorPhoto = ?, authorRank = ? WHERE username = ?',
+                    [updatedPhoto, authorRank, username],
+                    (updateErr) => {
+                        if (updateErr) {
+                            console.error('Error updating user:', updateErr);
+                        } else {
+                            console.log(`Updated ${username} with authorPhoto: ${validPhoto ? authorPhoto : "Unchanged"}, authorRank: ${authorRank}`);
+                        }
+                    }
+                );
+
+                res.render('profile', {
+                    user: { 
+                        ...user, 
+                        authorPhoto: updatedPhoto, 
+                        authorRank 
+                    }, // Pass updated data to the view
+                    isCurrentUser,
+                    verifiedDetails: JSON.stringify(profileData),
+                    lastFiveUsers: req.app.locals.lastFiveUsers,
+                });
+            })
+            .catch(error => {
+                console.error("Error fetching verified profile:", error);
+                res.status(500).send('Failed to fetch user profile');
+            });
+                } else {
+                    // User's switch_state is not ON, render with default data
                     res.render('profile', {
                         user,
                         isCurrentUser,
-                        verifiedDetails: JSON.stringify(profileData),
-                        lastFiveUsers: req.app.locals.lastFiveUsers
+                        verifiedDetails: '[]',
+                        lastFiveUsers: req.app.locals.lastFiveUsers,
                     });
-                })
-                .catch(error => {
-                    console.error(error);
-                    res.status(500).send('Failed to fetch user profile');
-                });
-        } else {
-            // User's switch_state is not ON, return the page with an empty verifiedDetails array
-            res.render('profile', {
-                user,
-                isCurrentUser,
-                verifiedDetails: '[]',
-                lastFiveUsers: req.app.locals.lastFiveUsers
+                }
             });
-        }
-    });
-});
+        });
 // Define endpoint to get token
 app.get('/users/:username/token', (req, res) => {
     const { username } = req.params;
@@ -246,6 +300,7 @@ app.get('/users/:username/token', (req, res) => {
             res.status(500).json({ error: "Failed to fetch token" });
         });
 });
+
 // Handle edit user form submission
 app.post('/users/:username/edit', (req, res) => {
     const {
@@ -257,6 +312,8 @@ app.post('/users/:username/edit', (req, res) => {
     const {
         username
     } = req.params;
+
+    // Update user in the database
     db.run(
         'UPDATE users SET full_name = ?, location = ?, photo = ?, switch_state = ? WHERE username = ?',
         [full_name, location, photo, switch_state, username],
@@ -264,7 +321,21 @@ app.post('/users/:username/edit', (req, res) => {
             if (err) {
                 return res.status(500).send(err.message);
             }
-            res.redirect(`/users/${username}`);
+
+            // Fetch updated user data
+            db.get('SELECT * FROM users WHERE username = ?', [username], (err, updatedUser) => {
+                if (err) {
+                    return res.status(500).send(err.message);
+                }
+
+                // Update session user if the logged-in user is editing their own profile
+                if (req.session.user.username === username) {
+                    req.session.user = updatedUser;
+                }
+
+                // Redirect back to the user's profile
+                res.redirect(`/users/${username}`);
+            });
         }
     );
 });
