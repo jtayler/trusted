@@ -69,51 +69,6 @@
          </div>
       </div>
 
-<script>
-    window.onload = function () {
-        const badgeArea = document.getElementById("badge-area");
-        // Always create the GitHub badge
-        const githubBadge = document.createElement("div");
-        githubBadge.classList.add("card", "text-center", "p-3", "m-3");
-
-        const icon = document.createElement("span");
-
-        const title = document.createElement("h5");
-        title.classList.add("card-title", "mb-1", "pt-4");
-
-        const description = document.createElement("p");
-        description.classList.add("card-text", "text-muted");
-
-        const githubConfig = verifiedDetails.dataConfigurations.find(
-            config => config.dataPointName === "GitHub"
-        );
-
-        if (githubConfig) {
-            icon.className = "fas fa-award fa-10x mb-2 pt-2";
-            title.innerText = "Engineer Status Validated";
-            title.classList.add("text-success");
-            title.classList.remove("text-secondary");
-            description.innerText = "Developer account confirmed.";
-            description.classList.remove("text-muted");
-            githubBadge.classList.remove("text-secondary", "border-secondary");
-            githubBadge.classList.add("text-success"); 
-            githubBadge.classList.add("border-success"); 
-        } else {
-            icon.className = "fas fa-ban fa-10x mb-2 pt-2";
-            // Placeholder for no GitHub property
-            title.innerText = "No Validated Engineering Available";
-            description.innerText = "No developer account found.";
-            githubBadge.classList.add("text-secondary", "border-secondary"); // Dim the card for no validation
-        }
-         
-        githubBadge.appendChild(icon);
-        githubBadge.appendChild(title);
-        githubBadge.appendChild(description);
-
-        // Add the GitHub badge to the badge area
-        badgeArea.insertAdjacentElement("afterend", githubBadge);
-    };
-</script>
 
 
       <script>
@@ -215,7 +170,6 @@
          $('#badge-area').html(badge);
          
       </script>
-      <% if (user.switch_state) { %>
 
       <script>
           // Fetch processed display data
@@ -226,6 +180,97 @@
           var photo = $('#photo');
 
       </script>
+
+      <% if (user.switch_state) { %>
+<script>
+    window.onload = function () {
+        const badgeArea = document.getElementById("badge-area");
+
+         const githubConfig = verifiedDetails.dataConfigurations.find(
+            config => config.dataPointName === "GitHub"
+        );
+
+
+         const icon = document.createElement("span");
+         const title = document.createElement("h5");
+         const description = document.createElement("p");
+         const githubBadge = document.createElement("div");
+
+
+         icon.className = "fas fa-ban fa-10x mb-2 pt-2";
+         title.innerText = "No Validated Engineering Available";
+         description.innerText = "No developer account found.";
+         githubBadge.classList.add("text-secondary", "border-secondary"); // Dim the card for no validation
+         githubBadge.appendChild(icon);
+         githubBadge.appendChild(title);
+         githubBadge.appendChild(description);
+         githubBadge.classList.add("card", "text-center", "p-3", "m-3");
+
+         title.classList.add("card-title", "mb-1", "pt-4");
+
+         description.classList.add("card-text", "text-muted");
+
+
+         if (githubConfig) { 
+           // Create a loading placeholder
+           const loadingPlaceholder = document.createElement("div");
+           loadingPlaceholder.classList.add("text-center", "p-3", "m-3", "text-muted");
+           loadingPlaceholder.innerHTML = `
+               <div>
+                   <div class="fas fa-spinner fa-spin fa-2x mb-4 mt-4"></div>
+               </div>
+           `;
+           badgeArea.insertAdjacentElement("afterend", loadingPlaceholder);
+
+           fetch(`/users/<%= user.username %>/github`) // Fetch user data
+               .then(response => response.json())
+               .then(data => {
+                   // Remove the loading placeholder
+                   loadingPlaceholder.remove();
+
+                   // Check if GitHub account is verified
+                   if (data.fullName && data.totalRepos > 0) {
+                       icon.className = "fas fa-award fa-10x mb-2 pt-2";
+                       title.innerHTML = `${data.fullName}<br>${data.totalRepos} Repos`;
+                       title.classList.add("text-success");
+                       description.innerText = "Engineer Status Validated.";
+                       githubBadge.classList.add("text-success", "border-success");
+                   } else {
+                   }
+
+
+                   // Deduplicate and display repository languages
+                   if (data.repos && data.repos.length > 0) {
+                       const allLanguages = data.repos.flatMap(repo => repo.languages.split(', ').filter(lang => lang.trim() !== ''));
+                       const uniqueLanguages = [...new Set(allLanguages)];
+
+                       const repoList = document.createElement("div");
+                       repoList.innerHTML = `
+                           <span class="text-muted small fst-italic">${uniqueLanguages.join(', ') || 'No languages detected'}</span>
+                       `;
+                       githubBadge.appendChild(repoList);
+                   }
+
+                   // Add the GitHub badge to the badge area
+                   badgeArea.insertAdjacentElement("afterend", githubBadge);
+               })
+               .catch(error => {
+                   console.error("Error fetching GitHub data:", error);
+
+                   // Replace loading placeholder with an error message
+                   loadingPlaceholder.innerHTML = `
+                       <div>
+                           <i class="fas fa-exclamation-circle fa-2x text-danger"></i>
+                           <p>Failed to load GitHub data.</p>
+                       </div>
+                   `;
+               });
+               } else {
+                  badgeArea.insertAdjacentElement("afterend", githubBadge);
+         }
+
+    };
+</script>
 
       <script>
          //var verifiedDetails = JSON.parse(JSON.parse(decodeURIComponent('<%= encodeURIComponent(JSON.stringify(verifiedDetails)) %>')));

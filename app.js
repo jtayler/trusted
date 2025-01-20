@@ -5,6 +5,7 @@ const ejs = require('ejs');
 const bcrypt = require('bcrypt');
 const session = require('express-session');
 const fs = require('fs');
+const fetch = require('node-fetch');
 
 // Create an Express app
 const app = express();
@@ -82,6 +83,106 @@ app.locals.getUserDisplayData = (user) => {
         borderColor: app.locals.getPhotoBorderColor(displayRank),
     };
 };
+
+// Fetch GitHub info based on validated username
+app.get('/users/:username/github', async (req, res) => {
+    const { username } = req.params;
+    const token = process.env.GITHUB_TOKEN;
+    const truAnonApiKey = process.env.TRUANON_API_KEY;
+    const serviceName = process.env.SERVICE_NAME;
+    const profileApiUrl = `${process.env.API_ROUTE}get_profile?id=${username}&service=${serviceName}`;
+
+    try {
+        // Fetch TruAnon profile
+        const profileResponse = await fetch(profileApiUrl, {
+            headers: {
+                Authorization: truAnonApiKey,
+                Accept: 'application/json',
+            },
+        });
+
+        if (!profileResponse.ok) {
+            return res.status(profileResponse.status).send(`Error: ${profileResponse.statusText}`);
+        }
+
+        const profileData = await profileResponse.json();
+
+        // Extract GitHub username from profileData
+        const githubConfig = profileData.dataConfigurations.find(config => config.dataPointType === 'github');
+        const githubUsername = githubConfig ? githubConfig.displayValue.split('/').pop() : null;
+
+        if (!githubUsername) {
+            return res.status(404).send('GitHub username not found in profile data');
+        }
+
+        // GitHub API URLs
+        const REPOS_API_URL = `https://api.github.com/users/${githubUsername}/repos`;
+        const GITHUB_PROFILE_API_URL = `https://api.github.com/users/${githubUsername}`;
+
+        // Fetch GitHub profile information
+        const githubProfileResponse = await fetch(GITHUB_PROFILE_API_URL, {
+            headers: {
+                Authorization: `token ${token}`,
+                Accept: 'application/vnd.github.v3+json',
+            },
+        });
+
+        if (!githubProfileResponse.ok) {
+            return res.status(githubProfileResponse.status).send(`Error: ${githubProfileResponse.statusText}`);
+        }
+
+        const githubProfile = await githubProfileResponse.json();
+
+        // Fetch repositories
+        const reposResponse = await fetch(REPOS_API_URL, {
+            headers: {
+                Authorization: `token ${token}`,
+                Accept: 'application/vnd.github.v3+json',
+            },
+        });
+
+        if (!reposResponse.ok) {
+            return res.status(reposResponse.status).send(`Error: ${reposResponse.statusText}`);
+        }
+
+        const repos = await reposResponse.json();
+
+        // Fetch languages for each repository
+        const repoData = await Promise.all(
+            repos.map(async repo => {
+                const languagesResponse = await fetch(repo.languages_url, {
+                    headers: {
+                        Authorization: `token ${token}`,
+                        Accept: 'application/vnd.github.v3+json',
+                    },
+                });
+
+                const languages = await languagesResponse.json();
+                return {
+                    name: repo.name,
+                    description: repo.description || 'No description available',
+                    languages: Object.keys(languages).join(', '),
+                };
+            })
+        );
+
+        // Format data
+        const formattedData = {
+            fullName: githubProfile.name || 'No name available',
+            totalRepos: repoData.length,
+            repos: repoData,
+        };
+
+        console.log("Fetched GitHub data:", formattedData);
+
+        res.json(formattedData);
+    } catch (error) {
+        console.error('Error fetching GitHub data:', error);
+        res.status(500).send('Error fetching GitHub data');
+    }
+});
+
+
 
 // Connect to the database
 const db = new sqlite3.Database(dbFilePath, sqlite3.OPEN_READWRITE, (err) => {
