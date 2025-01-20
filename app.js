@@ -68,17 +68,18 @@ app.locals.getPhotoBorderColor = function(rank) {
 
 app.locals.getUserDisplayData = (user) => {
     const isSwitchOn = user.switch_state === "on";
-    const validPhoto = user.authorPhoto && user.authorPhoto !== "https://s3.amazonaws.com/truanon/nophoto.png";
-    const displayPhoto = isSwitchOn && validPhoto ? user.authorPhoto : user.photo;
-    const displayRank = isSwitchOn ? user.authorRank : "Unverified";
+    const validAuthorPhoto = user.authorPhoto && user.authorPhoto !== "https://s3.amazonaws.com/truanon/nophoto.png";
 
-    // Call app.locals.getPhotoBorderColor instead of relying on undefined local function
-    const borderColor = app.locals.getPhotoBorderColor(displayRank);
+    const displayPhoto = (isSwitchOn && validAuthorPhoto) 
+        ? user.authorPhoto 
+        : user.photo || 'https://truanon.s3.amazonaws.com/img/1597072428129.jpeg'; // Fallback
+
+    const displayRank = isSwitchOn ? user.authorRank : "Unverified";
 
     return {
         photo: displayPhoto,
         rank: displayRank,
-        borderColor: borderColor
+        borderColor: app.locals.getPhotoBorderColor(displayRank),
     };
 };
 
