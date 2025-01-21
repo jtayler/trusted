@@ -20,12 +20,7 @@
       <meta name="twitter:description" content="View the profile of <%= user.full_name %> (@<%= user.username %>) on our site.">
       <meta name="twitter:image" content="<%= user.photo %>">
       <meta name="twitter:card" content="summary_large_image">
-      <link rel="icon" type="image/x-icon" href="https://truanon.s3.amazonaws.com/img/dogsquare.ico">
-      <link rel="icon" type="image/png" sizes="16x16" href="https://truanon.s3.amazonaws.com/img/dogsquare.ico">
-      <link rel="icon" type="image/png" sizes="32x32" href="https://truanon.s3.amazonaws.com/img/dogsquare.ico">
-      <link rel="icon" type="image/png" sizes="64x64" href="https://truanon.s3.amazonaws.com/img/dogsquare.ico">
-      <link rel="icon" type="image/png" sizes="128x128" href="https://truanon.s3.amazonaws.com/img/dogsquare.ico">
-      <link rel="icon" type="image/png" sizes="256x256" href="https://truanon.s3.amazonaws.com/img/dogsquare.ico">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=IBM+Plex+Mono:wght@400;700&family=Space+Grotesk:wght@400;700&family=Work+Sans:wght@400;600&family=Barlow:wght@400;600&display=swap" rel="stylesheet">
    </head>
    <body>
       <%- include('header', { currentPage: 'Member Profile' }) %> <!-- Include your header -->
@@ -197,9 +192,9 @@
          const githubBadge = document.createElement("div");
 
 
-         icon.className = "fas fa-ban fa-10x mb-2 pt-2";
-         title.innerText = "No Validated Engineering Available";
-         description.innerText = "No developer account found.";
+         icon.className = "text-danger fas fa-ban fa-10x mb-2 pt-2";
+         title.innerText = "Engineering Badge Unavailable";
+         description.innerText = "No validating credentials visible.";
          githubBadge.classList.add("text-secondary", "border-secondary"); // Dim the card for no validation
          githubBadge.appendChild(icon);
          githubBadge.appendChild(title);
@@ -233,7 +228,7 @@
                        icon.className = "fas fa-award fa-10x mb-2 pt-2";
                        title.innerHTML = `${data.fullName}<br>${data.totalRepos} Repos`;
                        title.classList.add("text-success");
-                       description.innerText = "Engineer Status Validated.";
+                       description.innerHTML = "Engineer Status Validated.";
                        githubBadge.classList.add("text-success", "border-success");
                    } else {
                    }
@@ -246,7 +241,7 @@
 
                        const repoList = document.createElement("div");
                        repoList.innerHTML = `
-                           <span class="text-muted small fst-italic">${uniqueLanguages.join(', ') || 'No languages detected'}</span>
+                            <span class="text-muted small fst-italic">${uniqueLanguages.join(', ') || 'No languages detected'}  </span> <div> <br> <hr> <br> <P> This data has been validated at the Canonical Source </p></div>
                        `;
                        githubBadge.appendChild(repoList);
                    }

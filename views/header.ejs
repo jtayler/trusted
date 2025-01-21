@@ -2,10 +2,14 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css">
 <nav class="navbar navbar-expand-lg navbar-light bg-light shadow">
     <div class="container-fluid">
-        <!-- Brand Logo -->
-        <a class="navbar-brand px-3" href="/">
-            <img src="https://truanon.s3.amazonaws.com/img/dogwalklogo.png" alt="logo" height="72" class="d-inline-block align-text-top">
-        </a>
+<!-- Brand Logo -->
+<a class="navbar-brand d-flex align-items-center px-3" href="/">
+    <i class="fa-4x fas fa-laptop-code me-3"></i>
+    <div>
+        <div class="fw-bold" style="font-size: 2.1rem;">DevHäuz</div>
+        <span class="text-muted" style="font-size: 0.75rem;">Software Developer Marketplace</span>
+    </div>
+</a>
 
         <!-- Toggler for Mobile View -->
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,7 +54,7 @@
                             <img class="rounded-circle border border-<%= userDisplayData.borderColor %> me-2" 
                                  src="<%= userDisplayData.photo %>" 
                                  alt="<%= session.user.username %> Photo" 
-                                 style="width: 30px;">
+                                 style="width: 45px;">
                             <%= session.user.username %>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
