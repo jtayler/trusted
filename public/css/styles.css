@@ -2,23 +2,23 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=IBM+Plex+Mono:wght@400;700&family=Space+Grotesk:wght@400;700&family=Work+Sans:wght@400;600&family=Barlow:wght@400;600&display=swap');
 
 *, html, body. div, p, span{
-    font-family: 'Work Sans', sans-serif;
+    font-family: 'Work Sans', sans-serif !important;
 }
 
 h1, h2, h3, .navbar-brand {
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: 'Space Grotesk', sans-serif !important;
     font-weight: 900;
 }
 
 .navbar, .btn, .badge {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter', sans-serif !important;
 }
 
 pre, code, .code-snippet {
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace !important;
 }
-selector,* {
-  font-family: 'Roboto Slab', sans-serif;
+selector {
+  font-family: 'Roboto Slab', sans-serif ;
 }
 .bg-light {
   background-color: #F5EBDB !important;

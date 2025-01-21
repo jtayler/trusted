@@ -314,7 +314,7 @@
          
          document.body.appendChild(dataConfigurationsListHTML);
          
-         var filteredData = filterDataConfigurations(verifiedDetails, "", "contact").concat(filterDataConfigurations(verifiedDetails, "", "primary")).concat(filterDataConfigurations(verifiedDetails, "", "additional"));
+         var filteredData = filterDataConfigurations(verifiedDetails, "", "contact").concat(filterDataConfigurations(verifiedDetails, "location", "personal")).concat(filterDataConfigurations(verifiedDetails, "", "primary")).concat(filterDataConfigurations(verifiedDetails, "", "additional"));
          //removed .concat(filterDataConfigurations(verifiedDetails, "bio", "personal")
 
          var dataConfigurationsListHTML = createContactList(filteredData);
