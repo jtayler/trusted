@@ -192,16 +192,16 @@
          const githubBadge = document.createElement("div");
 
 
-         icon.className = "text-danger fas fa-ban fa-10x mb-2 pt-2";
+         icon.className = "text-warning fas fa-ban fa-10x mb-2 pt-2";
          title.innerText = "Engineering Badge Unavailable";
          description.innerText = "No validating credentials visible.";
-         githubBadge.classList.add("text-secondary", "border-secondary"); // Dim the card for no validation
+         githubBadge.classList.add("border-warning"); // Dim the card for no validation
          githubBadge.appendChild(icon);
          githubBadge.appendChild(title);
          githubBadge.appendChild(description);
          githubBadge.classList.add("card", "text-center", "p-3", "m-3");
 
-         title.classList.add("card-title", "mb-1", "pt-4");
+         title.classList.add("card-title", "text-dark", "mb-1", "pt-4");
 
          description.classList.add("card-text", "text-muted");
 
@@ -230,7 +230,6 @@
                        title.classList.add("text-success");
                        description.innerHTML = "Engineer Status Validated.";
                        githubBadge.classList.add("text-success", "border-success");
-                   } else {
                    }
 
 
