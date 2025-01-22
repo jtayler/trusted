@@ -173,7 +173,7 @@ app.get('/users/:username/github', async (req, res) => {
             repos: repoData,
         };
 
-        console.log("Fetched GitHub data:", formattedData);
+        // console.log("Fetched GitHub data:", formattedData);
 
         res.json(formattedData);
     } catch (error) {
