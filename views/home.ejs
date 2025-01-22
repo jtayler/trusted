@@ -22,40 +22,56 @@
    <body>
 
 <%- include('header', { currentPage: 'Home' }) %> <!-- Include your header -->
-      <div class="container-xxl my-md-4 bd-layout">
-         <div class="container-xxl my-md-4 bd-layout">
-      <div class="row justify-content-center mt-5">
-<div class="col-md-7">
-    <style>
-  /* CSS to make the text within list items larger */
-  .row li {
-    line-height: 1.52em; /* You can adjust the value to change the font size */
-    padding-bottom: 1.52em; /* You can adjust the value to change the font size */
-  }
-  .row ol {
-    padding-top: 1.52em; /* You can adjust the value to change the font size */
-  }
-</style>
-    <h1 class="py-4 text-center">Digital safety is as important as physical safety</h1>
+<div class="container-xxl my-5 py-5" style=" border-radius: 8px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);">
+   <h1 class="text-center mb-4" style="font-family: 'Roboto Slab', serif; color: #212529;">The Age-Restricted Internet</h1>
+   <p class="" style="font-size: 1.1rem; color: #495057;">
+   <div class="row justify-content-center">
+      <div class="col-md-10">
+         <div class="p-4">
+      <p class="">
+         A vision of privacy & protection for a legally compliant validation of our confidential things like age, education, medical, or employment status.
+      </p>
+      <h1 class=" mb-3 pt-4" style="font-weight: 600; color: #212529;">Demonstration</h1>
+      <p class="">
+         A <strong>Service</strong> is private when the <strong>Owner</strong> decides it should not be displayed. Data is private when a <strong>Publishing Service</strong> decides it is to be governed as such.
+         <strong>Consuming Services</strong> can onboard new members immediately, granting privileged access in response to changes in real-time. <strong>Owner</strong> updates to privacy and <strong>Service</strong> updates to access take effect immediately.
+         Respecting this shared vision: <strong>Publishers</strong> define access, <strong>Owners</strong> define privacy, and trusted <strong>Consuming Services</strong> see only what is authorized.
+      </p>
+      <p class="px-5 m-3 mx-5 mb-4" style="font-style: italic; font-size: 1rem; color: #495057;">
+         “This is not just a technical solution — it’s a logical framework that reflects the natural truths of validation, privacy, and safety; programmatically enforced in code.”
+      </p>
+      <p class="" style="font-size: 1rem; color: #495057;">
+         <strong>Services</strong> define trusted sources like the "My Health Record" in the National Provider Portal (NPP), Department of Motor Vehicles, Employment or Alumni associations, even GitHub. Rather than relying on static ID cards, <strong>Owners</strong> confirm the accounts behind the data used to print cards made for when data is not available. <strong>Consuming Services</strong> set the legal or policy standards, while <strong>Owners</strong> have choice.
+      </p>
+      <p class="" style="font-size: 1rem; color: #495057;">
+        <h1><strong>Example:</strong> </h1>
+         <h3>DevHäuz Merit Badges & Privileged Feature Access</h3>
+        <li> The DevHäuz <strong>Consuming Service</strong> responds to the existence of a validated and qualified <strong>Publishing Service</strong>.<br>
+        <li> DevHäuz does not reveal account details but relies on validation of this specific trusted <strong>Publishing Service</strong> for veracity.<br>
+        <li> DevHäuz responds by displaying trust-building details, such as an account holder's privatized birthday, repo count, or full name, as evidence of transparency.<br>
+         <li> <p><strong>Owners</strong> grant requested credentials to access <em>immediate onboarding</em> and <em>privileged features</em> and revoke them if they wish.
 
+      </p>
 
-
-<h5>This demonstration app highlights three key value propositions:</h5>
-
-<ol>
-  <li><span style="font-weight: bold;">Universal 'Badge-of-Trust':</span> Anyone can access legitimacy without loss of privacy and this means avoiding confirmation is just as clear as having it.</li>
-  <li><span style="font-weight: bold;">Display Valuable Data:</span> Access confirmed profile data, including social profiles and bio details you can use to showcase even the newest accounts.</li>
-  <li><span style="font-weight: bold;">User-Empowered Trust:</span> Members make it work so you don't have to.</li>
-</ol>
-
-    <P>Legitimate members share the expectation of meeting other good people, these tools provide everything you need to safeguard your service from abuse and build trust without loss of privacy.</p>
-
-<p>Watch the video <a href="https://vimeo.com/807486646">here</a>. Get open-source code <a href="https://github.com/jtayler/trusted#readme">here</a>.</p>
-
-</div>
-            </div>
+      <p class="" style="font-size: 1rem; color: #495057;">
+         When a validating property is provided, a special achievement badge appears. If not, the badge disappears until the <strong>Owner</strong> specifically grants visibility of a validating property to this <strong>Consuming Service</strong>, DevHäuz.
+      </p>
+      <p class="" style="font-size: 1rem; color: #495057;">
+         <strong>Owners</strong> control privacy, granting or revoking as they wish, while <strong>Consuming Services</strong> are ensured of adherence to legal and regulatory requirements. Meanwhile, <strong>Publishing Services</strong> continue to govern access — all parties are equally free from risk.
+      </p>
+   </div>
+            </p>
+            <div class="text-center">
+               <a href="https://vimeo.com/807486646" class="btn btn-primary btn-lg me-2"><i class="fa fa-video"></i> Watch Video</a>
+               <a href="https://github.com/jtayler/trusted#readme" class="btn btn-secondary btn-lg"><i class="fa fa-code"></i> Get  Code</a>
+<a href="https://github.com/jtayler/trusted#readme" class="btn btn-secondary btn-lg">
+   <i class="fa fa-file-alt"></i> Read Whitepaper
+</a>
+          </div>
          </div>
       </div>
+   </div>
+</div>
       <%- include('footer') %>
    </body>
 </html>
