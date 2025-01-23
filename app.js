@@ -13,6 +13,7 @@ const port = 3000;
 
 require('dotenv').config();
 
+const BITBUCKET_BASE_URL = "https://api.bitbucket.org/2.0";
 
 const privateKey = process.env.TRUANON_API_KEY || "default-private-key";
 const serviceName = process.env.SERVICE_NAME || "default-app"; // Default fallback
@@ -83,6 +84,98 @@ app.locals.getUserDisplayData = (user) => {
         borderColor: app.locals.getPhotoBorderColor(displayRank),
     };
 };
+
+const bitbucketUsername = 'jtayler1'; // Replace with your Bitbucket username
+
+// Endpoint to fetch Bitbucket data
+app.get('/users/:username/bitbucket', async (req, res) => {
+    const { username } = req.params;
+    const bitbucketToken = process.env.BITBUCKET_TOKEN;
+    const truAnonApiKey = process.env.TRUANON_API_KEY;
+    const serviceName = process.env.SERVICE_NAME;
+    const profileApiUrl = `${process.env.API_ROUTE}get_profile?id=${username}&service=${serviceName}`;
+    const BITBUCKET_BASE_URL = process.env.BITBUCKET_BASE_URL || 'https://api.bitbucket.org/2.0';
+
+    try {
+        // Fetch TruAnon profile
+        const profileResponse = await fetch(profileApiUrl, {
+            headers: {
+                Authorization: truAnonApiKey,
+                Accept: 'application/json',
+            },
+        });
+
+        if (!profileResponse.ok) {
+            console.error(`Error fetching TruAnon profile: ${profileResponse.statusText}`);
+            return res.status(profileResponse.status).send(`Error: ${profileResponse.statusText}`);
+        }
+
+        const profileData = await profileResponse.json();
+        const bitbucketConfig = profileData.dataConfigurations.find(config => config.dataPointType === 'bitbucket');
+        //const bitbucketUsername = bitbucketConfig?.displayValue.split('/').pop();
+
+
+console.log('Fetching profile from TruAnon...');
+console.log('Profile data:', profileData);
+console.log('Bitbucket username:', bitbucketUsername);
+
+        if (!bitbucketUsername) {
+            console.warn('Bitbucket username not found in profile data');
+            return res.status(404).send('Bitbucket username not found in profile data');
+        }
+
+        // Bitbucket API URLs
+        const BITBUCKET_USER_API_URL = `${BITBUCKET_BASE_URL}/users/${bitbucketUsername}`;
+        const BITBUCKET_REPOS_API_URL = `${BITBUCKET_BASE_URL}/repositories/${bitbucketUsername}`;
+
+        // Fetch Bitbucket profile information
+        const [bitbucketProfileResponse, reposResponse] = await Promise.all([
+            fetch(BITBUCKET_USER_API_URL, {
+                headers: {
+                    Authorization: `Bearer ${bitbucketToken}`,
+                    Accept: 'application/json',
+                },
+            }),
+            fetch(BITBUCKET_REPOS_API_URL, {
+                headers: {
+                    Authorization: `Bearer ${bitbucketToken}`,
+                    Accept: 'application/json',
+                },
+            }),
+        ]);
+
+        if (!bitbucketProfileResponse.ok) {
+            console.error(`Error fetching Bitbucket profile: ${bitbucketProfileResponse.statusText}`);
+            return res.status(bitbucketProfileResponse.status).send(`Error: ${bitbucketProfileResponse.statusText}`);
+        }
+
+        if (!reposResponse.ok) {
+            console.error(`Error fetching Bitbucket repositories: ${reposResponse.statusText}`);
+            return res.status(reposResponse.status).send(`Error: ${reposResponse.statusText}`);
+        }
+
+        const bitbucketProfile = await bitbucketProfileResponse.json();
+        const repos = await reposResponse.json();
+
+        // Format data
+        const repoData = repos.values.map(repo => ({
+            name: repo.name,
+            description: repo.description || 'No description available',
+            isPrivate: repo.is_private,
+        }));
+
+        const formattedData = {
+            displayName: bitbucketProfile.display_name || 'No name available',
+            totalRepos: repoData.length,
+            repos: repoData,
+        };
+
+        res.json(formattedData);
+    } catch (error) {
+        console.error('Error fetching Bitbucket data:', error);
+        res.status(500).send('Error fetching Bitbucket data');
+    }
+});
 
 // Fetch GitHub info based on validated username
 app.get('/users/:username/github', async (req, res) => {
