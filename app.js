@@ -208,6 +208,15 @@ app.get('/users/:username/github', async (req, res) => {
             return res.status(404).send('GitHub username not found in profile data');
         }
 
+        if (githubConfig.displayValue.startsWith('Privately Verified')) {
+            console.log('Skipping GitHub fetch for privately verified username:', githubConfig.displayValue);
+
+            // Send a custom response to indicate "Privately Verified"
+            return res.json({
+                status: 'private',
+                message: 'GitHub fetching is not allowed for privately verified accounts',
+            });
+        }
         // GitHub API URLs
         const REPOS_API_URL = `https://api.github.com/users/${githubUsername}/repos`;
         const GITHUB_PROFILE_API_URL = `https://api.github.com/users/${githubUsername}`;
@@ -266,7 +275,7 @@ app.get('/users/:username/github', async (req, res) => {
             repos: repoData,
         };
 
-        // console.log("Fetched GitHub data:", formattedData);
+        console.log("Fetched GitHub data:", formattedData);
 
         res.json(formattedData);
     } catch (error) {
