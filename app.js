@@ -484,7 +484,7 @@ app.get('/users/:username/token', (req, res) => {
     const { username } = req.params;
     const tokenURL = `${apiRoute}get_token?id=${username}&service=${serviceName}`;
     console.log(`Token URL: ${tokenURL}`);
-    
+
     const options = {
         headers: {
             Authorization: privateKey,
@@ -494,14 +494,17 @@ app.get('/users/:username/token', (req, res) => {
     fetch(tokenURL, options)
         .then(response => response.json())
         .then(data => {
-            console.log("Fetched data:", data); // Log the entire returned data
+            console.log("Fetched data:", data);  // Log entire data object
 
-            const { id: id } = id; // Destructure the token ID
-            console.log("use token:", id); // Log the entire returned data
-            res.json({ id }); // Return the token as JSON
+            // Correctly get the token from `data.id`
+            const { id } = data;
+            console.log("use token:", id);
+
+            // Send JSON response with the token
+            res.json({ id });
         })
         .catch(error => {
-            console.error("Error fetching token:", error); // Log errors if any
+            console.error("Error fetching token:", error);
             res.status(500).json({ error: "Failed to fetch token" });
         });
 });
