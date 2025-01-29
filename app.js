@@ -496,8 +496,9 @@ app.get('/users/:username/token', (req, res) => {
         .then(data => {
             console.log("Fetched data:", data); // Log the entire returned data
 
-            const { id: token } = data; // Destructure the token ID
-            res.json({ token }); // Return the token as JSON
+            const { id: id } = id; // Destructure the token ID
+            console.log("use token:", id); // Log the entire returned data
+            res.json({ id }); // Return the token as JSON
         })
         .catch(error => {
             console.error("Error fetching token:", error); // Log errors if any

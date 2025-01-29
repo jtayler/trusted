@@ -119,10 +119,15 @@
             return;
             }
             
-            const { token } = data;
+            const token = data.id;
             
+            console.log("using this token:", token); // Log the entire returned data
+
             //https://truanon.com/api
             const link = `${apiRoute}verifyProfile?id=${user.username}&service=${serviceName}&token=${token}`;
+
+            //This log doesn't run and the "5n4rdavr2xgds" has quotes on it?
+            // in fact the URL says <a href="http://127.0.0.1:5555/cgi-bin/WebObjects/TruAnon.woa/wa/verifyProfile?id=jtayler&amp;service=trusted&amp;token=undefined" class="btn btn-primary rounded-pill" id="verify-link">Click To Confirm</a> "undefined" which is wrong right there...
             console.log("Generated verification URL:", link);
             
             const linkHtml = `<a href="${link}" class="btn btn-primary rounded-pill" id="verify-link">Click To Confirm</a>`;
