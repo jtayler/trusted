@@ -375,9 +375,13 @@ window.onload = function () {
          function createDataConfigurationsList(filteredData) {
            dataConfigurationsList.classList.add("d-flex", "flex-wrap", "text-center"); // Add flex properties for horizontal alignment
 
-           var filteredDataMinusGitHub = filteredDataMinusTruanon.filter(config => config.dataPointName !== "GitHub");
+           var filteredData = filteredDataMinusTruanon.filter(config => {
+              const isGitHub = config.dataPointName.toLowerCase() === "github";
+              const isTrustedService = config.serviceType === "trusted";
+              return !isGitHub && !isTrustedService;
+           });
 
-           filteredDataMinusGitHub.forEach((dataConfig) => {
+           filteredData.forEach((dataConfig) => {
              const badge = document.createElement("div"); // Create a block element for the badge
              badge.classList.add("text-secondary", "p-2", "m-1"); // Add CSS classes for styling the badge
              badge.style.textAlign = "center"; // Center the title horizontally
