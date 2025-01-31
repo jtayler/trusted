@@ -241,14 +241,6 @@ window.onload = function () {
                   title.innerHTML = `No Name<br>No Repos`;
                 }
 
-                    repoList.innerHTML = `
-                        <span class="text-muted small fst-italic">No languages detected</span>
-                        <div><br><hr><br>
-                            <p>This authoritative information has been validated at the source and securely transferred to ensure trusted use.</p>
-                        </div>
-                        <div class="text-secondary"> Trusted Sources Are: Bitbucket, GitLab, SourceForge, Codeberg, and GitHub</div>
-                    `;
-
                 // Deduplicate and display repository languages
                 if (data.repos && data.repos.length > 0) {
                     const allLanguages = data.repos.flatMap(repo =>
