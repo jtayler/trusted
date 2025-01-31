@@ -232,10 +232,10 @@ window.onload = function () {
                 if (data.fullName && data.totalRepos > 0) {
                     icon.className = "fas fa-award fa-10x mb-2 pt-2";
                     title.innerHTML = `${data.fullName}<br>${data.totalRepos} Repos`;
+                }
                     title.classList.add("text-success");
                     description.innerHTML = "Engineer Status Validated.";
                     githubBadge.classList.add("text-success", "border-success");
-                }
 
                 // Deduplicate and display repository languages
                 if (data.repos && data.repos.length > 0) {
@@ -376,7 +376,7 @@ window.onload = function () {
            dataConfigurationsList.classList.add("d-flex", "flex-wrap", "text-center"); // Add flex properties for horizontal alignment
 
            var filteredData = filteredDataMinusTruanon.filter(config => {
-              //const isGitHub = config.dataPointType === "github";
+              const isGitHub = config.dataPointType === "github";
               const isTrustedService = config.dataPointType === "trusted";
               return !isTrustedService;
            });
