@@ -228,14 +228,18 @@ window.onload = function () {
                 // Remove the loading placeholder
                 loadingPlaceholder.remove();
 
+
+                 title.classList.add("text-success");
+                 description.innerHTML = "Engineer Status Validated.";
+                 githubBadge.classList.add("text-success", "border-success");
+
                 // Check if GitHub account is verified
                 if (data.fullName && data.totalRepos > 0) {
                     icon.className = "fas fa-award fa-10x mb-2 pt-2";
                     title.innerHTML = `${data.fullName}<br>${data.totalRepos} Repos`;
+                } else {
+                  title.innerHTML = `No Name<br>No Repos`;
                 }
-                    title.classList.add("text-success");
-                    description.innerHTML = "Engineer Status Validated.";
-                    githubBadge.classList.add("text-success", "border-success");
 
                 // Deduplicate and display repository languages
                 if (data.repos && data.repos.length > 0) {
