@@ -376,9 +376,9 @@ window.onload = function () {
            dataConfigurationsList.classList.add("d-flex", "flex-wrap", "text-center"); // Add flex properties for horizontal alignment
 
            var filteredData = filteredDataMinusTruanon.filter(config => {
-              const isGitHub = config.dataPointType === "github";
+              //const isGitHub = config.dataPointType === "github";
               const isTrustedService = config.dataPointType === "trusted";
-              return !isGitHub && !isTrustedService;
+              return !isTrustedService;
            });
 
            filteredData.forEach((dataConfig) => {
