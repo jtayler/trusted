@@ -95,15 +95,19 @@
           </h5>
           <p class="card-text"><%= user.fullname %></p>
         </div>
-        <div class="card-footer">
-          <% if (user.switch_state) { %>
-            <i class="fas fa-check-circle text-<%= getPhotoBorderColor(user.authorRank) %> me-2"></i>
-            <span class="text-<%= getPhotoBorderColor(user.authorRank) %>"> <%= user.authorRank %> Identity</span>
-          <% } else { %>
-            <i class="fas fa-exclamation-circle text-warning me-2"></i>
-            <span class="text-muted">Unknown Identity</span>
-          <% } %>
-        </div>
+<div class="card-footer">
+    <% 
+        const borderColor = getPhotoBorderColor(user.authorRank);
+        const isValidIdentity = user.switch_state && borderColor !== "light"; 
+    %>
+    <% if (isValidIdentity) { %>
+        <i class="fas fa-check-circle text-<%= borderColor %> me-2"></i>
+        <span class="text-<%= borderColor %>"> <%= user.authorRank %> Identity</span>
+    <% } else { %>
+        <i class="fas fa-exclamation-circle text-warning me-2"></i>
+        <span class="text-secondary">Unknown Identity</span>
+    <% } %>
+</div>
       </div>
     </div>
   <% }); %>
@@ -138,7 +142,7 @@
   function applyFilter() {
     if (verifiedSwitch.checked) {
       cards.forEach((card) => {
-        if (card.querySelector('.text-muted') || card.querySelector('.text-light')) {
+        if (card.querySelector('.text-muted') || card.querySelector('.text-secondary')) {
           card.classList.add('hide');
         } else {
           card.classList.remove('hide');
