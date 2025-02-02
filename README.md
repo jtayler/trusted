@@ -1,18 +1,22 @@
-# Introduction: Trust and Safety
+# The Age-Restricted Internet
 
 This is a demonstration of inherently safe identity APIs from TruAnon. 
 
-The demo app highlights three key value propositions:
+[Visit Demo Site](https://devhauz.truanon.com)
 
-1. **Universal 'Badge-of-Trust':** Protect your community with a universal, customizable, and continuous 'Badge-of-Trust' that fosters transparency and trust among users.
+[Watch Demo Video](https://vimeo.com/1049232204)
 
-2. **Access to Valuable Data:** Display useful and confirmed data, including badges for confirmed social profiles and bio details, enabling your service to show more while requesting less.
+[View Presentation](https://docs.google.com/presentation/d/1MBaGqDw_L_bgJ3y3c-qqSjzDbDutanBYfkpb75pr2pI/present)
 
-3. **User-Empowered Trust:** It's automatic. Members make it work without sacrificing privacy, aligning trustworthiness with the inherent utility of your platform.
+This demonstration highlights three key value propositions:
 
-These tools provide everything you need to safeguard your service from abuse and empower legitimate members who share the expectation of meeting other good people.
+1. A **Service** is private when the **Owner** decides it should not be displayed. 
 
-Watch the demo video [here](https://vimeo.com/807486646).
+2. **Data** is private when a **Publishing Service** decides it shall be governed as such.
+
+3. **Consuming Services** (like this demo) onboard immediately, granting privileged access in response to changes in real-time.
+
+**Owner** updates to privacy and **Service** updates to access take effect immediately.
 
 ## API Usage
 
