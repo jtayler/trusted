@@ -193,7 +193,7 @@ window.onload = function () {
     // Default badge for no verification
     icon.className = "text-warning fas fa-ban fa-10x mb-2 pt-2";
     title.innerText = "Engineering Badge Unavailable";
-    description.innerText = "No validating credentials provided.";
+    description.innerHTML = "No validating credentials provided. <hr><div class='text-secondary'> Trusted Sources Are: Bitbucket, GitLab, SourceForge, Codeberg, and GitHub </div>";
     githubBadge.classList.add("border-warning");
     githubBadge.appendChild(icon);
     githubBadge.appendChild(title);
