@@ -45,7 +45,7 @@
                            <div class="col-md-6">
                               <form method="POST" action="/users/<%= user.username %>/edit">
                                  <div class="form-group">
-                                    <label for="full_name-input" class="form-label">Full Name:</label>
+                                    <label for="full_name-input" class="form-label"> Name:</label>
                                     <input type="text" name="full_name" id="full_name-input" value="<%= user.full_name %>" class="form-control" />
                                  </div>
                                  <div class="form-group">
@@ -55,7 +55,7 @@
                            </div>
                            <div class="col-md-6">
                            <div class="form-group">
-                           <label for="photo-input" class="form-label">Default Photo:</label>
+                           <label for="photo-input" class="form-label"> Photo:</label>
                            <input type="text" name="photo" id="photo-input" value="<%= user.photo %>" class="form-control" />
                            </div>
 
@@ -76,10 +76,10 @@
 </div>
 
                            <div class="form-group">
-                           <label for="verified-switch" class="form-label">Verified Identity:</label>
+                           <label for="verified-switch" class="form-label"> Identity:</label>
                            <div class="switch-container form-switch form-switch-pill p-0">
 
-<div class="border rounded p-2 d-flex align-items-center justify-content-between" style="background-color: #f8f9fa;">
+<div class="border rounded px-3 d-flex align-items-center justify-content-between" style="background-color: #f8f9fa; padding:0.2em">
    <!-- Text label inside the box -->
    <span class="text-muted">Use Verified Identity</span>
 
