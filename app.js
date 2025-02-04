@@ -479,6 +479,59 @@ app.get('/users/:username', (req, res) => {
                 }
             });
         });
+
+// Define endpoint to handle the edit page and return appropriate UI elements
+app.get('/users/:username/verify_status', async (req, res) => {
+    const { username } = req.params;
+    const profileURL = `${apiRoute}get_profile?id=${username}&service=${serviceName}`;
+    const tokenURL = `${apiRoute}get_token?id=${username}&service=${serviceName}`;
+
+    const options = {
+        headers: {
+            Authorization: privateKey,
+        },
+    };
+
+    try {
+        // Fetch profile data to check if user is verified
+        const profileResponse = await fetch(profileURL, options);
+        const profileData = await profileResponse.json();
+
+        if (!profileData || profileData.type === "error" || profileData.status === "Unknown") {
+            // If profile is unknown, fetch a new token and return for verification UI
+            const tokenResponse = await fetch(tokenURL, options);
+            const tokenData = await tokenResponse.json();
+
+            // Return UI elements for unverified users
+            return res.json({
+                status: "Unknown",
+                ui: `
+                <input type="text" class="form-control text-muted" value="Assign Ownership" readonly />
+                <a class="btn btn-primary rounded-end" href="#" 
+                onClick="openVerificationPopup('${apiRoute}verifyProfile?id=${username}&service=${serviceName}&token=${tokenData.id}')" 
+                id="verify-link">Verify</a>
+                `
+            });
+        }
+
+        // Extract the TruAnon profile link from dataConfigurations
+        const profileLink = profileData.dataConfigurations.find(config => config.dataPointType === 'truanon')?.displayValue || '#';
+
+        // Return UI elements for verified users
+        return res.json({
+            status: profileData.authorRank,
+            ui: `
+                <input type="text" class="form-control text-muted" value="Securely Assigned" readonly />
+                <a class="btn btn-primary rounded-end" href="${profileLink}" target="_blank">View Profile</a>
+            `
+        });
+
+    } catch (error) {
+        console.error("Error fetching verification status:", error);
+        res.status(500).json({ error: "Failed to fetch verification status" });
+    }
+});
+
 // Define endpoint to get token
 app.get('/users/:username/token', (req, res) => {
     const { username } = req.params;
@@ -510,78 +563,97 @@ app.get('/users/:username/token', (req, res) => {
 });
 
 // Handle edit user form submission
-app.post('/users/:username/edit', (req, res) => {
-    const {
-        full_name,
-        location,
-        photo,
-        switch_state
-    } = req.body;
-    const {
-        username
-    } = req.params;
+async function fetchTruAnonData(username) {
+    const profileURL = `${apiRoute}get_profile?id=${username}&service=${serviceName}`;
+    const options = { headers: { Authorization: privateKey } };
 
-    // Update user in the database
-    db.run(
-        'UPDATE users SET full_name = ?, location = ?, photo = ?, switch_state = ? WHERE username = ?',
-        [full_name, location, photo, switch_state, username],
-        (err) => {
-            if (err) {
-                return res.status(500).send(err.message);
-            }
+    console.log("Calling profile API:", profileURL);
 
-            // Fetch updated user data
-            db.get('SELECT * FROM users WHERE username = ?', [username], (err, updatedUser) => {
-                if (err) {
-                    return res.status(500).send(err.message);
-                }
+    // Fetch profile data from TruAnon
+    const profileResponse = await fetch(profileURL, options);
+    const profileData = await profileResponse.json();
 
-                // Update session user if the logged-in user is editing their own profile
-                if (req.session.user.username === username) {
-                    req.session.user = updatedUser;
-                }
+    console.log("Profile API Response:", profileData);
 
-                // Redirect back to the user's profile
-                res.redirect(`/users/${username}`);
-            });
-        }
-    );
-});
-app.get('/users/:username/edit', (req, res) => {
+    if (profileData && profileData.type !== 'error') {
+        console.log("User is verified, fetching profile link...");
+        const profileLink = profileData.dataConfigurations.find(config => config.dataPointType === 'truanon')?.displayValue || null;
+        return { truanonProfileLink: profileLink, verifyLink: null };
+    } else {
+        console.log("User is not verified, fetching verification token...");
+        const tokenResponse = await fetch(`${apiRoute}get_token?id=${username}&service=${serviceName}`, options);
+        const tokenData = await tokenResponse.json();
+
+        console.log("Token API Response:", tokenData);
+
+        const verifyLink = `${apiRoute}verifyProfile?id=${username}&service=${serviceName}&token=${tokenData.id}`;
+        return { truanonProfileLink: null, verifyLink: verifyLink };
+    }
+}
+
+// GET route to render the profile edit page
+app.get('/users/:username/edit', async (req, res) => {
     const userId = req.session.userId;
-    db.get('SELECT * FROM users WHERE id = ?', [userId], (err, user) => {
-        if (err) {
-            return res.status(500).send(err.message);
-        }
-        if (!user) {
-            return res.status(404).send('User not found');
-        }
-        var verified = true; // replace with your logic to determine if verified is true or false
+
+    db.get('SELECT * FROM users WHERE id = ?', [userId], async (err, user) => {
+        if (err) return res.status(500).send(err.message);
+        if (!user) return res.status(404).send('User not found');
+
+        console.log("Rendering edit page for:", user.username);
+        const { truanonProfileLink, verifyLink } = await fetchTruAnonData(user.username);
+
         res.render('edit', {
-            user: user,
-            verified: verified
+            user: {
+                ...user,
+                truanon_profile_link: truanonProfileLink,
+                verify_link: verifyLink
+            }
         });
     });
 });
-app.post('/users/:username/edit', (req, res) => {
-    const {
-        full_name,
-        location,
-        photo,
-        switch_state
-    } = req.body;
-    const username = req.params.username;
-    db.run(
-        'UPDATE users SET full_name = ?, location = ?, switch_state = ?, photo = ? WHERE username = ?',
-        [full_name, location, switch_state, photo, username],
-        (err) => {
-            if (err) {
-                return res.status(500).send(err.message);
-            }
-            res.redirect(`/users/${username}`);
+
+app.post('/users/:username/edit', async (req, res) => {
+    const { full_name, location, photo, switch_state } = req.body;
+    const { username } = req.params;
+
+    try {
+        console.log("Received request to edit profile for:", username);
+        console.log("Form Data:", { full_name, location, photo, switch_state });
+
+        // Update user data in the database
+        await new Promise((resolve, reject) => {
+            db.run(
+                'UPDATE users SET full_name = ?, location = ?, photo = ?, switch_state = ? WHERE username = ?',
+                [full_name, location, photo, switch_state, username],
+                (err) => (err ? reject(err) : resolve())
+            );
+        });
+
+        // Fetch updated user data
+        const updatedUser = await new Promise((resolve, reject) => {
+            db.get('SELECT * FROM users WHERE username = ?', [username], (err, user) => {
+                if (err) return reject(err);
+                resolve(user);
+            });
+        });
+
+        // Update session user if editing their own profile
+        if (req.session.user.username === username) {
+            req.session.user = updatedUser;
         }
-    );
+
+        console.log("User profile updated successfully for:", username);
+
+        // Redirect back to the user's profile page
+        res.redirect(`/users/${username}`);
+
+    } catch (error) {
+        console.error("Error updating profile or fetching verification data:", error);
+        res.status(500).send("An error occurred while updating the profile.");
+    }
 });
+
+
 app.get('/users', (req, res) => {
   db.all('SELECT * FROM users', [], (err, rows) => {
     if (err) {
