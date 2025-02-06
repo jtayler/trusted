@@ -28,16 +28,13 @@
 .col {
   opacity: 1;
   height: auto;
-  max-width: auto;
-  padding:auto;
   transition: opacity 0.5s ease-in-out, width 0.5s ease-in-out, height 0.5s ease-in-out;
 }
 
 .col.hide {
   opacity: 0;
-  padding: 0;
-  max-width: 0;
   height: 0;
+  overflow: hidden;
 }
          .card {
          min-width: 18rem;
@@ -46,12 +43,10 @@
          .row {
          display: flex;
          flex-wrap: wrap;
-         margin:0;
          }
          @media only screen and (max-width: 768px) {
          .card {
          min-width: 14rem;
-         max-width: 28rem;
          }
 
         }
