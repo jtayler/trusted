@@ -27,13 +27,18 @@
       <style>
 .col {
   opacity: 1;
+  width: auto;
   height: auto;
   transition: opacity 0.5s ease-in-out, width 0.5s ease-in-out, height 0.5s ease-in-out;
 }
 
-.col.hide {
+.col.hide, .col.hide .card , .col.hide .card-body , .col.hide .card-footer {
   opacity: 0;
+  display: none;
   height: 0;
+  width:0;
+  max-width:0;
+  min-width: 0;
   overflow: hidden;
 }
          .card {
