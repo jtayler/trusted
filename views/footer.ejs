@@ -1,4 +1,35 @@
 <footer class="p-5 text-center m-3">
-  <p class="mb-0">&copy; 2025 DevHäuz The Software Developer's Marketplace. All rights reserved.</p>
-  <p class="mb-0">Made with ❤️ by the best software coders in town</p>
+<div id="quote-box" style="font-size:150%;" class="text-dark">
+  <i><p id="inspiration-line">&quot;</p></i>
+</div>
+  <p class="text-muted mb-0">&copy; 2025 DevHäuz The Software Developer's Marketplace. All rights reserved.</p>
+  <p class="text-muted mb-0"> Made with ❤️ and way too much ☕ by the best software coders in da Häuz! 🏠
+</p>
+
+<script>
+const quotes = [
+    "Every child deserves safety and privacy in the digital world —ZERO sacrificing privacy.",
+    "Age assurance must empower parents to protect children.",
+    "Digital trust begins with eliminating bias—ensuring no one is excluded based on credentials they don’t have.",
+    "Working to protect child privacy today secures all our freedom tomorrow.",
+    "Privacy-preserving age verification ensures inclusion, trust, and fairness for everyone.",
+    "Technology must protect families without compromising their rights to privacy and dignity.",
+    "We can avoid exclusion by enabling access to cofnirm pieces of identity everyone already has.",
+    "Privacy is the foundation of freedom in an online world.",
+    "The trusted internet starts with trust—protected, transparent, and owner-controlled.",
+    "The future belongs to those who secure both their data and their dignity.",
+    "Communities thrive where privacy, security, and accountability converge.",
+    "In the future world we hope to secure, we champion an era where privacy is non-negotiable.",
+    "The most powerful future is one where every individual controls their identity.",
+    "Privacy is the right to control how your story is told in the online age.",
+    "Accountability in the online world starts with respecting individual privacy.",
+    "The strongest foundation for online trust is transparency and choice.",
+    "Privacy-first systems empower everyone to engage safely and confidently.",
+    "True digital identity honors both privacy and accountability in equal measure."
+];
+
+  // Display a random quote with quotes around it
+  document.getElementById('inspiration-line').innerHTML = `&quot;${quotes[Math.floor(Math.random() * quotes.length)]}&quot;`;
+</script>
+
 </footer>
