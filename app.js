@@ -80,7 +80,7 @@ app.locals.getUserDisplayData = (user) => {
 
     return {
         photo: displayPhoto,
-        rank: displayRank,
+        authoRank: displayRank,
         borderColor: app.locals.getPhotoBorderColor(displayRank),
     };
 };
@@ -601,13 +601,15 @@ app.get('/users/:username/edit', async (req, res) => {
 
         console.log("Rendering edit page for:", user.username);
         const { truanonProfileLink, verifyLink } = await fetchTruAnonData(user.username);
+        const displayData = app.locals.getUserDisplayData(user);
 
         res.render('edit', {
             user: {
                 ...user,
                 truanon_profile_link: truanonProfileLink,
                 verify_link: verifyLink
-            }
+            },
+            rank: displayData.authoRank
         });
     });
 });

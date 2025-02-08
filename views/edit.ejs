@@ -59,33 +59,33 @@
                            <input type="text" name="photo" id="photo-input" value="<%= user.photo %>" class="form-control" />
                            </div>
 
-<label class="form-label">  Owner:</label>
-<div class="input-group">
-   <% if (user.truanon_profile_link) { %>
-      <!-- Profile exists: Show link to the TruAnon profile -->
-      <input type="text" class="form-control text-muted" value="Securely Assigned" readonly />
-      <a class="btn btn-primary rounded-end" href="https://<%= user.truanon_profile_link %>" target="_blank">
-         <%= user.truanon_profile_link %>
-      </a>
-   <% } else { %>
-      <!-- No profile: Show Verify button with popup link -->
-      <input type="text" class="form-control text-muted" value="Securely Assign Ownership" readonly />
-      <a id="verify-link" href="#" class="btn btn-primary"
-         onClick="openVerificationPopup('<%= user.verify_link %>')">Verify</a>
-   <% } %>
-</div>
+                           <label class="form-label">  Owner:</label>
+                           <div class="input-group">
+                              <% if (user.truanon_profile_link) { %>
+                                 <input type="text" class="form-control text-muted" value="Securely Assigned" readonly />
+                                 <a class="btn btn-primary rounded-end" href="https://<%= user.truanon_profile_link %>" target="_blank">
+                                    <%= user.truanon_profile_link %>
+                                 </a>
+                              <% } else { %>
+                                 <input type="text" class="form-control text-muted" value="Securely Assign Ownership" readonly />
+                                 <a id="verify-link" href="#" class="btn btn-primary"
+                                    onClick="openVerificationPopup('<%= user.verify_link %>')">Verify</a>
+                              <% } %>
+                           </div>
 
                            <div class="form-group">
                            <label for="verified-switch" class="form-label"> Identity:</label>
                            <div class="switch-container form-switch form-switch-pill p-0">
 
-<div class="border rounded px-3 d-flex align-items-center justify-content-between" style="background-color: #f8f9fa; padding:0.2em">
-   <!-- Text label inside the box -->
-   <span class="text-muted">Use Verified Identity</span>
-
-   <!-- Switch aligned to the right -->
-   <input class="form-check-input m-0" type="checkbox" name="switch_state" id="verified-switch" <% if (user.switch_state === "on") { %>checked<% } %> />
-</div>
+                           <div class="border rounded px-3 d-flex align-items-center justify-content-between" style="background-color: #f8f9fa; padding:0.4em">
+                              <span class="text-muted">Use Verified Identity</span>
+                              <input class="form-check-input m-0" 
+                                     type="checkbox" 
+                                     name="switch_state" 
+                                     id="verified-switch" 
+                                     <% if (!user.truanon_profile_link) { %>disabled<% } %> 
+                                     <% if (user.switch_state === "on") { %>checked<% } %> />
+                           </div>
 
                            </div>
                            </div>
@@ -111,77 +111,33 @@
                </div>
             </div>
          </div>
-<script>
-    function openVerificationPopup(url) {
-        const popupWidth = 480;
-        const popupHeight = 840;
-        const popupTop = (window.innerHeight - popupHeight) / 2 || 100;  // Fallback position if height is unavailable
-        const popupLeft = (window.innerWidth - popupWidth) / 2 || 100;
-
-        const popupWindow = window.open(
-            url,
-            "ta-popup",
-            `width=${popupWidth},height=${popupHeight},top=${popupTop},left=${popupLeft},resizable,scrollbars`
-        );
-
-        if (popupWindow) {
-            // Poll for window close event
-            const timer = setInterval(() => {
-                if (popupWindow.closed) {
-                    clearInterval(timer);
-                    window.location.reload();  // Reload to refresh verification status
-                }
-            }, 1000);
-        } else {
-            alert('Popup blocked! Please allow popups for this site.');
-        }
-    }
-</script>
-
-
-
-<script>
-   window.onload = function() {
-
-
-
-    const apiRoute = "<%= process.env.API_ROUTE %>";
-    const serviceName = "<%= process.env.SERVICE_NAME %>";
-
-    const user = {
-     username: '<%= user.username %>',
-     switch_state: '<%= user.switch_state %>' === 'on' ? true : false
-  };
-              // Set initial state of verified switch
-  const switchElem = document.getElementById("verified-switch");
-  //switchElem.checked = user.switch_state;
-
-  function handleVerification() {
-
-   var timer = setInterval(function() {
-      if (win.closed) {
-         clearInterval(timer);
-         linkElem.style.display = "none";
-                window.location.href = '/users/' + `${user.username}`; // Replace 'username' with the actual username
-             }
-          }, 1000);
-
-   .catch(error => {
-      console.error(error);
-   });
-} else {
-   user.switch_state = false;
-}
-}
-if (switchElem) {
-  switchElem.addEventListener("click", handleVerification);
-}
-
-</script>
-
-
-
       </div>
+      <script>
+         function openVerificationPopup(url) {
+           const popupWidth = 480;
+           const popupHeight = 840;
+           const popupTop = (window.innerHeight - popupHeight) / 2 || 100;  // Fallback position if height is unavailable
+           const popupLeft = (window.innerWidth - popupWidth) / 2 || 100;
+
+           const popupWindow = window.open(
+               url,
+               "ta-popup",
+               `width=${popupWidth},height=${popupHeight},top=${popupTop},left=${popupLeft},resizable,scrollbars`
+           );
+
+           if (popupWindow) {
+               // Poll for window close event
+               const timer = setInterval(() => {
+                   if (popupWindow.closed) {
+                       clearInterval(timer);
+                       window.location.reload();  // Reload to refresh verification status
+                   }
+               }, 1000);
+           } else {
+               alert('Popup blocked! Please allow popups for this site.');
+           }
+         }
+      </script>
       <%- include('footer') %>
    </body>
 </html>
