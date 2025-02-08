@@ -314,7 +314,10 @@ githubBadge.appendChild(repoList);
          
          var badgeScore = document.createElement("div");
          badgeScore.className = "badge-score h5";
-         badgeScore.innerHTML = "(" + verifiedDetails.authorRankScore + " of 5)<p class=\"pt-4\"><b>  ⸻  " + verifiedDetails.authorAgeBadge + " ⸻  </b>   </p>";
+badgeScore.innerHTML = 
+    "(" + verifiedDetails.authorRankScore + " of 5)<p class=\"pt-4\"><b>" + 
+    (verifiedDetails.authorAgeBadge ? " ⸻ " + verifiedDetails.authorAgeBadge + " ⸻ " : "") + 
+    "</b></p>";
          badge.appendChild(badgeScore);
          
          $('#badge-area').html(badge);
