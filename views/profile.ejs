@@ -14,11 +14,11 @@
       <title> <%= user.full_name %> (@<%= user.username %>) - Profile</title>
       <meta property="og:title" content="<%= user.full_name %> (@<%= user.username %>) - Profile">
       <meta property="og:description" content="View the profile of <%= user.full_name %> (@<%= user.username %>) on our site.">
-      <meta property="og:image" content="<%= user.photo %>">
       <meta property="og:url" content="https://demo.truanon.com/users/<%= user.username %>">
       <meta name="twitter:title" content="<%= user.full_name %> (@<%= user.username %>) - Profile">
       <meta name="twitter:description" content="View the profile of <%= user.full_name %> (@<%= user.username %>) on our site.">
-      <meta name="twitter:image" content="<%= user.photo %>">
+<meta property="og:image" content="<%= user.authorPhoto && user.switch_state === 'on' ? user.authorPhoto : user.photo %>">
+<meta name="twitter:image" content="<%= user.authorPhoto && user.switch_state === 'on' ? user.authorPhoto : user.photo %>">
       <meta name="twitter:card" content="summary_large_image">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=IBM+Plex+Mono:wght@400;700&family=Space+Grotesk:wght@400;700&family=Work+Sans:wght@400;600&family=Barlow:wght@400;600&display=swap" rel="stylesheet">
    </head>
