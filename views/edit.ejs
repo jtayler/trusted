@@ -17,8 +17,8 @@
       <link rel="icon" type="image/png" sizes="64x64" href="https://truanon.s3.amazonaws.com/img/dogsquare.ico">
       <link rel="icon" type="image/png" sizes="128x128" href="https://truanon.s3.amazonaws.com/img/dogsquare.ico">
       <link rel="icon" type="image/png" sizes="256x256" href="https://truanon.s3.amazonaws.com/img/dogsquare.ico">
-<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
-<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+      <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+      <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
       <style>
          .form-switch .form-check-input {
          height:2.0rem;
@@ -86,7 +86,6 @@
                                      <% if (!user.truanon_profile_link) { %>disabled<% } %> 
                                      <% if (user.switch_state === "on") { %>checked<% } %> />
                            </div>
-
                            </div>
                            </div>
                            </div>
@@ -112,32 +111,56 @@
             </div>
          </div>
       </div>
+      
+      <!-- Modal Overlay for Verification -->
+      <div class="modal fade" id="verificationModal" tabindex="-1" aria-labelledby="verificationModalLabel" aria-hidden="true">
+         <div class="modal-dialog modal-dialog-centered" style="max-width: 480px;">
+            <div class="modal-content">
+               <div class="modal-header">
+                  <h5 class="modal-title" id="verificationModalLabel">Verify Profile</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+               </div>
+               <div class="modal-body" style="height: 840px; padding: 0;">
+                  <iframe id="verificationIframe" src="" frameborder="0" style="width: 100%; height: 100%;"></iframe>
+               </div>
+            </div>
+         </div>
+      </div>
+      
       <script>
+
+window.addEventListener("message", (event) => {
+  // For security, check the origin of the message
+  // if (event.origin !== "https://yourdomain.com") return;
+
+  if (event.data && event.data.action === "closeVerificationModal") {
+    // Close the modal using Bootstrap 4's jQuery API
+    $('#verificationModal').modal('hide');
+
+    if (event.data.callbackUrl) {
+      window.location.href = event.data.callbackUrl;
+    }
+  }
+});
+
+function closeVerificationModal() {
+  $('#verificationModal').modal('hide');
+}
          function openVerificationPopup(url) {
-           const popupWidth = 480;
-           const popupHeight = 840;
-           const popupTop = (window.innerHeight - popupHeight) / 2 || 100;  // Fallback position if height is unavailable
-           const popupLeft = (window.innerWidth - popupWidth) / 2 || 100;
-
-           const popupWindow = window.open(
-               url,
-               "ta-popup",
-               `width=${popupWidth},height=${popupHeight},top=${popupTop},left=${popupLeft},resizable,scrollbars`
-           );
-
-           if (popupWindow) {
-               // Poll for window close event
-               const timer = setInterval(() => {
-                   if (popupWindow.closed) {
-                       clearInterval(timer);
-                       window.location.reload();  // Reload to refresh verification status
-                   }
-               }, 1000);
-           } else {
-               alert('Popup blocked! Please allow popups for this site.');
-           }
+            // Set the iframe src to the provided verification URL
+            document.getElementById('verificationIframe').src = url;
+            
+            // Create and show the modal using Bootstrap's Modal API
+            var verificationModal = new bootstrap.Modal(document.getElementById('verificationModal'));
+            verificationModal.show();
+            
+            // When the modal is hidden, refresh the page to update verification status
+            document.getElementById('verificationModal').addEventListener('hidden.bs.modal', function () {
+               window.location.reload();
+            });
          }
       </script>
+      
       <%- include('footer') %>
    </body>
 </html>
