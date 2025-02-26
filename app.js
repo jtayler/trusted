@@ -85,6 +85,13 @@ app.locals.getUserDisplayData = (user) => {
     };
 };
 
+
+app.use((req, res, next) => {
+  // Allow your specific parent domain to frame your content
+  res.header("Content-Security-Policy", "frame-ancestors 'self' https://parentdomain.com");
+  next();
+});
+
 const bitbucketUsername = 'jtayler1'; // Replace with your Bitbucket username
 
 // Endpoint to fetch Bitbucket data
