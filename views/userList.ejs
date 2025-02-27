@@ -24,6 +24,8 @@
 
    <body>
 <%- include('header', { currentPage: 'Members' }) %> <!-- Include your header -->
+
+
       <style>
 .col {
   opacity: 1;
@@ -59,20 +61,36 @@
     border-width: 4px !important;
     border-style: solid;
 }
+@media (max-width: 768px) {
+  .card {
+    min-width: 20rem;
+    max-width: 100%;
+  }
+}
 
       </style>
-      <div class="container mt-3 ">
-<div class="alert">
-  <div class="banner filter-switch">
-    <div class="form-check form-switch">
-    <span class="m-2 fas fa-filter"></span>
-      <input class="m-2 form-check-input fs-4" type="checkbox" id="verifiedSwitch">
-      <label class="m-2 form-check-label" for="verifiedSwitch"> Trusted Engineers</label>
+
+      <style>
+  /* Increase the size of the switch */
+  .form-check-input-lg {
+    transform: scale(1.8);
+    -webkit-transform: scale(1.8);
+    -moz-transform: scale(1.8);
+    margin-top: 0.3rem; /* Adjust as needed */
+  }
+</style>
+
+      <div class="container">
+<div class="alert alert-muted shadow-sm rounded m-5 mb-0">
+  <div class="d-flex align-items-center">
+    <div class="form-check form-switch flex-grow-1 ms-4">
+      <input class="form-check-input form-check-input-lg" type="checkbox" id="verifiedSwitch">
+      <label class="form-check-label ms-3 font-weight-bold" for="verifiedSwitch">Trusted Engineers Only</label>
     </div>
   </div>
 </div>
  
-<div class="row g-4 justify-content-center">
+<div class="row g-4 m-3 justify-content-center">
   <% users.reverse().forEach(function(user) { %>
     <div class="show col<% if (user.switch_state) { %> verified<% } %>">
       <!-- Dynamic Border Based on Rank -->
