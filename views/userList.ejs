@@ -142,7 +142,7 @@
   function applyFilter() {
     if (verifiedSwitch.checked) {
       cards.forEach((card) => {
-        if (card.querySelector('.text-muted') || card.querySelector('.text-secondary')) {
+        if (card.querySelector('.text-muted') || card.querySelector('.text-secondary') || card.querySelector('.text-danger')) {
           card.classList.add('hide');
         } else {
           card.classList.remove('hide');
