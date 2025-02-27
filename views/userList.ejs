@@ -104,7 +104,7 @@
         <i class="fas fa-check-circle text-<%= borderColor %> me-2"></i>
         <span class="text-<%= borderColor %>"> <%= user.authorRank %> Identity</span>
     <% } else { %>
-        <i class="fas fa-exclamation-circle text-warning me-2"></i>
+        <i class="fas fa-exclamation-circle text-muted me-2"></i>
         <span class="text-secondary">Unknown Identity</span>
     <% } %>
 </div>
@@ -142,7 +142,7 @@
   function applyFilter() {
     if (verifiedSwitch.checked) {
       cards.forEach((card) => {
-        if (card.querySelector('.text-muted') || card.querySelector('.text-secondary') || card.querySelector('.text-danger')) {
+        if (card.querySelector('.text-muted') || card.querySelector('.text-danger')) {
           card.classList.add('hide');
         } else {
           card.classList.remove('hide');
