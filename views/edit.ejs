@@ -130,13 +130,8 @@
       <script>
 
 window.addEventListener("message", (event) => {
-  // For security, check the origin of the message
-  // if (event.origin !== "https://yourdomain.com") return;
-
   if (event.data && event.data.action === "closeVerificationModal") {
-    // Close the modal using Bootstrap 4's jQuery API
     $('#verificationModal').modal('hide');
-
     if (event.data.callbackUrl) {
       window.location.href = event.data.callbackUrl;
     }
@@ -147,14 +142,9 @@ function closeVerificationModal() {
   $('#verificationModal').modal('hide');
 }
          function openVerificationPopup(url) {
-            // Set the iframe src to the provided verification URL
             document.getElementById('verificationIframe').src = url;
-            
-            // Create and show the modal using Bootstrap's Modal API
             var verificationModal = new bootstrap.Modal(document.getElementById('verificationModal'));
             verificationModal.show();
-            
-            // When the modal is hidden, refresh the page to update verification status
             document.getElementById('verificationModal').addEventListener('hidden.bs.modal', function () {
                window.location.reload();
             });
