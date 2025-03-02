@@ -97,14 +97,14 @@ app.get('/users/:username/token', async (req, res) => {
 Once a token is generated, a public **verification link** can be created:
 
 ```
-https://staging.truanon.com/api/verifyProfile?id=[USERNAME]&service=[SERVICENAME]&token=[TOKEN]
+https://truanon.com/api/verifyProfile?id=[USERNAME]&service=[SERVICENAME]&token=[TOKEN]
 ```
 
 This link supports an optional **callback URL**, allowing the page to refresh or redirect once verification is complete.
 
 ### Example **Simple Popup Verification** Button:
 ```html
-<a href="https://staging.truanon.com/api/verifyProfile?id=[USERNAME]&service=[SERVICENAME]&token=[TOKEN]" 
+<a href="https://truanon.com/api/verifyProfile?id=[USERNAME]&service=[SERVICENAME]&token=[TOKEN]" 
    target="ta-popup" 
    onclick="openVerificationPopup(this.href)"
    class="btn btn-primary">
