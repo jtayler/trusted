@@ -187,7 +187,7 @@ Once a user is verified, **TruAnon grants the service**:
 These values can be:
 - **Displayed as achievements** (trust badges, profile cards)
 - **Used for gated content** (realtime feature access, community roles)
-- **Cached confidence rank** *(optional: store last rank before downgrade)*
+- **Cached confidence rank** *(optional: store last rank to cache colors or badges)*
 
 Example UI Implementation in `edit.ejs`:
 ```ejs
