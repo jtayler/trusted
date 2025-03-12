@@ -29,7 +29,7 @@
          .custom-border-4 {
             border-width: 10.25px !important;
          }
-         .row ul {
+         .containerDiv ul {
             padding: 1rem;
          }
        </style>
@@ -222,63 +222,91 @@ window.onload = function () {
     loadingPlaceholder.innerHTML = `<div><div class="fas fa-spinner fa-spin fa-2x mb-4 mt-4"></div></div>`;
     badgeArea.insertAdjacentElement("afterend", loadingPlaceholder);
 
-    fetch(`/users/<%= user.username %>/github`)
-        .then(response => {
-            if (!response.ok) throw new Error("Network response was not ok");
-            return response.json();
-        })
-        .then(data => {
-            loadingPlaceholder.remove(); // Remove loading
+fetch(`/users/<%= user.username %>/github`)
+    .then(response => {
+        if (!response.ok) throw new Error("Network response was not ok");
+        return response.json();
+    })
+    .then(data => {
+        loadingPlaceholder.remove(); // Remove loading spinner
 
-            // Badge styling and description for valid or invalid credentials
-            if (data.totalRepos > 0) {
-                title.className = "card-title text-success mb-1 pt-4";
-                title.innerHTML = `${data.fullName || "No Name Provided"}<br>${data.totalRepos} Repos`;
-                description.innerHTML = "Engineer Status Validated";
-                githubBadge.classList.add("text-success", "border-success");
-                icon.className = "fas fa-award fa-10x mb-2 pt-2";
-            } else {
-                title.className = "card-title text-danger mb-1 pt-4";
-                title.innerHTML = `No Name Provided<br>No Repos`;
-                description.innerHTML = "Provided Credentials Do Not Suffice";
-                githubBadge.classList.add("text-danger", "border-danger");
-                icon.className = "fas fa-frown fa-10x mb-2 pt-2";
+        console.log("Fetched GitHub Data:", data);
+
+        // Extract data
+        const githubUsername = data.fullName || "No Name Provided";
+        const githubRepos = data.totalRepos;
+        const githubCreated = data.githubCreated || "Unknown";
+        const githubAge = data.githubAge || "";
+
+        let badgeColor = "danger"; // Default failure state
+        let verificationStatus = "GitHub Not Verified";
+        let failureReasons = [];
+
+        // Apply verification logic
+        if (githubRepos > 0) {
+            badgeColor = "success";
+            verificationStatus = "Engineer Status Validated";
+        } else {
+            failureReasons.push("");
+        }
+
+        // Check 60-day age rule
+        if (githubAge.includes("0 years") && parseInt(githubAge.split(",")[1]) < 2) {
+            //failureReasons.push("Not 60 Days Old");
+        }
+
+        if (failureReasons.length > 0) {
+            badgeColor = "danger";
+            verificationStatus = "Verification Failed";
+        }
+
+        githubBadge.classList.add(`text-${badgeColor}`, `border-${badgeColor}`);
+        icon.className = `fas fa-${badgeColor === "success" ? "award" : "frown"} fa-10x mb-2 pt-2`;
+        title.className = `card-title text-${badgeColor} mb-1 pt-4`;
+        title.innerHTML = `${githubUsername}<br>${githubRepos} Repos`;
+        description.innerHTML = failureReasons.length > 0 
+            ? `Provided Credentials Do Not Suffice<br>`
+            : "Engineer Status Validated";
+
+        // **Add the GitHub Created Date & Age (NEW LINE)**
+        description.innerHTML += `
+            <br><small class="text-muted"> ${githubCreated} ${githubAge}</small>
+        `;
+
+        // Handle repository languages
+        const repoList = document.createElement("div");
+        let uniqueLanguages = ["No languages detected"];
+
+        if (Array.isArray(data.repos) && data.repos.length > 0) {
+            const allLanguages = data.repos.flatMap(repo =>
+                repo.languages ? repo.languages.split(", ").filter(Boolean) : []
+            );
+            if (allLanguages.length) {
+                uniqueLanguages = [...new Set(allLanguages)];
             }
+        }
 
-            // Handle repository languages
-            const repoList = document.createElement("div");
-            let uniqueLanguages = ["No languages detected"];
+        repoList.innerHTML = `
+            <span class="text-muted small fst-italic">${uniqueLanguages.join(", ")}</span>
+            <div><br><hr><br>
+                <p>This authoritative information has been validated at the source and securely transferred to ensure trusted use</p>
+            </div>
+            <div class="text-secondary">
+                Trusted Sources Are: Bitbucket, GitLab, SourceForge, Codeberg, and GitHub
+            </div>`;
 
-            if (Array.isArray(data.repos) && data.repos.length > 0) {
-                const allLanguages = data.repos.flatMap(repo =>
-                    repo.languages ? repo.languages.split(", ").filter(Boolean) : []
-                );
-                if (allLanguages.length) {
-                    uniqueLanguages = [...new Set(allLanguages)];
-                }
-            }
-
-            repoList.innerHTML = `
-                <span class="text-muted small fst-italic">${uniqueLanguages.join(", ")}</span>
-                <div><br><hr><br>
-                    <p>This authoritative information has been validated at the source and securely transferred to ensure trusted use.</p>
-                </div>
-                <div class="text-secondary">
-                    Trusted Sources Are: Bitbucket, GitLab, SourceForge, Codeberg, and GitHub
-                </div>`;
-
-            githubBadge.appendChild(repoList);
-            badgeArea.insertAdjacentElement("afterend", githubBadge);
-        })
-        .catch(error => {
-            console.error("Error fetching GitHub data:", error);
-            loadingPlaceholder.innerHTML = `
-                <div>
-                    <i class="fas fa-exclamation-circle fa-2x text-danger"></i>
-                    <p>Failed to load GitHub data.</p>
-                </div>`;
-        });
-};
+        githubBadge.appendChild(repoList);
+        badgeArea.insertAdjacentElement("afterend", githubBadge);
+    })
+    .catch(error => {
+        console.error("Error fetching GitHub data:", error);
+        loadingPlaceholder.innerHTML = `
+            <div>
+                <i class="fas fa-exclamation-circle fa-4x text-danger"></i>
+                <p>Failed to load GitHub data.</p>
+            </div>`;
+    });
+    };
 </script>
 
 
@@ -309,10 +337,10 @@ window.onload = function () {
          
          var badgeScore = document.createElement("div");
          badgeScore.className = "badge-score h5";
-badgeScore.innerHTML = 
-    "(" + verifiedDetails.authorRankScore + " of 5)<p class=\"pt-4\"><b>" + 
-    (verifiedDetails.authorAgeBadge ? " ⸻ " + verifiedDetails.authorAgeBadge + " ⸻ " : "") + 
-    "</b></p>";
+         badgeScore.innerHTML = 
+            "(" + verifiedDetails.authorRankScore + " of 5)<p class=\"pt-4\"><b>" + 
+           (verifiedDetails.authorAgeBadge ? " ⸻ " + verifiedDetails.authorAgeBadge + " ⸻ " : "") + 
+           "</b></p>";
          badge.appendChild(badgeScore);
          
          $('#badge-area').html(badge);

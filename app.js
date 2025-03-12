@@ -172,7 +172,7 @@ console.log('Bitbucket username:', bitbucketUsername);
         }));
 
         const formattedData = {
-            displayName: bitbucketProfile.display_name || 'No name available',
+            displayName: bitbucketProfile.display_name || 'No Name',
             totalRepos: repoData.length,
             repos: repoData,
         };
@@ -218,17 +218,17 @@ app.get('/users/:username/github', async (req, res) => {
         if (githubConfig.displayValue.startsWith('Privately Verified')) {
             console.log('Skipping GitHub fetch for privately verified username:', githubConfig.displayValue);
 
-            // Send a custom response to indicate "Privately Verified"
             return res.json({
                 status: 'private',
                 message: 'GitHub fetching is not allowed for privately verified accounts',
             });
         }
-        // GitHub API URLs
-        const REPOS_API_URL = `https://api.github.com/users/${githubUsername}/repos`;
-        const GITHUB_PROFILE_API_URL = `https://api.github.com/users/${githubUsername}`;
 
-        // Fetch GitHub profile information
+        // GitHub API URLs
+        const GITHUB_PROFILE_API_URL = `https://api.github.com/users/${githubUsername}`;
+        const REPOS_API_URL = `https://api.github.com/users/${githubUsername}/repos`;
+
+        // Fetch GitHub profile information (includes account creation date)
         const githubProfileResponse = await fetch(GITHUB_PROFILE_API_URL, {
             headers: {
                 Authorization: `token ${token}`,
@@ -241,6 +241,29 @@ app.get('/users/:username/github', async (req, res) => {
         }
 
         const githubProfile = await githubProfileResponse.json();
+
+        // Format GitHub creation date
+        const createdAt = githubProfile.created_at ? new Date(githubProfile.created_at) : null;
+        let formattedDate = "Unknown";
+        let accountAgeText = "";
+
+        if (createdAt) {
+            formattedDate = createdAt.toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric"
+            });
+
+            const now = new Date();
+            const diffTime = Math.abs(now - createdAt);
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+            const years = Math.floor(diffDays / 365);
+            const months = Math.floor((diffDays % 365) / 30);
+            const days = diffDays % 30;
+
+            accountAgeText = `(${years} yrs old)`;
+        }
 
         // Fetch repositories
         const reposResponse = await fetch(REPOS_API_URL, {
@@ -275,11 +298,13 @@ app.get('/users/:username/github', async (req, res) => {
             })
         );
 
-        // Format data
+        // Format response
         const formattedData = {
-            fullName: githubProfile.name || 'No name available',
+            fullName: githubProfile.name || 'No Name',
             totalRepos: repoData.length,
             repos: repoData,
+            githubCreated: formattedDate,
+            githubAge: accountAgeText
         };
 
         console.log("Fetched GitHub data:", formattedData);
