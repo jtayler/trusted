@@ -30,15 +30,15 @@ Most "verified" systems show a checkmark. TruAnon shows three signals together:
 
 | Signal | What it means |
 |--------|--------------|
-| **Score** (e.g. 5.0) | Depth and quality of verified identity |
-| **Rank** (numeric) | Standing relative to others on the platform |
-| **Color** | Visual trust tier at a glance |
+| **Score** (e.g. 5.0) | Reflection of the depth and history of publicly anchored properties |
+| **Rank** (ladder of trust) | Standing along the ladder of trust where Credible is same as ID, but members may boost to Reliable or even Genuine rank using transparency of things they already have |
+| **Color** | Visual ladder trust and reflected tier at a glance |
 
 When a member hasn't verified, the recommended UI isn't silence — it's a prompt:
 
 > *"Ask me why I haven't verified."*
 
-On a platform where trusted members wear badges, opting out becomes visible. People prefer trusted members. This is social gravity, not coercion — and it's what makes the system self-reinforcing.
+On a platform where trusted members wear badges, opting out becomes conspicuous. People prefer other trusted badge-wearing  members. This is social gravity, not coercion — and it's what makes the system self-reinforcing. Fraud becomes obsolete and fradsters move on to less trusted platforms.
 
 ---
 
@@ -52,7 +52,7 @@ Members control three layers from their own dashboard:
 | **Persona / contact / social links** | Which linked profiles are visible (GitHub, LinkedIn, etc.) |
 | **Private mode** | Removes URL links entirely — data shows, but nothing is clickable or stalkable |
 
-**Example:** A dating platform can display a member's verified age range, location area, and trust score — without exposing their LinkedIn or GitHub URL. The member is meaningfully known without being findable. This is a meaningful improvement over what most platforms can offer today.
+**Example:** A dating platform can help users display a verified age range with confidence plainly displayed, general location area, a zodiac sign or chosen pronouns — all without exposing the backing properties, the LinkedIn or GitHub URL. The members can be meaningfully known without being findable. This is a quality-of-life value improvement over what less trusted platforms offer.
 
 ---
 
@@ -61,7 +61,7 @@ Members control three layers from their own dashboard:
 - **First 1,000 verifications are free**
 - After that: approximately **$0.04 per verification**
 
-If you get a bill for a few dollars, it means your platform is growing and trust is working. More importantly: fraudsters can't fake a high rank anchored across a dozen real platforms. They move to less trusted places. Your platform's quality improves passively, as a side effect of your members' integrity.
+If you get a bill for four cents, it means this must be working. Your platform is growing and trust is doing its job automatically. More importantly: fraudsters can't fake a high rank anchored across a variety of different platforms. They move to less trusted places. Your platform's quality improves passively, as a side effect of your members' integrity.
 
 ---
 
