@@ -8,18 +8,16 @@ This is a working demonstration of TruAnon's identity APIs integrated into a Nod
 
 ## What This Is (And What It Isn't)
 
-This is **not** an age gate, a KYC flow, or a one-time identity check.
-
 TruAnon is a **trust layer** — a living, user-controlled identity signal that your platform displays, filters by, and builds community around. Members anchor their identity to the accounts and profiles the world already knows them by: GitHub, LinkedIn, Bluesky, their own domain. That proof aggregates into a **rank, score, and color badge** that travels with them everywhere TruAnon is adopted.
 
-Think of it like Google Maps for trust. Anyone can host it. Members make it work. Once integrated, it runs itself.
+A developer can think of it like Google Maps for trust. Anyone can host it. Members make it work. Once integrated, it runs itself.
 
 ---
 
 ## Three Things This Demo Proves
 
 1. **A Service is private** when the Owner decides it should not be displayed.
-2. **Data is private** when a Publishing Service decides it shall be governed as such.
+2. **Data is private** when a Publishing Service (API) decides it shall be governed as such.
 3. **Consuming Services** (like this demo) onboard immediately, and access responds to identity changes in real time.
 
 When a member updates their privacy settings, it takes effect everywhere — instantly. No re-verification. No developer action required.
