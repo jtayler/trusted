@@ -154,55 +154,81 @@ Store these as environment variables. Never expose `PRIVATE_KEY` client-side.
 
 ---
 
-### Node.js
+### Node.js (correct async pattern)
+
+> **Critical:** Never block the profile page waiting for TruAnon to respond. Render immediately from your DB cache, then fetch live data in a separate client-side call. This is the pattern in the reference implementation. If TruAnon is slow or down, your platform stays up.
 
 ```javascript
 const apiBase = 'https://truanon.com/api/';
 const privateKey = process.env.TRUANON_PRIVATE_KEY;
 const serviceName = process.env.TRUANON_SERVICE_NAME;
 
-// Fetch profile (everyday use)
-async function getTruAnonProfile(username) {
-  const url = `${apiBase}get_profile?id=${username}&service=${serviceName}`;
-  const res = await fetch(url, { headers: { Authorization: privateKey } });
-  return res.json();
+// Timeout wrapper — TruAnon can be slow on first fetch (social profile lookups)
+function fetchWithTimeout(url, options, ms = 30000) {
+    return Promise.race([
+        fetch(url, options),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('TruAnon timeout')), ms))
+    ]);
 }
 
-// Fetch one-time token (onboarding only)
-async function getTruAnonToken(username) {
-  const url = `${apiBase}get_token?id=${username}&service=${serviceName}`;
-  const res = await fetch(url, { headers: { Authorization: privateKey } });
-  const data = await res.json();
-  return data.id; // the token
-}
-
-// Build verification URL
-function buildVerifyUrl(username, token, callbackUrl = '') {
-  let url = `https://truanon.com/api/verifyProfile?id=${username}&service=${serviceName}&token=${token}`;
-  if (callbackUrl) url += `&callback=${encodeURIComponent(callbackUrl)}`;
-  return url;
-}
-
-// Express route: profile page
-app.get('/users/:username', async (req, res) => {
-  const { username } = req.params;
-  const profile = await getTruAnonProfile(username);
-  res.render('profile', { profile });
+// Profile page: render immediately from DB cache, fetch TruAnon async
+app.get('/users/:username', (req, res) => {
+    db.get('SELECT * FROM users WHERE username = ?', [req.params.username], (err, user) => {
+        if (err || !user) return res.status(404).send('Not found');
+        // Render immediately — badge loads via client-side fetch below
+        res.render('profile', { user, displayData: getCachedDisplayData(user) });
+    });
 });
 
-// Express route: edit page (shows verify button if unknown)
-app.get('/users/:username/edit', async (req, res) => {
-  const { username } = req.params;
-  const profile = await getTruAnonProfile(username);
-
-  let verifyUrl = null;
-  if (!profile.verified) {
-    const token = await getTruAnonToken(username);
-    verifyUrl = buildVerifyUrl(username, token, `https://yoursite.com/users/${username}/edit`);
-  }
-
-  res.render('edit', { profile, verifyUrl });
+// TruAnon data endpoint — called by client-side JS after page loads
+// This is what makes profile pages non-blocking
+app.get('/users/:username/truanon', async (req, res) => {
+    const url = `${apiBase}get_profile?id=${req.params.username}&service=${serviceName}`;
+    try {
+        const response = await fetchWithTimeout(url, { headers: { Authorization: privateKey } });
+        const data = await response.json();
+        // Update your DB cache with latest rank/photo
+        db.run('UPDATE users SET authorRank = ?, authorPhoto = ? WHERE username = ?',
+            [data.authorRank, data.authorPhoto, req.params.username]);
+        res.json(data);
+    } catch (err) {
+        res.status(503).json({ error: 'TruAnon unavailable' }); // client shows cached state
+    }
 });
+
+// Edit page: fetch TruAnon to check verified status, show verify button if not
+// This blocking call is acceptable on edit page (user-initiated, not every pageview)
+async function fetchTruAnonForEdit(username) {
+    const options = { headers: { Authorization: privateKey } };
+    try {
+        const profileRes = await fetchWithTimeout(`${apiBase}get_profile?id=${username}&service=${serviceName}`, options);
+        const profileData = await profileRes.json();
+        if (profileData && profileData.type !== 'error') {
+            const link = (profileData.dataConfigurations || []).find(c => c.dataPointType === 'truanon')?.displayValue;
+            return { truanonProfileLink: link || null, verifyLink: null };
+        }
+        const tokenRes = await fetchWithTimeout(`${apiBase}get_token?id=${username}&service=${serviceName}`, options);
+        const tokenData = await tokenRes.json();
+        return { truanonProfileLink: null, verifyLink: `${apiBase}verifyProfile?id=${username}&service=${serviceName}&token=${tokenData.id}` };
+    } catch (err) {
+        return { truanonProfileLink: null, verifyLink: null }; // degrade gracefully
+    }
+}
+```
+
+**Client-side: fetch and display the badge after page load**
+
+```javascript
+// In your profile template — runs after page renders, updates badge async
+fetch(`/users/${username}/truanon`)
+    .then(r => r.ok ? r.json() : Promise.reject('unavailable'))
+    .then(data => {
+        // Render badge with rank, score, color, links
+        renderTruAnonBadge(data);
+    })
+    .catch(() => {
+        // Page already loaded — badge just stays in Unknown state
+    });
 ```
 
 ---
@@ -424,6 +450,100 @@ Use these framings:
 4. **Absence is a signal too.** On a platform where trust is visible, not verifying is a choice people notice.
 5. **Fraud becomes structurally expensive.** Bad actors can't fake a 5.0 score anchored across a dozen real platforms. They move to lesser platforms. Your platform's quality improves passively.
 6. **You own the UI, TruAnon owns the verification.** No UI kit to adopt. No design system to comply with. You decide how to show rank, score, color, badges, filters — TruAnon just supplies the truth.
+
+---
+
+## Platform Archetypes — How TruAnon Fits Differently
+
+The same API works everywhere. What changes is which switches you expose, what you show, and how you frame absence. Here are the four most common platform types and how to implement each correctly.
+
+---
+
+### Dating Site — Privacy First
+
+**Core need:** Members want to be meaningfully known without being findable. A verified age range and general location is worth more than a LinkedIn URL you didn't ask for.
+
+**What to show:**
+- Rank, score, color badge — always
+- Age badge (Over 18, Over 21) — if available, prominent
+- Location — general area only, never exact
+- **Do not show social profile links by default** — make Private Mode the default recommendation
+
+**Edit page framing:**
+> "Show that you're real, without showing who you are online. Your score proves your depth of history — no links required."
+
+**Switch defaults to suggest:**
+- Identity: user's choice
+- Show personal/contact: off by default, user can enable
+- Make Private: **on by default** — links hidden unless user actively turns off
+
+**Badge absent state:**
+> "Ask me why I haven't verified." — on a dating platform this is especially powerful. Unverified profiles are a known risk vector. Make the absence visible.
+
+**Do not:** Show GitHub, LinkedIn, or Twitter links unless the user has explicitly turned Private Mode off. Never expose backing social profiles without consent.
+
+---
+
+### Social Platform (Twitter/Bluesky-like) — Public by Default
+
+**Core need:** Everything is public. The badge is a credibility signal in a public feed. Users expect their profile to be findable and linkable.
+
+**What to show:**
+- Full badge: rank, score, color, link to TruAnon profile
+- All verified social properties as linked icons
+- Contact info if shared
+
+**Edit page framing:**
+> "Your rank and score show others how long you've been who you say you are. The more history you anchor, the higher your rank."
+
+**Switch defaults to suggest:**
+- Identity: encourage on
+- Show social/personal: on by default
+- Make Private: off by default, available as option
+
+**Feed integration:**
+Consider surfacing rank inline — next to username in posts, in search results. The badge isn't just for profile pages. Filter or sort by rank in community settings.
+
+**Absent state in feed:** A subtle muted indicator beside unverified usernames is enough. Don't be aggressive — let social gravity do the work.
+
+---
+
+### Reddit-like / Anonymous-but-Credible — Pseudonymity with Accountability
+
+**Core need:** Users want to be anonymous but want their contributions taken seriously. TruAnon decouples identity from pseudonymity — your Reddit username can be Credible without revealing your real name.
+
+**What to show:**
+- Rank and score — yes
+- Color badge — yes
+- **No social profile links** — defeats the point of pseudonymity
+- No name, no photo from TruAnon
+
+**Edit page framing:**
+> "Your rank reflects the depth of real history behind this account — without revealing who you are. Credible without exposure."
+
+**Switch defaults to suggest:**
+- Identity: user's choice
+- Make Private: **on by default and locked** — or simply don't expose the links switch at all
+- Personal/social: off
+
+**Key insight for AI implementing this:** You may want to **never show links at all** — strip them server-side rather than relying on the client-side Private Mode toggle. Call `get_profile`, take the rank/score/color, discard `displayValue` fields. The rank is genuine even if the links are never shown.
+
+---
+
+### Bluesky / Decentralized / Domain-Anchored — Identity as Infrastructure
+
+**Core need:** Users already have a strong identity signal (their domain, their DID). TruAnon adds the trust ladder on top — how deep and how long has this identity existed across independent platforms.
+
+**What to show:**
+- Full badge with domain/website property prominent
+- Rank and score
+- Bluesky profile link if verified and public
+- Domain verification badge if available
+
+**Edit page framing:**
+> "You own your domain. Now anchor it to the rest of your history and let your rank speak for itself."
+
+**What TruAnon adds over domain verification alone:** A domain proves ownership — it doesn't prove history, depth, or consistency across multiple independent platforms. A Genuine rank means all of that. Frame accordingly.
 
 ---
 

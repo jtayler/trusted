@@ -67,7 +67,7 @@
 
 
       <script>
-         var verifiedDetails = JSON.parse(JSON.parse(decodeURIComponent('<%= encodeURIComponent(JSON.stringify(verifiedDetails)) %>')));
+         var verifiedDetails = {};
          var containerDivOld = $('#containerDiv');
          
          
@@ -84,8 +84,10 @@
          return 'success';
          case 'Genuine':
          return 'primary';
+         case 'Unknown':
+         return 'secondary';
          default:
-         return 'warning';
+         return 'secondary';
          }
          }
          
@@ -178,302 +180,214 @@
 
       <% if (user.switch_state) { %>
 <script>
-window.onload = function () {
-    const badgeArea = document.getElementById("badge-area");
+(function() {
+    var makePrivate = !!<%= user.make_private || 0 %>;
+    var showSocial   = !!(<%- (user.show_social   === undefined || user.show_social   !== 0) ? 1 : 0 %>);
+    var showPersonal = !!(<%- (user.show_personal === undefined || user.show_personal !== 0) ? 1 : 0 %>);
 
-    const githubConfig = verifiedDetails.dataConfigurations.find(
-        config => config.dataPointType === "github"
-    );
+    // Show spinner in badge area while TruAnon loads
+    document.getElementById('badge-area').innerHTML =
+        '<div class="text-center text-muted p-3"><i class="fas fa-spinner fa-spin fa-2x"></i></div>';
 
-    const icon = document.createElement("span");
-    const title = document.createElement("h5");
-    const description = document.createElement("p");
-    const githubBadge = document.createElement("div");
+    fetch('/users/<%= user.username %>/truanon')
+        .then(function(r) { return r.ok ? r.json() : Promise.reject('unavailable'); })
+        .then(function(verifiedDetails) {
 
-    // Default badge (no verification)
-    icon.className = "text-warning fas fa-ban fa-10x mb-2 pt-2";
-    title.innerText = "Engineering Badge Unavailable";
-    description.innerHTML = `
-        No Validating Credentials Provided<hr>
-        <div class='text-secondary'>
-            Trusted Sources Are: Bitbucket, GitLab, SourceForge, Codeberg, and GitHub
-        </div>`;
-    githubBadge.classList.add("card", "text-center", "p-3", "m-3", "border-warning");
-    title.classList.add("card-title", "text-dark", "mb-1", "pt-4");
-    description.classList.add("card-text", "text-muted");
+            // === MAIN BADGE ===
+            $('#location').text(verifiedDetails.authorTitle);
 
-    githubBadge.append(icon, title, description);
-
-    // No GitHub config? Show default badge
-    if (!githubConfig) {
-        badgeArea.insertAdjacentElement("afterend", githubBadge);
-        return;
-    }
-
-    // Privately Verified? Show default badge
-    if (githubConfig.displayValue.startsWith("Privately Verified")) {
-        badgeArea.insertAdjacentElement("afterend", githubBadge);
-        return;
-    }
-
-    // Show loading placeholder
-    const loadingPlaceholder = document.createElement("div");
-    loadingPlaceholder.classList.add("text-center", "p-3", "m-3", "text-muted");
-    loadingPlaceholder.innerHTML = `<div><div class="fas fa-spinner fa-spin fa-2x mb-4 mt-4"></div></div>`;
-    badgeArea.insertAdjacentElement("afterend", loadingPlaceholder);
-
-fetch(`/users/<%= user.username %>/github`)
-    .then(response => {
-        if (!response.ok) throw new Error("Network response was not ok");
-        return response.json();
-    })
-    .then(data => {
-        loadingPlaceholder.remove(); // Remove loading spinner
-
-        console.log("Fetched GitHub Data:", data);
-
-        // Extract data
-        const githubUsername = data.fullName || "No Name Provided";
-        const githubRepos = data.totalRepos;
-        const githubCreated = data.githubCreated || "Unknown";
-        const githubAge = data.githubAge || "";
-
-        let badgeColor = "danger"; // Default failure state
-        let verificationStatus = "GitHub Not Verified";
-        let failureReasons = [];
-
-        // Apply verification logic
-        if (githubRepos > 0) {
-            badgeColor = "success";
-            verificationStatus = "Engineer Status Validated";
-        } else {
-            failureReasons.push("No Repos");
-        }
-
-        // Check 60-day age rule
-        if (githubAge.includes("0 years") && parseInt(githubAge.split(",")[1]) < 2) {
-            failureReasons.push("Not 60 Days Old");
-        }
-
-        if (failureReasons.length > 0) {
-            badgeColor = "danger";
-            verificationStatus = "Verification Failed";
-        }
-
-        githubBadge.classList.add(`text-${badgeColor}`, `border-${badgeColor}`);
-        icon.className = `fas fa-${badgeColor === "success" ? "award" : "frown"} fa-10x mb-2 pt-2`;
-        title.className = `card-title text-${badgeColor} mb-1 pt-4`;
-        title.innerHTML = `${githubUsername}<br>${githubRepos} Repos`;
-        description.className = `card-title text-${badgeColor} mb-1 pt-4`;
-        description.innerHTML = failureReasons.length > 0 
-            ? `<b>Provided Credentials Do Not Suffice</b>`
-            : "Engineer Status Validated";
-
-        // **Add the GitHub Created Date & Age (NEW LINE)**
-        description.innerHTML += `
-            <br><small class="text-muted"> ${githubCreated} ${githubAge}</small>
-        `;
-
-        // Handle repository languages
-        const repoList = document.createElement("div");
-        let uniqueLanguages = ["No Computer Languages Detected"];
-
-        if (Array.isArray(data.repos) && data.repos.length > 0) {
-            const allLanguages = data.repos.flatMap(repo =>
-                repo.languages ? repo.languages.split(", ").filter(Boolean) : []
-            );
-            if (allLanguages.length) {
-                uniqueLanguages = [...new Set(allLanguages)];
+            var badge = makePrivate ? document.createElement("span") : document.createElement("a");
+            badge.className = "w-100 btn mb-4 btn-outline-" + getPhotoBorderColor(verifiedDetails.authorRank);
+            if (!makePrivate) {
+                var truanonConfigs = filterDataConfigurations(verifiedDetails, "truanon", "social");
+                if (truanonConfigs.length) { badge.href = "https://" + truanonConfigs[0].displayValue; badge.target = "_blank"; }
             }
+            var badgeLogo = document.createElement("span");
+            badgeLogo.className = "fas fa-check-circle fa-5x align-middle p-2";
+            badge.appendChild(badgeLogo);
+            var badgeRank = document.createElement("div");
+            badgeRank.className = "badge-rank h3";
+            badgeRank.innerText = verifiedDetails.authorRank;
+            badge.appendChild(badgeRank);
+            var badgeScore = document.createElement("div");
+            badgeScore.className = "badge-score h5";
+            badgeScore.innerHTML = "(" + verifiedDetails.authorRankScore + " of 5)<p class=\"pt-4\"><b>" +
+                (verifiedDetails.authorAgeBadge ? " ⸻ " + verifiedDetails.authorAgeBadge + " ⸻ " : "") + "</b></p>";
+            badge.appendChild(badgeScore);
+            $('#badge-area').html(badge);
+
+            // === SOCIAL PROFILES ===
+            var dataConfigurationsList = document.createElement("ul");
+            var filteredSocial = filterDataConfigurations(verifiedDetails, "", "social");
+            var truanonOnly    = filterDataConfigurations(verifiedDetails, "truanon", "social");
+            var filteredDataMinusTruanon = filteredSocial.filter(function(c) { return !truanonOnly.includes(c); });
+            var socialHTML = createDataConfigurationsList(filteredDataMinusTruanon, dataConfigurationsList);
+            if (showSocial) document.body.appendChild(socialHTML);
+
+            // === CONTACT / PERSONAL ===
+            var filteredContact = filterDataConfigurations(verifiedDetails, "", "contact")
+                .concat(filterDataConfigurations(verifiedDetails, "location", "personal"))
+                .concat(filterDataConfigurations(verifiedDetails, "", "primary"))
+                .concat(filterDataConfigurations(verifiedDetails, "", "additional"));
+            var contactHTML = createContactList(filteredContact);
+            if (showPersonal) $('#personal-space').prepend(contactHTML);
+
+            // === VERIFIED PROPERTIES SLOT ===
+            var newSlot = document.getElementById("new-slot");
+            newSlot.innerHTML = '';
+            var slotHeader = document.createElement("div");
+            slotHeader.classList.add("card-header", "text-center", "h5", "text-secondary");
+            slotHeader.innerText = "Verified Properties";
+            newSlot.appendChild(slotHeader);
+            if (showSocial) newSlot.appendChild(dataConfigurationsList);
+
+            // === GITHUB BADGE (after TruAnon data is available) ===
+            var githubConfig = (verifiedDetails.dataConfigurations || []).find(function(c) {
+                return c.dataPointType === "github";
+            });
+            loadGithubBadge(githubConfig);
+        })
+        .catch(function(err) {
+            console.log('TruAnon data unavailable:', err);
+            document.getElementById('badge-area').innerHTML = ''; // restore default Unknown badge
+        });
+
+    function loadGithubBadge(githubConfig) {
+        var badgeArea = document.getElementById("badge-area");
+        var icon = document.createElement("span");
+        var title = document.createElement("h5");
+        var description = document.createElement("p");
+        var githubBadge = document.createElement("div");
+
+        icon.className = "text-warning fas fa-ban fa-10x mb-2 pt-2";
+        title.innerText = "Engineering Badge Unavailable";
+        description.innerHTML = "No Validating Credentials Provided<hr><div class='text-secondary'>Trusted Sources Are: Bitbucket, GitLab, SourceForge, Codeberg, and GitHub</div>";
+        githubBadge.classList.add("card", "text-center", "p-3", "m-3", "border-warning");
+        title.classList.add("card-title", "text-dark", "mb-1", "pt-4");
+        description.classList.add("card-text", "text-muted");
+        githubBadge.append(icon, title, description);
+
+        if (!githubConfig || githubConfig.displayValue.startsWith("Privately Verified")) {
+            badgeArea.insertAdjacentElement("afterend", githubBadge);
+            return;
         }
 
-        repoList.innerHTML = `
-            <span class="text-muted small fst-italic">${uniqueLanguages.join(", ")}</span>
-            <div><br><hr><br>
-                <p>this authoritative information has been validated at the source and securely transferred to ensure trusted use</p>
-            </div>
-            <div class="text-secondary">
-                Trusted Sources Are: Bitbucket, GitLab, SourceForge, Codeberg, and GitHub
-            </div>`;
+        var loadingPlaceholder = document.createElement("div");
+        loadingPlaceholder.classList.add("text-center", "p-3", "m-3", "text-muted");
+        loadingPlaceholder.innerHTML = '<div><div class="fas fa-spinner fa-spin fa-2x mb-4 mt-4"></div></div>';
+        badgeArea.insertAdjacentElement("afterend", loadingPlaceholder);
 
-        githubBadge.appendChild(repoList);
-        badgeArea.insertAdjacentElement("afterend", githubBadge);
-    })
-    .catch(error => {
-        console.error("Error fetching GitHub data:", error);
-        loadingPlaceholder.innerHTML = `
-            <div>
-                <i class="fas fa-exclamation-circle fa-4x text-danger"></i>
-                <p>Failed to load GitHub data.</p>
-            </div>`;
-    });
-    };
-</script>
+        fetch('/users/<%= user.username %>/github')
+            .then(function(r) { if (!r.ok) throw new Error("not ok"); return r.json(); })
+            .then(function(data) {
+                loadingPlaceholder.remove();
+                var githubUsername = data.fullName || "No Name Provided";
+                var githubRepos    = data.totalRepos;
+                var githubCreated  = data.githubCreated || "Unknown";
+                var githubAge      = data.githubAge || "";
+                var failureReasons = [];
+                var badgeColor = githubRepos > 0 ? "success" : "danger";
+                if (badgeColor !== "success") failureReasons.push("No Repos");
+                if (githubAge.includes("0 years") && parseInt(githubAge.split(",")[1]) < 2) failureReasons.push("Not 60 Days Old");
+                if (failureReasons.length) badgeColor = "danger";
 
+                githubBadge.classList.add("text-" + badgeColor, "border-" + badgeColor);
+                icon.className = "fas fa-" + (badgeColor === "success" ? "award" : "frown") + " fa-10x mb-2 pt-2";
+                title.className = "card-title text-" + badgeColor + " mb-1 pt-4";
+                title.innerHTML = githubUsername + "<br>" + githubRepos + " Repos";
+                description.className = "card-title text-" + badgeColor + " mb-1 pt-4";
+                description.innerHTML = (failureReasons.length ? "<b>Provided Credentials Do Not Suffice</b>" : "Engineer Status Validated") +
+                    "<br><small class='text-muted'> " + githubCreated + " " + githubAge + "</small>";
 
-      <script>
-         //var verifiedDetails = JSON.parse(JSON.parse(decodeURIComponent('<%= encodeURIComponent(JSON.stringify(verifiedDetails)) %>')));
-         var containerDivOld = $('#containerDiv');
-         var fulocation = $('#location');
-         fulocation.text(verifiedDetails.authorTitle);
-         
-         var address23 = $('#address2');
-         address23.text(verifiedDetails.authorTitle);
-         
-         var badge = document.createElement("a");
+                var allLanguages = Array.isArray(data.repos) ? data.repos.flatMap(function(r) {
+                    return r.languages ? r.languages.split(", ").filter(Boolean) : [];
+                }) : [];
+                var uniqueLanguages = allLanguages.length ? [...new Set(allLanguages)] : ["No Computer Languages Detected"];
+                var repoList = document.createElement("div");
+                repoList.innerHTML = "<span class='text-muted small fst-italic'>" + uniqueLanguages.join(", ") + "</span>" +
+                    "<div><br><hr><br><p>this authoritative information has been validated at the source and securely transferred to ensure trusted use</p></div>" +
+                    "<div class='text-secondary'>Trusted Sources Are: Bitbucket, GitLab, SourceForge, Codeberg, and GitHub</div>";
+                githubBadge.appendChild(repoList);
+                badgeArea.insertAdjacentElement("afterend", githubBadge);
+            })
+            .catch(function(err) {
+                console.error("Error fetching GitHub data:", err);
+                loadingPlaceholder.innerHTML = '<div><i class="fas fa-exclamation-circle fa-4x text-danger"></i><p>Failed to load GitHub data.</p></div>';
+            });
+    }
 
-         badge.className = "w-100 btn mb-4 btn-outline-" + getPhotoBorderColor(verifiedDetails.authorRank);
-         
-         badge.href = "https://" + filterDataConfigurations(verifiedDetails, "truanon", "social")[0].displayValue;
-         badge.target = "_blank";
-         
-         var badgeLogo = document.createElement("span");
-         badgeLogo.className = "fas fa-check-circle fa-5x  align-middle p-2";
-         badge.appendChild(badgeLogo);
-         
-         var badgeRank = document.createElement("div");
-         badgeRank.className = "badge-rank h3";
-         badgeRank.innerText = verifiedDetails.authorRank;
-         badge.appendChild(badgeRank);
-         
-         var badgeScore = document.createElement("div");
-         badgeScore.className = "badge-score h5";
-         badgeScore.innerHTML = 
-            "(" + verifiedDetails.authorRankScore + " of 5)<p class=\"pt-4\"><b>" + 
-           (verifiedDetails.authorAgeBadge ? " ⸻ " + verifiedDetails.authorAgeBadge + " ⸻ " : "") + 
-           "</b></p>";
-         badge.appendChild(badgeScore);
-         
-         $('#badge-area').html(badge);
-         
-         const dataConfigurationsList = document.createElement("ul");
-         
-         var filteredData = filterDataConfigurations(verifiedDetails, "", "social");
-         var truanonOnly = filterDataConfigurations(verifiedDetails, "truanon", "social");
-         
-         // Create a new array that includes all elements in `filteredData` that are NOT in `truanonOnly`
-         var filteredDataMinusTruanon = filteredData.filter(function(config) {
-         // Return true if `config` is not in `truanonOnly`
-         return !truanonOnly.includes(config);
-         });
-         
-         var dataConfigurationsListHTML = createDataConfigurationsList(filteredDataMinusTruanon);
-         
-         document.body.appendChild(dataConfigurationsListHTML);
-         
-         var filteredData = filterDataConfigurations(verifiedDetails, "", "contact").concat(filterDataConfigurations(verifiedDetails, "location", "personal")).concat(filterDataConfigurations(verifiedDetails, "", "primary")).concat(filterDataConfigurations(verifiedDetails, "", "additional"));
-         //removed .concat(filterDataConfigurations(verifiedDetails, "bio", "personal")
+    function createContactList(filteredData) {
+        var list = document.createElement("div");
+        list.classList.add("card", "mb-3");
+        var header = document.createElement("div");
+        header.classList.add("card-header", "text-center", "h5", "text-secondary");
+        header.innerText = "Contact Information";
+        list.appendChild(header);
+        var cardBody = document.createElement("div");
+        cardBody.classList.add("card-body");
+        list.appendChild(cardBody);
+        filteredData.forEach(function(dataConfig, index) {
+            var row = document.createElement("div");
+            row.classList.add("row");
+            cardBody.appendChild(row);
+            var col1 = document.createElement("div");
+            col1.classList.add("col-sm-3");
+            var titleHeader = document.createElement("h6");
+            titleHeader.classList.add("mb-0");
+            titleHeader.innerText = dataConfig.dataPointName;
+            col1.appendChild(titleHeader);
+            row.appendChild(col1);
+            var col2 = document.createElement("div");
+            col2.classList.add("col-sm-9", "text-secondary");
+            col2.innerText = dataConfig.displayValue;
+            row.appendChild(col2);
+            if (index < filteredData.length - 1) cardBody.appendChild(document.createElement("hr"));
+        });
+        return list;
+    }
 
-         var dataConfigurationsListHTML = createContactList(filteredData);
-         $('#personal-space').prepend(dataConfigurationsListHTML);
-         
-         function createContactList(filteredData) {
-         const dataConfigurationsList = document.createElement("div");
-         dataConfigurationsList.classList.add("card", "mb-3");
-         
-         const headerDiv = document.createElement("div");
-         headerDiv.classList.add("card-header","text-center", "h5", "text-secondary");
-         headerDiv.innerText = "Contact Information";
-         dataConfigurationsList.appendChild(headerDiv);
-         
-         
-         const cardBody = document.createElement("div");
-         cardBody.classList.add("card-body");
-         dataConfigurationsList.appendChild(cardBody);
-         
-         filteredData.forEach((dataConfig, index) => {
-         const row = document.createElement("div");
-         row.classList.add("row");
-         cardBody.appendChild(row);
-         var data = dataConfig;
-         
-         const col1 = document.createElement("div");
-         col1.classList.add("col-sm-3");
-         row.appendChild(col1);
-         
-         const titleHeader = document.createElement("h6");
-         titleHeader.classList.add("mb-0");
-         titleHeader.innerText = data.dataPointName;
-         col1.appendChild(titleHeader);
-         
-         const col2 = document.createElement("div");
-         col2.classList.add("col-sm-9", "text-secondary");
-         col2.innerText = data.displayValue;
-         row.appendChild(col2);
-         
-         if (index < filteredData.length - 1) {
-         const hr = document.createElement("hr");
-         cardBody.appendChild(hr);
-         }
-         });
-         
-         return dataConfigurationsList;
-         }
-         
-         function createDataConfigurationsList(filteredData) {
-           dataConfigurationsList.classList.add("d-flex", "flex-wrap", "text-center"); // Add flex properties for horizontal alignment
-
-           var filteredData = filteredDataMinusTruanon.filter(config => {
-              const isGitHub = config.dataPointType === "github";
-              const isTrustedService = config.dataPointType === "trusted";
-              return !isGitHub && !isTrustedService;
-           });
-
-           filteredData.forEach((dataConfig) => {
-             const badge = document.createElement("div"); // Create a block element for the badge
-             badge.classList.add("text-secondary", "p-2", "m-1"); // Add CSS classes for styling the badge
-             badge.style.textAlign = "center"; // Center the title horizontally
-
-            const link = document.createElement("a");
-            if (dataConfig.displayValue.includes("Privately")) {
-              link.style.pointerEvents = "none"; // Disable link
-              link.style.color = "gray"; // Change text color to indicate it's disabled
+    function createDataConfigurationsList(filteredData, dataConfigurationsList) {
+        dataConfigurationsList.classList.add("d-flex", "flex-wrap", "text-center");
+        var display = filteredData.filter(function(c) {
+            return c.dataPointType !== "github" && c.dataPointType !== "trusted";
+        });
+        display.forEach(function(dataConfig) {
+            var item = document.createElement("div");
+            item.classList.add("text-secondary", "p-2", "m-1");
+            item.style.textAlign = "center";
+            var link = document.createElement("a");
+            if (makePrivate || dataConfig.displayValue.includes("Privately")) {
+                link.style.pointerEvents = "none";
+                link.style.color = "gray";
             } else {
-               try {
-                 const url = new URL("https://" + dataConfig.displayValue);
-                 link.href = "https://" + dataConfig.displayValue; // Replace with the URL you want to link to
-                 link.target = "_blank";
-               } catch (error) {
-                 link.style.pointerEvents = "none"; // Disable link
-                 link.style.color = "gray"; // Change text color to indicate it's disabled
-               }
+                try {
+                    new URL("https://" + dataConfig.displayValue);
+                    link.href = "https://" + dataConfig.displayValue;
+                    link.target = "_blank";
+                } catch(e) {
+                    link.style.pointerEvents = "none";
+                    link.style.color = "gray";
+                }
             }
-
-             const iconSpan = document.createElement("span");
-             iconSpan.className = dataConfig.dataPointIconClass + " fa-5x mb-1"; // Add Font Awesome class and size
-
-             const titleDiv = document.createElement("div");
-             titleDiv.style.textAlign = "center"; // Center the title horizontally
-             titleDiv.style.width = "92px"; // Center the title within the surrounding box and allow it to break into two lines when needed
-             const titleSpan = document.createElement("div");
-             titleSpan.innerText = dataConfig.dataPointName; // Display the social platform name
-             titleSpan.classList.add("title-span"); // Add CSS classes for styling the title
-             titleSpan.style.textAlign = "center"; // Center the title horizontally
-             titleDiv.appendChild(titleSpan);
-
-             // Append the icon, link, and titleDiv to the badge
-             link.appendChild(iconSpan);
-             badge.appendChild(link);
-             badge.appendChild(titleDiv);
-
-             dataConfigurationsList.appendChild(badge);
-           });
-
-           return dataConfigurationsList;
-         }
-         
-
-         const newSlot = document.getElementById("new-slot");
-         newSlot.innerHTML = '';
-         const headerDiv = document.createElement("div");
-         headerDiv.classList.add("card-header","text-center", "h5", "text-secondary");
-        headerDiv.innerText = "Verified Properties";
-         newSlot.appendChild(headerDiv);
-         
-         newSlot.appendChild(dataConfigurationsList);
-         
-         
-      </script>
+            var iconSpan = document.createElement("span");
+            iconSpan.className = dataConfig.dataPointIconClass + " fa-5x mb-1";
+            link.appendChild(iconSpan);
+            var titleDiv = document.createElement("div");
+            titleDiv.style.textAlign = "center";
+            titleDiv.style.width = "92px";
+            var titleSpan = document.createElement("div");
+            titleSpan.innerText = dataConfig.dataPointName;
+            titleSpan.classList.add("title-span");
+            titleSpan.style.textAlign = "center";
+            titleDiv.appendChild(titleSpan);
+            item.appendChild(link);
+            item.appendChild(titleDiv);
+            dataConfigurationsList.appendChild(item);
+        });
+        return dataConfigurationsList;
+    }
+})();
+</script>
       <% } %>
 
 

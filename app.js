@@ -7,6 +7,13 @@ const session = require('express-session');
 const fs = require('fs');
 const fetch = require('node-fetch');
 
+function fetchWithTimeout(url, options, ms = 5000) {
+    return Promise.race([
+        fetch(url, options),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('TruAnon API timeout')), ms))
+    ]);
+}
+
 // Create an Express app
 const app = express();
 const port = 3000;
@@ -324,6 +331,13 @@ const db = new sqlite3.Database(dbFilePath, sqlite3.OPEN_READWRITE, (err) => {
         console.error(err.message);
     }
     console.log('Connected to the database.');
+    [
+        'ALTER TABLE users ADD COLUMN show_personal INTEGER DEFAULT 1',
+        'ALTER TABLE users ADD COLUMN show_social INTEGER DEFAULT 1',
+        'ALTER TABLE users ADD COLUMN make_private INTEGER DEFAULT 0',
+    ].forEach(sql => db.run(sql, err => {
+        if (err && !err.message.includes('duplicate column')) console.error('Migration error:', err.message);
+    }));
 });
 // Fetch the last five users and set the session variable on app startup
 db.all('SELECT username FROM users ORDER BY id DESC LIMIT 5', [], (err, rows) => {
@@ -439,78 +453,48 @@ app.post('/login', (req, res) => {
 });
 
 
+// Profile page — renders immediately from cached DB data, no blocking API call
 app.get('/users/:username', (req, res) => {
     const { username } = req.params;
     const userId = req.session.userId;
 
     db.get('SELECT * FROM users WHERE username = ?', [username], (err, user) => {
-        if (err) {
-            return res.status(500).send(err.message);
-        }
-        if (!user) {
-            return res.status(404).send('User not found');
-        }
+        if (err) return res.status(500).send(err.message);
+        if (!user) return res.status(404).send('User not found');
 
-        const isCurrentUser = userId === user.id;
-
-        // Check if user's switch_state is ON
-        if (user.switch_state) {
-            const profileUrl = `${apiRoute}get_profile?id=${username}&service=${serviceName}`;
-            console.log(`Fetch Profile URL: ${profileUrl}`);
-            const tokenOptions = {
-                headers: {
-                    Authorization: privateKey,
-                },
-            };
-
-        fetch(profileUrl, tokenOptions)
-            .then(response => response.json())
-            .then(profileData => {
-                const authorPhoto = profileData.authorPhoto;
-                const validPhoto = authorPhoto && authorPhoto !== "https://s3.amazonaws.com/truanon/nophoto.png" && authorPhoto.trim() !== "";
-                const authorRank = profileData.authorRank || "Unverified";
-
-                // If the photo is valid, update it. Otherwise, keep the existing authorPhoto in the database.
-                const updatedPhoto = validPhoto ? authorPhoto : user.authorPhoto;
-
-                db.run(
-                    'UPDATE users SET authorPhoto = ?, authorRank = ? WHERE username = ?',
-                    [updatedPhoto, authorRank, username],
-                    (updateErr) => {
-                        if (updateErr) {
-                            console.error('Error updating user:', updateErr);
-                        } else {
-                            console.log(`Updated ${username} with authorPhoto: ${validPhoto ? authorPhoto : "Unchanged"}, authorRank: ${authorRank}`);
-                        }
-                    }
-                );
-
-                res.render('profile', {
-                    user: { 
-                        ...user, 
-                        authorPhoto: updatedPhoto, 
-                        authorRank 
-                    }, // Pass updated data to the view
-                    isCurrentUser,
-                    verifiedDetails: JSON.stringify(profileData),
-                    lastFiveUsers: req.app.locals.lastFiveUsers,
-                });
-            })
-            .catch(error => {
-                console.error("Error fetching verified profile:", error);
-                res.status(500).send('Failed to fetch user profile');
-            });
-                } else {
-                    // User's switch_state is not ON, render with default data
-                    res.render('profile', {
-                        user,
-                        isCurrentUser,
-                        verifiedDetails: '[]',
-                        lastFiveUsers: req.app.locals.lastFiveUsers,
-                    });
-                }
-            });
+        res.render('profile', {
+            user,
+            isCurrentUser: userId === user.id,
+            displayData: app.locals.getUserDisplayData(user),
+            lastFiveUsers: req.app.locals.lastFiveUsers,
         });
+    });
+});
+
+// TruAnon live data — called client-side after page loads, like the /github endpoint
+app.get('/users/:username/truanon', async (req, res) => {
+    const { username } = req.params;
+    const profileUrl = `${apiRoute}get_profile?id=${username}&service=${serviceName}`;
+
+    try {
+        const response = await fetchWithTimeout(profileUrl, { headers: { Authorization: privateKey } }, 30000);
+        const profileData = await response.json();
+
+        const authorPhoto = profileData.authorPhoto;
+        const validPhoto = authorPhoto && authorPhoto !== "https://s3.amazonaws.com/truanon/nophoto.png" && authorPhoto.trim() !== "";
+        const authorRank = profileData.authorRank || "Unknown";
+
+        db.run('UPDATE users SET authorPhoto = ?, authorRank = ? WHERE username = ?',
+            [validPhoto ? authorPhoto : null, authorRank, username],
+            err => { if (err) console.error('Cache update error:', err.message); }
+        );
+
+        res.json(profileData);
+    } catch (err) {
+        console.error(`TruAnon fetch failed for ${username}:`, err.message);
+        res.status(503).json({ error: 'TruAnon unavailable' });
+    }
+});
 
 // Define endpoint to handle the edit page and return appropriate UI elements
 app.get('/users/:username/verify_status', async (req, res) => {
@@ -597,29 +581,34 @@ app.get('/users/:username/token', (req, res) => {
 // Handle edit user form submission
 async function fetchTruAnonData(username) {
     const profileURL = `${apiRoute}get_profile?id=${username}&service=${serviceName}`;
+    const tokenURL = `${apiRoute}get_token?id=${username}&service=${serviceName}`;
     const options = { headers: { Authorization: privateKey } };
 
     console.log("Calling profile API:", profileURL);
 
-    // Fetch profile data from TruAnon
-    const profileResponse = await fetch(profileURL, options);
-    const profileData = await profileResponse.json();
+    try {
+        const profileResponse = await fetchWithTimeout(profileURL, options, 30000);
+        const profileData = await profileResponse.json();
 
-    console.log("Profile API Response:", profileData);
+        console.log("Profile API Response:", profileData);
 
-    if (profileData && profileData.type !== 'error') {
-        console.log("User is verified, fetching profile link...");
-        const profileLink = profileData.dataConfigurations.find(config => config.dataPointType === 'truanon')?.displayValue || null;
-        return { truanonProfileLink: profileLink, verifyLink: null };
-    } else {
-        console.log("User is not verified, fetching verification token...");
-        const tokenResponse = await fetch(`${apiRoute}get_token?id=${username}&service=${serviceName}`, options);
-        const tokenData = await tokenResponse.json();
+        if (profileData && profileData.type !== 'error') {
+            console.log("User is verified, fetching profile link...");
+            const profileLink = profileData.dataConfigurations.find(config => config.dataPointType === 'truanon')?.displayValue || null;
+            return { truanonProfileLink: profileLink, verifyLink: null };
+        } else {
+            console.log("User is not verified, fetching verification token...");
+            const tokenResponse = await fetchWithTimeout(tokenURL, options, 30000);
+            const tokenData = await tokenResponse.json();
 
-        console.log("Token API Response:", tokenData);
+            console.log("Token API Response:", tokenData);
 
-        const verifyLink = `${apiRoute}verifyProfile?id=${username}&service=${serviceName}&token=${tokenData.id}`;
-        return { truanonProfileLink: null, verifyLink: verifyLink };
+            const verifyLink = `${apiRoute}verifyProfile?id=${username}&service=${serviceName}&token=${tokenData.id}`;
+            return { truanonProfileLink: null, verifyLink: verifyLink };
+        }
+    } catch (err) {
+        console.error("TruAnon API unavailable in fetchTruAnonData:", err.message);
+        return { truanonProfileLink: null, verifyLink: null };
     }
 }
 
@@ -648,6 +637,9 @@ app.get('/users/:username/edit', async (req, res) => {
 
 app.post('/users/:username/edit', async (req, res) => {
     const { full_name, location, photo, switch_state } = req.body;
+    const show_personal = req.body.show_personal ? 1 : 0;
+    const show_social = req.body.show_social ? 1 : 0;
+    const make_private = req.body.make_private ? 1 : 0;
     const { username } = req.params;
 
     try {
@@ -657,8 +649,8 @@ app.post('/users/:username/edit', async (req, res) => {
         // Update user data in the database
         await new Promise((resolve, reject) => {
             db.run(
-                'UPDATE users SET full_name = ?, location = ?, photo = ?, switch_state = ? WHERE username = ?',
-                [full_name, location, photo, switch_state, username],
+                'UPDATE users SET full_name = ?, location = ?, photo = ?, switch_state = ?, show_personal = ?, show_social = ?, make_private = ? WHERE username = ?',
+                [full_name, location, photo, switch_state, show_personal, show_social, make_private, username],
                 (err) => (err ? reject(err) : resolve())
             );
         });

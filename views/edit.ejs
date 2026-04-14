@@ -88,6 +88,37 @@
                            </div>
                            </div>
                            </div>
+
+                           <div class="form-group">
+                           <label for="show-personal-switch" class="form-label"> Personal:</label>
+                           <div class="border rounded px-3 d-flex align-items-center justify-content-between" style="background-color: #f8f9fa; padding:0.4em">
+                              <span class="text-muted">Show Personal Info</span>
+                              <input class="form-check-input m-0" type="checkbox" name="show_personal" id="show-personal-switch"
+                                     <% if (!user.truanon_profile_link) { %>disabled<% } %>
+                                     <% if (user.show_personal !== 0) { %>checked<% } %> />
+                           </div>
+                           </div>
+
+                           <div class="form-group">
+                           <label for="show-social-switch" class="form-label"> Social:</label>
+                           <div class="border rounded px-3 d-flex align-items-center justify-content-between" style="background-color: #f8f9fa; padding:0.4em">
+                              <span class="text-muted">Show Social Profiles</span>
+                              <input class="form-check-input m-0" type="checkbox" name="show_social" id="show-social-switch"
+                                     <% if (!user.truanon_profile_link) { %>disabled<% } %>
+                                     <% if (user.show_social !== 0) { %>checked<% } %> />
+                           </div>
+                           </div>
+
+                           <div class="form-group">
+                           <label for="make-private-switch" class="form-label"> Private:</label>
+                           <div class="border rounded px-3 d-flex align-items-center justify-content-between" style="background-color: #f8f9fa; padding:0.4em">
+                              <span class="text-muted">Make Private (no links)</span>
+                              <input class="form-check-input m-0" type="checkbox" name="make_private" id="make-private-switch"
+                                     <% if (!user.truanon_profile_link) { %>disabled<% } %>
+                                     <% if (user.make_private == 1) { %>checked<% } %> />
+                           </div>
+                           </div>
+
                            </div>
                         </div>
                         <div class="pt-4 p-1">

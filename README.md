@@ -85,16 +85,25 @@ The second endpoint — generating a token for first-time verification — is ca
 Call this on every profile page render. It's a fast GET — treat it like fetching an avatar URL.
 
 ```javascript
-app.get('/users/:username', async (req, res) => {
-    const { username } = req.params;
-    const profileUrl = `${apiRoute}get_profile?id=${username}&service=${serviceName}`;
+// Render immediately from DB cache — never block the page on TruAnon
+app.get('/users/:username', (req, res) => {
+    db.get('SELECT * FROM users WHERE username = ?', [username], (err, user) => {
+        if (err || !user) return res.status(404).send('Not found');
+        res.render('profile', { user }); // badge loads async below
+    });
+});
 
-    fetch(profileUrl, { headers: { Authorization: privateKey } })
-        .then(response => response.json())
-        .then(profileData => {
-            res.render('profile', { user, verifiedDetails: profileData });
-        })
-        .catch(error => res.status(500).send('Failed to fetch user profile'));
+// Separate endpoint — called by client-side JS after page loads
+// If TruAnon is slow or down, the page is already rendered
+app.get('/users/:username/truanon', async (req, res) => {
+    const url = `${apiRoute}get_profile?id=${req.params.username}&service=${serviceName}`;
+    try {
+        const response = await fetch(url, { headers: { Authorization: privateKey } });
+        const data = await response.json();
+        res.json(data);
+    } catch (err) {
+        res.status(503).json({ error: 'TruAnon unavailable' });
+    }
 });
 ```
 
