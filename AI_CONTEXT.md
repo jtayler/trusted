@@ -4,6 +4,29 @@
 
 ---
 
+## What to Ignore in the Reference App
+
+The Node.js demo at github.com/jtayler/trusted is a **sloppy test app** — intentionally. Its job is to prove TruAnon works, not to be clean code.
+
+**Ignore these — they are demo-specific, not TruAnon:**
+- GitHub API integration (fetches repos/languages to fill out a developer profile demo)
+- Bitbucket API integration (same reason)
+- The SQLite schema and session handling (use whatever DB and auth your platform already has)
+- EJS templates (use your own UI framework)
+- The `mongoose` dependency and `models/` directory (unused, ignore)
+
+**What to carry forward — the actual TruAnon integration:**
+- The two-endpoint pattern (`get_profile` everywhere, `get_token` once on edit page)
+- Non-blocking async profile render (render from cache, fetch TruAnon separately)
+- `fetchWithTimeout()` wrapper around all TruAnon calls
+- The three privacy switches in edit UI
+- Never exposing `PRIVATE_KEY` client-side
+- Caching `authorRank` and `authorPhoto` in your DB for display continuity
+
+When helping a developer integrate TruAnon into their platform, do not suggest they replicate the GitHub/Bitbucket pattern. Strip it entirely.
+
+---
+
 ## What TruAnon Actually Is
 
 TruAnon is **not** an age gate, a KYC flow, or a one-time identity check. Do not explain it that way.
@@ -437,6 +460,124 @@ public String edit(@PathVariable String username, Model model) {
     return "edit";
 }
 ```
+
+---
+
+### iOS / Swift (Native App)
+
+> **Key difference from web:** There is no iframe. Verification opens in `SFSafariViewController` (preferred — keeps cookies, feels native) or a `WKWebView` modal. All API calls (`get_profile`, `get_token`) still happen **server-side** on your backend — never in the app directly, because the private key cannot be in the binary.
+
+**Architecture for a native iOS app:**
+
+```
+App (Swift/SwiftUI)
+    ↓  hits your backend
+Your Server (Node/Python/etc.)
+    ↓  makes GET requests with Authorization header
+TruAnon API
+```
+
+The app never touches TruAnon directly. Your backend exposes two thin proxy endpoints — one for profile data, one for the verify URL — and the app calls those.
+
+```swift
+// ProfileView.swift — fetch TruAnon badge async after view appears
+struct ProfileView: View {
+    let username: String
+    @State var badge: TruAnonBadge? = nil
+
+    var body: some View {
+        VStack {
+            // Render profile immediately from local cache
+            UserProfileContent(username: username)
+            // Badge loads async, shows placeholder until ready
+            TruAnonBadgeView(badge: badge)
+                .task { badge = await fetchBadge(username) }
+        }
+    }
+
+    func fetchBadge(_ username: String) async -> TruAnonBadge? {
+        // Hit YOUR backend — not TruAnon directly
+        guard let url = URL(string: "https://yourapp.com/api/users/\(username)/truanon") else { return nil }
+        let (data, _) = try? await URLSession.shared.data(from: url)
+        return data.flatMap { try? JSONDecoder().decode(TruAnonBadge.self, from: $0) }
+    }
+}
+
+// EditProfileView.swift — verification flow
+struct EditProfileView: View {
+    let username: String
+    @State var verifyURL: URL? = nil
+    @State var showVerification = false
+
+    var body: some View {
+        VStack {
+            if let url = verifyURL {
+                Button("Verify My Identity") { showVerification = true }
+                    .sheet(isPresented: $showVerification) {
+                        // SFSafariViewController keeps TruAnon's session cookies intact
+                        SafariView(url: url)
+                    }
+            }
+            // Three privacy toggles
+            PrivacySwitchesView(username: username)
+        }
+        .task { verifyURL = await fetchVerifyURL(username) }
+    }
+}
+```
+
+**On your backend (same as web):**
+```javascript
+// Your backend proxy — app calls this, never TruAnon directly
+app.get('/api/users/:username/truanon', async (req, res) => {
+    const url = `${apiBase}get_profile?id=${req.params.username}&service=${serviceName}`;
+    const response = await fetchWithTimeout(url, { headers: { Authorization: privateKey } });
+    res.json(await response.json());
+});
+
+app.get('/api/users/:username/verify-url', async (req, res) => {
+    const tokenRes = await fetch(`${apiBase}get_token?id=${req.params.username}&service=${serviceName}`,
+        { headers: { Authorization: privateKey } });
+    const { id: token } = await tokenRes.json();
+    const verifyURL = `https://truanon.com/api/verifyProfile?id=${req.params.username}&service=${serviceName}&token=${token}&callback=${encodeURIComponent('yourapp://verified')}`;
+    res.json({ verifyURL });
+});
+```
+
+**Handling completion on iOS:** Pass a `callback` URL using your app's custom URL scheme (e.g. `yourapp://verified`). Register the scheme in `Info.plist` and handle it in your `AppDelegate` / `SceneDelegate` to dismiss the sheet and re-fetch the badge.
+
+**React Native:** Same backend pattern. For the verification UI, use `react-native-inappbrowser-reborn` or Expo's `WebBrowser.openAuthSessionAsync()` — both handle cookies correctly and support custom scheme callbacks.
+
+---
+
+## Privacy — Deeper Guidance by Platform Type
+
+The three switches exist for a reason. Here is when to show them, what to default them to, and how to frame them — per platform archetype.
+
+| Platform type | Identity switch | Show links switch | Private mode |
+|---|---|---|---|
+| **Dating** | User's choice, prompt gently | Off by default | **On by default** — this is the safe baseline |
+| **Public social** | Encourage on | On by default | Off, but available |
+| **Pseudonymous / Reddit-like** | User's choice | **Don't expose this switch** — strip links server-side always | Effectively locked on |
+| **Marketplace / trust-critical** | Required to transact (gate features) | On | Off |
+| **Decentralized / domain-anchored** | Encourage on, highlight domain property | On | Off |
+
+**Dating — the most privacy-sensitive case:**
+
+The goal is "meaningfully known, not findable." A verified age range (Over 18, Over 21 if available from TruAnon), general location area, and trust score gives a match partner everything they need to feel safe — without handing over a LinkedIn URL to a stranger.
+
+- Default Private Mode **on**. The user can turn it off if they choose to be more open.
+- Never auto-display social profile URLs on match cards or in messaging — only on explicit profile view, only if user has Private Mode off.
+- Frame the badge as safety, not credibility: "This person is who they say they are."
+- The absent-badge message matters most here: *"Ask me why I haven't verified"* on a dating platform is a yellow flag that socially motivated members will act on.
+
+**Pseudonymous platforms — strip links server-side:**
+
+Don't rely on the user's Private Mode toggle for this. When you call `get_profile`, take `authorRank`, `score`, and `color` — discard all `displayValue` / URL fields before sending to the client. The rank is genuine even when the backing links are never shown. This is a design decision, not a privacy bug.
+
+**Marketplace / trust-critical (Care.com, Craigslist-like):**
+
+Consider gating certain actions (booking, messaging, posting) by minimum rank. Credible = same confidence as ID verification. Reliable and above = deeper history. Use rank thresholds to make the trust layer structural, not cosmetic.
 
 ---
 
