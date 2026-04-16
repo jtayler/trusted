@@ -361,6 +361,14 @@ app.get('/logout', (req, res) => {
 app.get('/', (req, res) => {
     res.redirect('/home');
 });
+
+// TruAnon redirects the verification iframe here when the user completes verification.
+// This page is same-origin, so it can postMessage the parent to close the modal and reload.
+app.get('/verify-complete', (req, res) => {
+    res.send(`<!DOCTYPE html><html><body><script>
+        window.parent.postMessage({ action: 'verificationComplete' }, '*');
+    </script></body></html>`);
+});
 module.exports = app;
 app.get('/home', (req, res) => {
     res.render('home');
@@ -524,7 +532,7 @@ app.get('/users/:username/verify_status', async (req, res) => {
                 ui: `
                 <input type="text" class="form-control text-muted" value="Assign Ownership" readonly />
                 <a class="btn btn-primary rounded-end" href="#" 
-                onClick="openVerificationPopup('${apiRoute}verifyProfile?id=${username}&service=${serviceName}&token=${tokenData.id}')" 
+                onClick="openVerificationPopup('${apiRoute}verifyProfile?id=${username}&service=${serviceName}&token=${tokenData.id}&callback=${encodeURIComponent(`${req.protocol}://${req.get('host')}/verify-complete`)}')"
                 id="verify-link">Verify</a>
                 `
             });
@@ -579,7 +587,7 @@ app.get('/users/:username/token', (req, res) => {
 });
 
 // Handle edit user form submission
-async function fetchTruAnonData(username) {
+async function fetchTruAnonData(username, callbackUrl = null) {
     const profileURL = `${apiRoute}get_profile?id=${username}&service=${serviceName}`;
     const tokenURL = `${apiRoute}get_token?id=${username}&service=${serviceName}`;
     const options = { headers: { Authorization: privateKey } };
@@ -603,7 +611,8 @@ async function fetchTruAnonData(username) {
 
             console.log("Token API Response:", tokenData);
 
-            const verifyLink = `${apiRoute}verifyProfile?id=${username}&service=${serviceName}&token=${tokenData.id}`;
+            let verifyLink = `${apiRoute}verifyProfile?id=${username}&service=${serviceName}&token=${tokenData.id}`;
+            if (callbackUrl) verifyLink += `&callback=${encodeURIComponent(callbackUrl)}`;
             return { truanonProfileLink: null, verifyLink: verifyLink };
         }
     } catch (err) {
@@ -621,7 +630,8 @@ app.get('/users/:username/edit', async (req, res) => {
         if (!user) return res.status(404).send('User not found');
 
         console.log("Rendering edit page for:", user.username);
-        const { truanonProfileLink, verifyLink } = await fetchTruAnonData(user.username);
+        const callbackUrl = `${req.protocol}://${req.get('host')}/verify-complete`;
+        const { truanonProfileLink, verifyLink } = await fetchTruAnonData(user.username, callbackUrl);
         const displayData = app.locals.getUserDisplayData(user);
 
         res.render('edit', {

@@ -143,7 +143,9 @@
          </div>
       </div>
       
-      <!-- Modal Overlay for Verification -->
+      <!-- Bootstrap modal hosting TruAnon's verification UI in an iframe.
+           An iframe inside a modal is not a popup — browsers don't block it.
+           TruAnon sends a postMessage when done; we close the modal and reload. -->
       <div class="modal fade" id="verificationModal" tabindex="-1" aria-labelledby="verificationModalLabel" aria-hidden="true">
          <div class="modal-dialog modal-dialog-centered" style="max-width: 480px;">
             <div class="modal-content">
@@ -157,28 +159,53 @@
             </div>
          </div>
       </div>
-      
+
       <script>
+         let pollTimer = null;
 
-window.addEventListener("message", (event) => {
-  if (event.data && event.data.action === "closeVerificationModal") {
-    $('#verificationModal').modal('hide');
-    if (event.data.callbackUrl) {
-      window.location.href = event.data.callbackUrl;
-    }
-  }
-});
+         function startVerificationPolling(username) {
+            // Poll our own endpoint until TruAnon status changes from Unknown.
+            // Works regardless of whether TruAnon supports a callback redirect.
+            pollTimer = setInterval(async () => {
+               try {
+                  const res = await fetch(`/users/${username}/truanon`);
+                  const data = await res.json();
+                  if (data && data.authorRank && data.authorRank !== 'Unknown') {
+                     clearInterval(pollTimer);
+                     bootstrap.Modal.getInstance(document.getElementById('verificationModal')).hide();
+                     window.location.reload();
+                  }
+               } catch (e) { /* ignore transient errors, keep polling */ }
+            }, 3000);
+         }
 
-function closeVerificationModal() {
-  $('#verificationModal').modal('hide');
-}
-         function openVerificationPopup(url) {
-            document.getElementById('verificationIframe').src = url;
-            var verificationModal = new bootstrap.Modal(document.getElementById('verificationModal'));
-            verificationModal.show();
-            document.getElementById('verificationModal').addEventListener('hidden.bs.modal', function () {
+         function stopPolling() {
+            if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+         }
+
+         // Two postMessage sources — whichever fires first wins:
+         // 1. TruAnon's component fires closeVerificationModal directly (component path)
+         // 2. Our /verify-complete page fires verificationComplete (server redirect path)
+         window.addEventListener("message", (event) => {
+            const action = event.data && event.data.action;
+            if (action === "closeVerificationModal" || action === "verificationComplete") {
+               stopPolling();
+               bootstrap.Modal.getInstance(document.getElementById('verificationModal')).hide();
                window.location.reload();
-            });
+            }
+         });
+
+         function openVerificationPopup(url) {
+            const username = '<%= user.username %>';
+            document.getElementById('verificationIframe').src = url;
+            const modal = new bootstrap.Modal(document.getElementById('verificationModal'));
+            modal.show();
+            startVerificationPolling(username);
+            // Final fallback: user manually closes modal after verifying
+            document.getElementById('verificationModal').addEventListener('hidden.bs.modal', () => {
+               stopPolling();
+               window.location.reload();
+            }, { once: true });
          }
       </script>
       

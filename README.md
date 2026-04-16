@@ -139,20 +139,15 @@ Once you have a token, build a verification URL:
 https://truanon.com/api/verifyProfile?id=[USERNAME]&service=[SERVICENAME]&token=[TOKEN]
 ```
 
-Open it in a **popup** or **Bootstrap modal iframe**. The member completes verification inside TruAnon's UI. An optional `callback` URL lets your page refresh automatically when they're done.
+Open it in a **Bootstrap modal with an iframe**. An iframe inside a modal is not a popup — browsers don't block it. The member completes verification inside TruAnon's UI. TruAnon posts a `closeVerificationModal` message when done; your page closes the modal and reloads.
 
-### Simple Popup Button
 ```html
-<a href="https://truanon.com/api/verifyProfile?id=[USERNAME]&service=[SERVICENAME]&token=[TOKEN]"
-   target="ta-popup"
-   onclick="openVerificationPopup(this.href)"
-   class="btn btn-primary">
+<!-- The button that triggers verification -->
+<button onclick="openVerificationPopup('<%= verifyUrl %>')" class="btn btn-primary">
    Confirm Ownership
-</a>
-```
+</button>
 
-### Bootstrap Modal (Recommended)
-```html
+<!-- Modal — iframe loads TruAnon's verification UI inside your page -->
 <div class="modal fade" id="verificationModal" tabindex="-1" aria-hidden="true">
    <div class="modal-dialog modal-dialog-centered" style="max-width: 480px;">
       <div class="modal-content">
@@ -169,12 +164,38 @@ Open it in a **popup** or **Bootstrap modal iframe**. The member completes verif
 </div>
 
 <script>
+// /verify-complete is a route on your own server that does nothing except
+// postMessage back to this parent window. Since it's same-origin, this is
+// guaranteed to work — we don't depend on TruAnon's own postMessage behavior.
+window.addEventListener("message", (event) => {
+    if (event.data && event.data.action === "verificationComplete") {
+        bootstrap.Modal.getInstance(document.getElementById('verificationModal')).hide();
+        window.location.reload();
+    }
+});
+
 function openVerificationPopup(url) {
     document.getElementById('verificationIframe').src = url;
     new bootstrap.Modal(document.getElementById('verificationModal')).show();
 }
 </script>
 ```
+
+**Add this route to your server** — it's the callback TruAnon redirects to when done:
+
+```javascript
+app.get('/verify-complete', (req, res) => {
+    res.send(`<!DOCTYPE html><html><body><script>
+        window.parent.postMessage({ action: 'verificationComplete' }, '*');
+    </script></body></html>`);
+});
+```
+
+Build the verify URL with `&callback=https://yourhost/verify-complete` so TruAnon knows where to redirect.
+
+### Mobile / Native
+
+On iOS use `SFSafariViewController`. On Android use Chrome Custom Tabs. Pass your app's custom URL scheme as the `callback` (e.g. `yourapp://verified`) and handle it in your app delegate to dismiss the sheet and refresh the badge. See `AI_CONTEXT.md` for Swift code.
 
 ---
 

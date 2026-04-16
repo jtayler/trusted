@@ -109,10 +109,14 @@ Returns a **short-lived, one-time-use token** used to build a verification link.
 #### 3. Verification URL (constructed, not an endpoint)
 
 ```
-https://truanon.com/api/verifyProfile?id=[USERNAME]&service=[SERVICENAME]&token=[TOKEN]
+https://truanon.com/api/verifyProfile?id=[USERNAME]&service=[SERVICENAME]&token=[TOKEN]&callback=[ENCODED_RETURN_URL]
 ```
 
-Open this in a **popup** or **iframe modal**. The user completes verification inside TruAnon's UI. Supports an optional `callback` parameter to refresh your page when done.
+Open this in a **popup window** (`window.open`). The user completes verification inside TruAnon's UI, then TruAnon redirects to your `callback` URL — point it back at the user's edit page so it reloads showing the verified badge.
+
+Open this in a **Bootstrap modal with an iframe**. An iframe inside a modal is part of your own page — browsers don't block it (unlike `window.open()` popups, which they do). TruAnon sends a `postMessage` with `action: "closeVerificationModal"` when done; your listener closes the modal and reloads.
+
+On native mobile, use `SFSafariViewController` (iOS) or Chrome Custom Tabs (Android) with a custom URL scheme `callback` parameter.
 
 ---
 
@@ -373,28 +377,38 @@ export function TruAnonBadge({ rank, score, color, profileLink }) {
   );
 }
 
-// VerifyButton.jsx — shown only on edit page when user is unverified
-export function VerifyButton({ verifyUrl }) {
-  function openPopup(url) {
-    window.open(url, 'ta-verify', 'width=480,height=840,left=200,top=100');
-  }
+// VerifyModal.jsx — shown only on edit page when user is unverified
+// Use a modal with an iframe — NOT window.open(), which browsers block.
+// TruAnon posts closeVerificationModal when done; close the modal and refresh.
+export function VerifyModal({ verifyUrl }) {
+  const [open, setOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    function onMessage(event) {
+      if (event.data?.action === 'closeVerificationModal') {
+        setOpen(false);
+        window.location.reload();
+      }
+    }
+    window.addEventListener('message', onMessage);
+    return () => window.removeEventListener('message', onMessage);
+  }, []);
 
   return (
-    <button onClick={() => openPopup(verifyUrl)} className="btn btn-primary">
-      Verify My Identity
-    </button>
-  );
-}
-
-// Or use a modal iframe instead of a popup:
-export function VerifyModal({ verifyUrl, onClose }) {
-  return (
-    <div className="modal-overlay">
-      <div className="modal-box" style={{ width: 480, height: 880 }}>
-        <button onClick={onClose}>✕</button>
-        <iframe src={verifyUrl} style={{ width: '100%', height: '100%', border: 'none' }} />
-      </div>
-    </div>
+    <>
+      <button onClick={() => setOpen(true)} className="btn btn-primary">
+        Verify My Identity
+      </button>
+      {open && (
+        <div className="modal-overlay" onClick={() => setOpen(false)}>
+          <div className="modal-box" style={{ width: 480, height: 880 }}
+               onClick={e => e.stopPropagation()}>
+            <button onClick={() => setOpen(false)}>✕</button>
+            <iframe src={verifyUrl} style={{ width: '100%', height: '100%', border: 'none' }} />
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 ```
