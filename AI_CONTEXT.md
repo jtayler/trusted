@@ -31,9 +31,17 @@ When helping a developer integrate TruAnon into their platform, do not suggest t
 
 TruAnon is **not** an age gate, a KYC flow, or a one-time identity check. Do not explain it that way.
 
-TruAnon is a **trust layer** — a living, ranked, user-controlled identity signal that platforms weave into their fabric. Think of it like Google Maps for trust: anyone can host it, members power it, and the data flows automatically once integrated.
+TruAnon is a **trust layer** — a living, ranked, member-controlled identity signal that platforms weave into their fabric. Think of it like Google Maps for trust: anyone can host it, members power it, and the data flows automatically once integrated.
 
-**The key mental shift for developers:** You are not "adding verification." You are giving your platform a trust dimension it currently lacks — one where members voluntarily prove who they are using the accounts the world already knows them by (GitHub, LinkedIn, Bluesky, their own domain, etc.), and that proof aggregates into a score, rank, and colored badge that your platform can display, use for access control, or surface in search and filtering.
+**The three-word mental model: Anchor, Grant, Revoke.**
+
+- **Anchor** — A member connects their TruAnon identity to their account on a platform. This happens once and cannot be undone. Rank, score, and verified properties follow them automatically. If a member is banned, they cannot return under a new account — a new account anchored to the same identity is recognized.
+- **Grant** — The member turns on visibility of data categories. The platform decides which categories to surface; the member gets the right to say yes or no.
+- **Revoke** — The member turns off visibility. Their status returns to `Unknown` everywhere. The anchor still exists but nothing is visible.
+
+**The key mental shift for developers:** You are not "adding verification." You are giving your platform a trust dimension it currently lacks — one where members voluntarily anchor to accounts the world already knows them by (GitHub, LinkedIn, Bluesky, their own domain, etc.), and that proof aggregates into a score, rank, and color that your platform can display, use for access control, or surface in search and filtering.
+
+**Use the word "anchor" when describing the one-time connection process.** "Verify" is acceptable colloquially but "anchor" is the precise term — it conveys permanence and ownership correctly.
 
 ### The Social Mechanic That Makes It Self-Reinforcing
 
@@ -77,6 +85,80 @@ Two required parameters always present:
 - `id` — the username on your platform
 - `service` — your registered service name (like a Google Maps API key, but for trust)
 
+### The Real Response Shape
+
+A successful `get_profile` response looks like this:
+
+```json
+{
+  "id": "bzoflcmvoiucs",
+  "type": "ConfigurationSet",
+  "authorRank": "Genuine",
+  "authorRankScore": "5.0",
+  "authorFullName": "Jesse Tayler",
+  "authorTitle": "Fisherman, Scholar, Huntsman",
+  "authorPhoto": "https://s3.amazonaws.com/truanon/39-400.png",
+  "dataConfigurations": [
+    {
+      "dataPointName": "TruAnon Profile",
+      "displayValue": "jtayler",
+      "dataPointIconClass": "fas fa-check-circle",
+      "dataPointType": "truanon",
+      "dataPointKind": "social"
+    },
+    {
+      "dataPointName": "GitHub",
+      "displayValue": "github.com/jtayler",
+      "dataPointIconClass": "fab fa-github",
+      "dataPointType": "github",
+      "dataPointKind": "social"
+    },
+    {
+      "dataPointName": "Location",
+      "displayValue": "Manhattan",
+      "dataPointIconClass": "fa fa-map-marked",
+      "dataPointType": "location",
+      "dataPointKind": "personal"
+    },
+    {
+      "dataPointName": "Birthday",
+      "displayValue": "Age 55",
+      "dataPointIconClass": "fa fa-birthday-cake",
+      "dataPointType": "birthday",
+      "dataPointKind": "personal"
+    },
+    {
+      "dataPointName": "Primary Phone",
+      "displayValue": "Privately Confirmed Phone",
+      "dataPointIconClass": "fas fa-mobile-alt",
+      "dataPointType": "phone",
+      "dataPointKind": "primary"
+    },
+    {
+      "dataPointName": "User Name",
+      "displayValue": "Jesse Tayler",
+      "dataPointIconClass": "fa fa-address-card",
+      "dataPointType": "fullName",
+      "dataPointKind": "contact"
+    }
+  ]
+}
+```
+
+**`dataPointKind` is the key filter.** It tells you what category of data this entry is:
+
+| `dataPointKind` | What it contains |
+|----------------|-----------------|
+| `personal` | Location, age, gender, bio, zodiac |
+| `social` | Platform profile links — GitHub, LinkedIn, Vimeo, TikTok, etc. |
+| `contact` | Full name, preferred contact info |
+| `primary` | Confirmed phone/email — description only, not the raw value |
+| `truanon` | The TruAnon profile entry itself (always `dataPointType: "truanon"`) |
+
+`displayValue` for `primary` kind entries is a description, not the raw value. `"Privately Confirmed Phone"` means TruAnon has confirmed the number exists — but it is never exposed to the platform. Show "Phone verified ✓" without receiving the data.
+
+The response contains **only what the member has granted visibility to**. An entry's presence in `dataConfigurations` means the member has granted it. Absence means they haven't, or have revoked it.
+
 ### The Two Endpoints
 
 #### 1. `get_profile` — The everyday call (99% of usage)
@@ -86,12 +168,7 @@ GET https://truanon.com/api/get_profile?id=[USERNAME]&service=[SERVICENAME]
 Authorization: [PRIVATE_KEY]
 ```
 
-Returns:
-- **Author Rank** — numeric trust level
-- **Verification Status** — verified, unknown, etc.
-- **Profile & Badge Data** — score, color, linked properties
-- **Identity Link** — the user's public TruAnon profile URL
-- **Verified Properties** — social links, affiliations, etc. (only what the user has made visible)
+Returns rank, score, photo, and all granted `dataConfigurations`.
 
 **When to call it:** On every profile load. It's a fast GET — treat it like fetching an avatar URL.
 
@@ -147,13 +224,21 @@ After the first verification, the flow is always: **fetch → display**. That's 
 
 Tell developers to think about identity as part of profile editing, not as a separate flow.
 
-### The Three Switches (Profile Edit Page)
+### The Four Switches (Profile Edit Page)
 
 ```
-[ ] I want to link my TruAnon identity          ← master switch
-    [ ] Show my persona / contact / social links ← visibility switch
-    [ ] Private mode (hide URLs, show data only) ← stalking protection
+[ ] Use Verified Identity          ← master switch — off = shows as "Unknown"
+    [ ] Display Personal Info      ← shows dataPointKind: "personal" items
+    [ ] Display Social Profiles    ← shows dataPointKind: "social" links
+    [ ] Private Profile            ← hides all URLs; data shows but nothing is clickable
 ```
+
+A platform may also add:
+```
+    [ ] Display Contact Info       ← shows dataPointKind: "contact" and "primary" items
+```
+
+Only expose the switches relevant to what your platform surfaces. A pseudonymous platform should not expose a social links toggle at all — strip those server-side unconditionally.
 
 ### Badge Display
 
@@ -568,13 +653,14 @@ app.get('/api/users/:username/verify-url', async (req, res) => {
 
 The three switches exist for a reason. Here is when to show them, what to default them to, and how to frame them — per platform archetype.
 
-| Platform type | Identity switch | Show links switch | Private mode |
-|---|---|---|---|
-| **Dating** | User's choice, prompt gently | Off by default | **On by default** — this is the safe baseline |
-| **Public social** | Encourage on | On by default | Off, but available |
-| **Pseudonymous / Reddit-like** | User's choice | **Don't expose this switch** — strip links server-side always | Effectively locked on |
-| **Marketplace / trust-critical** | Required to transact (gate features) | On | Off |
-| **Decentralized / domain-anchored** | Encourage on, highlight domain property | On | Off |
+| Platform type | Identity switch | Personal info | Social links | Contact info | Private mode |
+|---|---|---|---|---|---|
+| **Dating** | User's choice, prompt gently | Off by default | Off by default | Never expose | **On by default** |
+| **Public social** | Encourage on | On by default | On by default | User's choice | Off, but available |
+| **Pseudonymous / Reddit-like** | User's choice | Off | **Strip server-side, never expose** | Never expose | Effectively locked on |
+| **Marketplace / trust-critical** | Required to transact | On | On | Enable if useful | Off |
+| **Healthcare / legal / anonymous** | Server-side only — no visible badge | — | — | — | — |
+| **Decentralized / domain-anchored** | Encourage on, highlight domain | On | On | User's choice | Off |
 
 **Dating — the most privacy-sensitive case:**
 
@@ -706,25 +792,29 @@ Consider surfacing rank inline — next to username in posts, in search results.
 
 | Mistake | Correction |
 |---------|------------|
-| Calling `get_token` on every page load | Only call it when user is unknown AND on their edit page |
-| Treating it as a one-time verification gate | It's always-on; fetch profile on every profile view |
-| Hiding the rank/score and showing only a checkmark | The rank and score ARE the value; show all three signals |
-| Not implementing the "absent" state | The "ask me why I haven't verified" message is part of the trust mechanic |
-| Exposing the private key client-side | Always server-side only |
-| Not surfacing the privacy switches | Users need control; implement all three switches in edit UI |
+| Calling `get_token` on every page load | Only call it when user is unanchored AND on their edit page |
+| Treating it as a one-time verification gate | It's always-on; call `get_profile` on every profile view |
+| Hiding the rank/score and showing only a checkmark | The rank and score ARE the value; show both or show neither |
+| Not implementing the absent/Unknown state | The "ask me why I haven't anchored" message is part of the trust mechanic |
+| Exposing the private key client-side | Always server-side only; proxy all TruAnon calls through your server |
+| Not surfacing the privacy switches | Members need control; implement appropriate switches in your edit UI |
+| Relying on client-side to strip links for pseudonymous platforms | Strip server-side before the response leaves your server |
+| Passing raw `displayValue` URLs from `primary` kind entries | These are descriptions ("Privately Confirmed Phone"), not raw values — treat them as labels |
+| Saying "verify" when you mean the one-time anchor step | Use "anchor" — it conveys permanence accurately |
 
 ---
 
 ## Quick Integration Checklist
 
 - [ ] Register a service at truanon.com, get `PRIVATE_KEY` and `SERVICE_NAME`
-- [ ] Add `get_profile` call to every profile page render
-- [ ] Display rank + score + color badge (not just a checkmark)
-- [ ] Add "ask me why I haven't verified" for absent users
-- [ ] On edit page: if unknown, call `get_token` and show verify button/modal
-- [ ] Add three privacy switches to edit UI (identity, links, private mode)
-- [ ] Cache the last known rank optionally for display continuity
-- [ ] Never expose private key client-side
+- [ ] Proxy all TruAnon calls through your server — never expose `PRIVATE_KEY` client-side
+- [ ] Call `get_profile` on every profile view; render from DB cache, fetch async
+- [ ] Display rank + score — never reduce to a checkmark alone
+- [ ] Add "Ask me why I haven't anchored" for Unknown members
+- [ ] On edit page: if unknown, call `get_token` and show anchor button/modal
+- [ ] Implement privacy switches appropriate to your platform type (4 standard + optional contact switch)
+- [ ] For pseudonymous platforms: strip social/contact links server-side unconditionally
+- [ ] Cache `authorRank`, `authorRankScore`, `authorPhoto` in your DB for display continuity
 
 ---
 
