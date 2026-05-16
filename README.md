@@ -24,7 +24,9 @@ Trust made visible also makes the choice not to have it visible. Absence is as l
 
 This is not a badge system with a prescribed UI. It is an API that returns structured identity data. You decide what to render — if anything.
 
-A healthcare portal might use rank as a server-side gate and show nothing. A classifieds platform attaches rank to listings — a seller anchors once and their Genuine 4.5 travels on every post they make, no profile page required. A pseudonymous community shows rank next to a username with no identity visible. A care marketplace gates listing access by minimum rank and displays its own "Screened" badge computed from TruAnon rank. A dating app shows age range and location, private by default, with social links never surfaced to strangers.
+A healthcare portal uses rank as a server-side gate and shows nothing. A classifieds platform attaches rank to listings — a seller anchors once and their Genuine 4.5 travels on every post they make, no profile page required. A pseudonymous community shows rank next to a username with no identity visible. A dating app shows age range and location, private by default, with social links never surfaced to strangers.
+
+The data can also power **achievements**. A member makes their GitHub visible — your platform reads it and awards a Developer badge with a quality score derived from repo count, age, and languages. A member shares a driving record link — your platform resolves it to a simple yes/no and displays "Verified Driver." The member controls what they share; your platform interprets it into its own domain language. TruAnon supplies the verified signal. You decide what it means on your platform.
 
 The principle is the same in every case: surface what's useful for your context, give the member the right to revoke each category you surface.
 
@@ -196,18 +198,22 @@ fetch(`/users/${username}/truanon`)
 
 ---
 
-## Caching Rank for List Performance
+## When to Fetch — and When Not To
 
-Cache `authorRank` and `authorRankScore` in your DB row. List views — search results, feeds, comment threads — render rank and color from your DB with zero API calls. Update the cache on the profile view.
+Store `is_anchored` on the user record. Set it the first time `get_profile` returns a real rank. Use it everywhere as the gate for TruAnon calls — if false, don't ping. You already know the answer.
+
+You only need a live TruAnon fetch in two places: the profile view (async, after the page loads) and the edit page (to get a verify token, only for unanchored users). Every other surface — lists, feeds, search results, comment threads — renders from your DB cache with zero API calls.
+
+Cache `authorRank`, `authorRankScore`, and `authorPhoto` on the user row. The rank maps directly to a color:
 
 ```javascript
 function rankToColor(rank) {
-    return { Genuine: 'gold', Reliable: 'green', Credible: 'blue',
-             Cautioned: 'orange', Dangerous: 'red' }[rank] || 'gray';
+    return { Genuine: 'primary', Reliable: 'success', Credible: 'secondary',
+             Cautioned: 'warning', Dangerous: 'danger' }[rank] || 'light';
 }
 ```
 
-What you cache is derived trust data — not PII. A database breach exposes rank and score. Nothing that identifies, locates, or contacts anyone. You cannot be compelled to give up what you do not have.
+What you cache is derived trust data — not PII. A breach exposes rank and score. Nothing that identifies, locates, or contacts anyone. You cannot be compelled to give up what you do not have.
 
 ---
 
@@ -249,13 +255,15 @@ Expose only the switches relevant to what your platform surfaces. For pseudonymo
 
 - [ ] Register at truanon.com — get `PRIVATE_KEY` and `SERVICE_NAME`
 - [ ] Proxy all TruAnon calls through your server — never expose `PRIVATE_KEY` client-side
-- [ ] Call `get_profile` on every profile view; render from cache, fetch async
-- [ ] Display rank + score — never reduce to a checkmark alone
+- [ ] Store `is_anchored` on the user record — gate all TruAnon calls on it
+- [ ] Cache `authorRank`, `authorRankScore`, `authorPhoto` — list views never need an API call
+- [ ] Render profile pages immediately from DB cache — fetch TruAnon async from the client after load
+- [ ] Display rank + score + color — never reduce to a checkmark alone
 - [ ] Show *"Ask me why I haven't anchored"* for Unknown members
-- [ ] On edit page: if unknown, call `get_token` and show the anchor button
-- [ ] Implement privacy switches for each data category your platform surfaces
-- [ ] Cache `authorRank`, `authorRankScore`, `authorPhoto` for display continuity
-- [ ] For pseudonymous platforms: strip social links server-side
+- [ ] On edit page: read `is_anchored` from DB to know which state to render before any fetch
+- [ ] Fetch verify token only when the member clicks Verify — not on page load
+- [ ] Implement privacy switches for Personal, Contact, and Social — only show after anchoring
+- [ ] For pseudonymous platforms: strip social/contact links server-side unconditionally
 
 ---
 
