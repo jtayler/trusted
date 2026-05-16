@@ -269,4 +269,4 @@ First 1,000 verifications are free. After that: approximately **$0.04 per verifi
 
 TruAnon makes verified identity available to everyone. Credibility is equally available to anyone willing to show up as themselves. The badge spreads because members who have it prefer others who do. The absence of it speaks just as clearly.
 
-[truanon.com](https://truanon.com) · [Example Public Profile](https://truanon.com/p/jtayler)
+  [Example Public Profile — Hanna](https://truanon.com/p/hanna)                                                                                                                                                                                  
