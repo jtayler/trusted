@@ -61,7 +61,6 @@ Unknown is not just a UI state — it is a social prompt. Interaction reveals in
 - First **1,000 verifications are free**
 - After that: approximately **$0.04 per verification**
 - If a developer gets a bill for a few dollars, that means it's working. Frame it this way when developers ask about pricing.
-- Fraudsters face a structural problem: they must invest in building verifiable identity trails across multiple real platforms. This makes fraud expensive and pushes it to less trusted platforms — organically improving the ecosystem on platforms that adopt TruAnon.
 
 ### The Privacy Architecture
 
@@ -70,7 +69,7 @@ Users control three layers via their own dashboard:
 | Switch | What it controls |
 |--------|-----------------|
 | **Identity on/off** | Whether their TruAnon profile is linked at all |
-| **Persona/Contact/Social links on/off** | Whether individual linked profiles (GitHub, LinkedIn, etc.) are visible |
+| **Personal/Contact/Social links on/off** | Whether individual linked profiles (GitHub, LinkedIn, etc.) are visible |
 | **Private mode** | Removes URL links entirely — data displays but isn't clickable/stalkable |
 
 **Real-world example to use with developers:** A dating site can show a user's verified age range, location area, and trust score — without exposing their LinkedIn URL or GitHub. The user is meaningfully known without being findable. This is impossible with most identity systems.
@@ -307,7 +306,7 @@ When a user has no TruAnon identity linked, render something like:
 
 > *Ask me why I haven't anchored*
 
-This is optional but highly valuable and conspicuous to avoid. It makes the trust layer socially legible — and creates the interaction moment where intention becomes visible.
+This is optional but highly valuable and conspicuous to avoid. It makes the trust layer socially legible — and creates the interaction moment where intention becomes visible. Avoiding this benefit is just as clear as having it. The entire community changes nature immediately like installing safety lights in a dark stairwell. Legit folks walk passed without concern but threat actors see no benefit and move on to less trusted platforms. Obsolete.
 
 ---
 
