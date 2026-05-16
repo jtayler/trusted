@@ -24,7 +24,7 @@ const BITBUCKET_BASE_URL = "https://api.bitbucket.org/2.0";
 
 const privateKey = process.env.TRUANON_API_KEY || "default-private-key";
 const serviceName = process.env.SERVICE_NAME || "default-app"; // Default fallback
-const apiRoute = process.env.API_ROUTE || "https://truanon.com/api/";
+const apiRoute = process.env.API_ROUTE || "https://truanon.com/api/v2/";
 
 console.log(`TRUANON_API_KEY: ${process.env.TRUANON_API_KEY}`);
 console.log(`SERVICE_NAME: ${process.env.SERVICE_NAME}`);
@@ -107,7 +107,7 @@ app.get('/users/:username/bitbucket', async (req, res) => {
     const bitbucketToken = process.env.BITBUCKET_TOKEN;
     const truAnonApiKey = process.env.TRUANON_API_KEY;
     const serviceName = process.env.SERVICE_NAME;
-    const profileApiUrl = `${process.env.API_ROUTE}get_profile?id=${username}&service=${serviceName}`;
+    const profileApiUrl = `${process.env.API_ROUTE}get_profile_v2?id=${username}&service=${serviceName}`;
     const BITBUCKET_BASE_URL = process.env.BITBUCKET_BASE_URL || 'https://api.bitbucket.org/2.0';
 
     try {
@@ -125,7 +125,7 @@ app.get('/users/:username/bitbucket', async (req, res) => {
         }
 
         const profileData = await profileResponse.json();
-        const bitbucketConfig = profileData.dataConfigurations.find(config => config.dataPointType === 'bitbucket');
+        const bitbucketConfig = (profileData.anchors || []).find(config => config.type === 'bitbucket');
         //const bitbucketUsername = bitbucketConfig?.displayValue.split('/').pop();
 
 
@@ -197,7 +197,7 @@ app.get('/users/:username/github', async (req, res) => {
     const token = process.env.GITHUB_TOKEN;
     const truAnonApiKey = process.env.TRUANON_API_KEY;
     const serviceName = process.env.SERVICE_NAME;
-    const profileApiUrl = `${process.env.API_ROUTE}get_profile?id=${username}&service=${serviceName}`;
+    const profileApiUrl = `${process.env.API_ROUTE}get_profile_v2?id=${username}&service=${serviceName}`;
 
     try {
         // Fetch TruAnon profile
@@ -215,15 +215,15 @@ app.get('/users/:username/github', async (req, res) => {
         const profileData = await profileResponse.json();
 
         // Extract GitHub username from profileData
-        const githubConfig = profileData.dataConfigurations.find(config => config.dataPointType === 'github');
-        const githubUsername = githubConfig ? githubConfig.displayValue.split('/').pop() : null;
+        const githubConfig = (profileData.anchors || []).find(config => config.type === 'github');
+        const githubUsername = githubConfig ? githubConfig.display.split('/').pop() : null;
 
         if (!githubUsername) {
             return res.status(404).send('GitHub username not found in profile data');
         }
 
-        if (githubConfig.displayValue.startsWith('Privately Verified')) {
-            console.log('Skipping GitHub fetch for privately verified username:', githubConfig.displayValue);
+        if (githubConfig.display.startsWith('Privately Verified')) {
+            console.log('Skipping GitHub fetch for privately verified username:', githubConfig.display);
 
             return res.json({
                 status: 'private',
@@ -492,19 +492,19 @@ app.get('/users/:username', (req, res) => {
 // TruAnon live data — called client-side after page loads, like the /github endpoint
 app.get('/users/:username/truanon', async (req, res) => {
     const { username } = req.params;
-    const profileUrl = `${apiRoute}get_profile?id=${username}&service=${serviceName}`;
+    const profileUrl = `${apiRoute}get_profile_v2?id=${username}&service=${serviceName}`;
 
     try {
         const response = await fetchWithTimeout(profileUrl, { headers: { Authorization: privateKey } }, 30000);
         const profileData = await response.json();
 
-        const authorPhoto = profileData.authorPhoto;
-        const validPhoto = authorPhoto && authorPhoto !== "https://s3.amazonaws.com/truanon/nophoto.png" && authorPhoto.trim() !== "";
-        const authorRank = profileData.authorRank || "Unknown";
+        const photo = profileData.photo;
+        const validPhoto = photo && photo !== "https://s3.amazonaws.com/truanon/nophoto.png" && photo.trim() !== "";
+        const rank = profileData.rank || "Unknown";
 
-        const anchored = authorRank && authorRank !== 'Unknown' ? 1 : 0;
-        db.run('UPDATE users SET authorPhoto = ?, authorRank = ?, is_anchored = ? WHERE username = ?',
-            [validPhoto ? authorPhoto : null, authorRank, anchored, username],
+        const anchored = rank && rank !== 'Unknown' ? 1 : 0;
+        db.run('UPDATE users SET authorPhoto = ?, authorRank = ?, authorRankScore = ?, is_anchored = ? WHERE username = ?',
+            [validPhoto ? photo : null, rank, profileData.score || null, anchored, username],
             err => { if (err) console.error('Cache update error:', err.message); }
         );
 
@@ -518,7 +518,7 @@ app.get('/users/:username/truanon', async (req, res) => {
 // Define endpoint to handle the edit page and return appropriate UI elements
 app.get('/users/:username/verify_status', async (req, res) => {
     const { username } = req.params;
-    const profileURL = `${apiRoute}get_profile?id=${username}&service=${serviceName}`;
+    const profileURL = `${apiRoute}get_profile_v2?id=${username}&service=${serviceName}`;
     const tokenURL = `${apiRoute}get_token?id=${username}&service=${serviceName}`;
 
     const options = {
@@ -532,7 +532,7 @@ app.get('/users/:username/verify_status', async (req, res) => {
         const profileResponse = await fetch(profileURL, options);
         const profileData = await profileResponse.json();
 
-        if (!profileData || profileData.type === "error" || profileData.status === "Unknown") {
+        if (!profileData || !profileData.rank || profileData.rank === 'Unknown') {
             // If profile is unknown, fetch a new token and return for verification UI
             const tokenResponse = await fetch(tokenURL, options);
             const tokenData = await tokenResponse.json();
@@ -542,19 +542,19 @@ app.get('/users/:username/verify_status', async (req, res) => {
                 status: "Unknown",
                 ui: `
                 <input type="text" class="form-control text-muted" value="Assign Ownership" readonly />
-                <a class="btn btn-primary rounded-end" href="#" 
+                <a class="btn btn-primary rounded-end" href="#"
                 onClick="openVerificationPopup('${apiRoute}verifyProfile?id=${username}&service=${serviceName}&token=${tokenData.id}&callback=${encodeURIComponent(`${req.protocol}://${req.get('host')}/verify-complete`)}')"
                 id="verify-link">Verify</a>
                 `
             });
         }
 
-        // Extract the TruAnon profile link from dataConfigurations
-        const profileLink = profileData.dataConfigurations.find(config => config.dataPointType === 'truanon')?.displayValue || '#';
+        // Extract the TruAnon profile link from anchors
+        const profileLink = (profileData.anchors || []).find(c => c.type === 'truanon')?.display || '#';
 
         // Return UI elements for verified users
         return res.json({
-            status: profileData.authorRank,
+            status: profileData.rank,
             ui: `
                 <input type="text" class="form-control text-muted" value="Securely Assigned" readonly />
                 <a class="btn btn-primary rounded-end" href="${profileLink}" target="_blank">View Profile</a>
@@ -603,7 +603,7 @@ app.get('/users/:username/edit-status', async (req, res) => {
     if (req.session.user?.username !== req.params.username) return res.status(403).json({ error: 'Forbidden' });
 
     const { username } = req.params;
-    const profileURL = `${apiRoute}get_profile?id=${username}&service=${serviceName}`;
+    const profileURL = `${apiRoute}get_profile_v2?id=${username}&service=${serviceName}`;
     const tokenURL = `${apiRoute}get_token?id=${username}&service=${serviceName}`;
     const options = { headers: { Authorization: privateKey } };
     const callbackUrl = `${req.protocol}://${req.get('host')}/verify-complete`;
@@ -612,8 +612,8 @@ app.get('/users/:username/edit-status', async (req, res) => {
         const profileResponse = await fetchWithTimeout(profileURL, options, 10000);
         const profileData = await profileResponse.json();
 
-        if (profileData && profileData.type !== 'error') {
-            const profileLink = profileData.dataConfigurations?.find(c => c.dataPointType === 'truanon')?.displayValue || null;
+        if (profileData && profileData.rank && profileData.rank !== 'Unknown') {
+            const profileLink = profileData.anchors?.find(c => c.type === 'truanon')?.display || null;
             return res.json({ status: 'anchored', profileLink });
         }
 

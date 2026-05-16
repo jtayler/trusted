@@ -128,21 +128,16 @@
          address2.text('<%= user.location %>');
          
          
-         function filterDataConfigurations(myData, dataPointType, dataPointKind) {
-         // Return an empty array if myData is empty or myData.dataConfigurations is not defined
-         if (!myData || !myData.dataConfigurations) {
+         function filterDataConfigurations(myData, anchorType, anchorKind) {
+         if (!myData || !myData.anchors) {
          return [];
          }
-         
-         // Use the filter() method to filter the objects from myData.dataConfigurations
-         // that match the specified dataPointType and dataPointKind.
-         var filteredData = myData.dataConfigurations.filter(function(config) {
-         if (dataPointType.length) {
-         return config.dataPointType === dataPointType && config.dataPointKind === dataPointKind;
+         var filteredData = myData.anchors.filter(function(config) {
+         if (anchorType.length) {
+         return config.type === anchorType && config.kind === anchorKind;
          }
-         return config.dataPointKind === dataPointKind;
+         return config.kind === anchorKind;
          });
-         
          return filteredData;
          }
          
@@ -195,27 +190,27 @@
         .then(function(verifiedDetails) {
 
             // === MAIN BADGE ===
-            $('#location').text(verifiedDetails.authorTitle);
+            $('#location').text(verifiedDetails.title);
 
             var badge = makePrivate ? document.createElement("span") : document.createElement("a");
-            badge.className = "w-100 btn mb-4 btn-outline-" + getPhotoBorderColor(verifiedDetails.authorRank);
+            badge.className = "w-100 btn mb-4 btn-outline-" + getPhotoBorderColor(verifiedDetails.rank);
             if (makePrivate) {
                 badge.classList.add("disabled");
             } else {
                 var truanonConfigs = filterDataConfigurations(verifiedDetails, "truanon", "social");
-                if (truanonConfigs.length) { badge.href = "https://" + truanonConfigs[0].displayValue; badge.target = "_blank"; }
+                if (truanonConfigs.length) { badge.href = "https://" + truanonConfigs[0].display; badge.target = "_blank"; }
             }
             var badgeLogo = document.createElement("span");
             badgeLogo.className = "fas fa-check-circle fa-5x align-middle p-2";
             badge.appendChild(badgeLogo);
             var badgeRank = document.createElement("div");
             badgeRank.className = "badge-rank h3";
-            badgeRank.innerText = verifiedDetails.authorRank;
+            badgeRank.innerText = verifiedDetails.rank;
             badge.appendChild(badgeRank);
             var badgeScore = document.createElement("div");
             badgeScore.className = "badge-score h5";
-            badgeScore.innerHTML = "(" + verifiedDetails.authorRankScore + " of 5)<p class=\"pt-4\"><b>" +
-                (verifiedDetails.authorAgeBadge ? " ⸻ " + verifiedDetails.authorAgeBadge + " ⸻ " : "") + "</b></p>";
+            badgeScore.innerHTML = "(" + verifiedDetails.score + " of 5)<p class=\"pt-4\"><b>" +
+                (verifiedDetails.ageBadge ? " ⸻ " + verifiedDetails.ageBadge + " ⸻ " : "") + "</b></p>";
             badge.appendChild(badgeScore);
             $('#badge-area').html(badge);
 
@@ -226,8 +221,8 @@
             var filteredContact  = filterDataConfigurations(verifiedDetails, "", "contact")
                 .concat(filterDataConfigurations(verifiedDetails, "", "primary"));
 
-            // fullName is dataPointKind:"contact" — pull it out and put it first in personal
-            var nameEntry = filteredContact.find(function(c) { return c.dataPointType === 'fullName'; });
+            // fullName is kind:"contact" — pull it out and put it first in personal
+            var nameEntry = filteredContact.find(function(c) { return c.type === 'fullName'; });
             if (nameEntry) {
                 filteredContact  = filteredContact.filter(function(c) { return c !== nameEntry; });
                 filteredPersonal = [nameEntry].concat(filteredPersonal);
@@ -243,8 +238,8 @@
             if (showSocial   && filteredSocial.length)   newSlot.appendChild(createSocialCard(filteredSocial));
 
             // === GITHUB BADGE (after TruAnon data is available) ===
-            var githubConfig = (verifiedDetails.dataConfigurations || []).find(function(c) {
-                return c.dataPointType === "github";
+            var githubConfig = (verifiedDetails.anchors || []).find(function(c) {
+                return c.type === "github";
             });
             loadGithubBadge(githubConfig);
         })
@@ -268,7 +263,7 @@
         description.classList.add("card-text", "text-muted");
         githubBadge.append(icon, title, description);
 
-        if (!githubConfig || githubConfig.displayValue.startsWith("Privately Verified")) {
+        if (!githubConfig || githubConfig.display.startsWith("Privately Verified")) {
             badgeArea.insertAdjacentElement("afterend", githubBadge);
             return;
         }
@@ -335,12 +330,12 @@
             col1.classList.add("col-sm-3");
             var titleHeader = document.createElement("h6");
             titleHeader.classList.add("mb-0");
-            titleHeader.innerText = dataConfig.dataPointName;
+            titleHeader.innerText = dataConfig.name;
             col1.appendChild(titleHeader);
             row.appendChild(col1);
             var col2 = document.createElement("div");
             col2.classList.add("col-sm-9", "text-secondary");
-            col2.innerText = dataConfig.displayValue;
+            col2.innerText = dataConfig.display;
             row.appendChild(col2);
             if (index < filteredData.length - 1) cardBody.appendChild(document.createElement("hr"));
         });
@@ -357,19 +352,19 @@
         var grid = document.createElement("div");
         grid.classList.add("d-flex", "flex-wrap", "text-center", "p-2");
         var display = filteredData.filter(function(c) {
-            return c.dataPointType !== "github" && c.dataPointType !== "trusted";
+            return c.type !== "github" && c.type !== "trusted";
         });
         display.forEach(function(dataConfig) {
             var item = document.createElement("div");
             item.classList.add("text-secondary", "p-2", "m-1");
             var link = document.createElement("a");
-            if (makePrivate || dataConfig.displayValue.includes("Privately")) {
+            if (makePrivate || dataConfig.display.includes("Privately")) {
                 link.style.pointerEvents = "none";
                 link.style.color = "gray";
             } else {
                 try {
-                    new URL("https://" + dataConfig.displayValue);
-                    link.href = "https://" + dataConfig.displayValue;
+                    new URL("https://" + dataConfig.display);
+                    link.href = "https://" + dataConfig.display;
                     link.target = "_blank";
                 } catch(e) {
                     link.style.pointerEvents = "none";
@@ -377,13 +372,13 @@
                 }
             }
             var iconSpan = document.createElement("span");
-            iconSpan.className = dataConfig.dataPointIconClass + " fa-5x mb-1";
+            iconSpan.className = dataConfig.icon + " fa-5x mb-1";
             link.appendChild(iconSpan);
             var titleDiv = document.createElement("div");
             titleDiv.style.width = "92px";
             titleDiv.style.textAlign = "center";
             var titleSpan = document.createElement("div");
-            titleSpan.innerText = dataConfig.dataPointName;
+            titleSpan.innerText = dataConfig.name;
             titleDiv.appendChild(titleSpan);
             item.appendChild(link);
             item.appendChild(titleDiv);
