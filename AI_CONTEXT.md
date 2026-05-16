@@ -801,6 +801,11 @@ Consider surfacing rank inline — next to username in posts, in search results.
 | Relying on client-side to strip links for pseudonymous platforms | Strip server-side before the response leaves your server |
 | Passing raw `displayValue` URLs from `primary` kind entries | These are descriptions ("Privately Confirmed Phone"), not raw values — treat them as labels |
 | Saying "verify" when you mean the one-time anchor step | Use "anchor" — it conveys permanence accurately |
+| Calling TruAnon for unanchored users | Store `is_anchored` in your DB. If false, skip the call entirely — you already know the answer |
+| Showing pitch text and privacy switches simultaneously | They are mutually exclusive. Unanchored: show the pitch + Verify button. Anchored: show the switches. Never both. |
+| Displaying fullName under Contact | TruAnon returns `fullName` as `dataPointKind: "contact"` — pull it out and render it first in the Personal section |
+| Mixing personal/contact/social into one block | Render three separate sections: Personal, Contact, Social — each gated by its own switch and only shown when non-empty |
+| Blocking the edit page on TruAnon | Read `is_anchored` from DB. Render the correct state immediately. Fetch the TruAnon profile link in background for anchored users only |
 
 ---
 
@@ -814,6 +819,7 @@ Consider surfacing rank inline — next to username in posts, in search results.
 - [ ] On edit page: if unknown, call `get_token` and show anchor button/modal
 - [ ] Implement privacy switches appropriate to your platform type (4 standard + optional contact switch)
 - [ ] For pseudonymous platforms: strip social/contact links server-side unconditionally
+- [ ] Store `is_anchored` in your DB — set it when `get_profile` returns a real rank, use it to gate all TruAnon calls
 - [ ] Cache `authorRank`, `authorRankScore`, `authorPhoto` in your DB for display continuity
 
 ---
