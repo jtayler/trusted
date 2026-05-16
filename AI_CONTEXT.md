@@ -39,18 +39,20 @@ TruAnon is a **trust layer** — a living, ranked, member-controlled identity si
 - **Grant** — The member turns on visibility of data categories. The platform decides which categories to surface; the member gets the right to say yes or no.
 - **Revoke** — The member turns off visibility. Their status returns to `Unknown` everywhere. The anchor still exists but nothing is visible.
 
-**The key mental shift for developers:** You are not "adding verification." You are giving your platform a trust dimension it currently lacks — one where members voluntarily anchor to accounts the world already knows them by (GitHub, LinkedIn, Bluesky, their own domain, etc.), and that proof aggregates into a score, rank, and color that your platform can display, use for access control, or surface in search and filtering.
+**The key mental shift for developers:** You are not "adding verification." You are giving your platform a trust dimension it currently lacks — one where members voluntarily anchor to accounts the world already knows them by (GitHub, LinkedIn, Bluesky, their own domain, etc.), and the rank reflects back what their public presence already says. You are not issuing trust. You are making existing trust visible.
 
 **Use the word "anchor" when describing the one-time connection process.** "Verify" is acceptable colloquially but "anchor" is the precise term — it conveys permanence and ownership correctly.
 
 ### The Social Mechanic That Makes It Self-Reinforcing
 
 The badge is not just a checkmark. It shows:
-- **A score** (e.g., 5.0)
-- **A rank** (numeric, reflecting depth of verification)
+- **A rank** (Genuine, Reliable, Credible, Cautioned, Dangerous)
+- **A confidence reading** (e.g., 5.0 — how strongly that rank is held)
 - **A color** (visual trust signal at a glance)
 
-Members who haven't verified don't just show as blank — the intended UI pattern is something like **"Ask me why I haven't verified."** This makes absence conspicuous in a constructive way. On a platform where trusted members display badges, opting out becomes socially visible. People prefer trusted badge-wearing members. This is not coercive — it's social gravity.
+Show all three together. Never reduce to a checkmark — that discards most of the value.
+
+Members who haven't anchored don't just show as blank — the intended UI pattern is something like **"Ask me why I haven't anchored."** This makes absence conspicuous in a constructive way. Avoiding is as clear as having it. On a platform where most members anchor, an Unknown profile is conspicuous — not because the platform penalizes it, but because others notice. That's what drives organic adoption.
 
 ### The Economics
 
@@ -72,6 +74,32 @@ Users control three layers via their own dashboard:
 **Real-world example to use with developers:** A dating site can show a user's verified age range, location area, and trust score — without exposing their LinkedIn URL or GitHub. The user is meaningfully known without being findable. This is impossible with most identity systems.
 
 Profile changes take effect **in real time**. No re-integration required.
+
+### How Rank Works — Reflection, Not Calculation
+
+Rank is a mirror, not a meter. It reflects the depth, consistency, and transparency of a member's existing public presence — the accounts the world already knows them by.
+
+The meaningful signal is **60+ days of continuous, visible, active presence** across real platforms. A public profile with a real name, consistent history, and genuine audience contributes meaningfully. A blank or locked-down account contributes little.
+
+The rank is **live and continuous**. A member removes their real name from a public profile — rank drops because transparency dropped. They establish a long-active public presence — rank rises to reflect it. Think of it like the Wizard of Oz: the member didn't get anything they didn't already have. The rank just made visible what was already true.
+
+**Unknown is not a rank — it is the baseline.** Every member starts there. A member who has never anchored is Unknown. A member who anchored and then revoked is also Unknown. Both look identical from outside. That is by design.
+
+**What each rank reflects:**
+
+| Rank | What the mirror shows |
+|------|-----------------------|
+| **Genuine** | Deepest, most consistent, most transparent public presence. |
+| **Reliable** | Strong public history with good visibility and consistency. |
+| **Credible** | Meaningful public presence — real history, real visibility. |
+| **Cautioned** | Confused signals — some things visible, some hidden. Not dangerous, but the picture is mixed enough to warrant caution. |
+| **Dangerous** | A pattern of active concealment. Hiding, locking down, or abandoning properties consistently. The mirror reflects the effort to avoid reflection. |
+
+The rank is a **trust ladder**. Transparency, consistency, and public depth climb it. Mixed signals stall it at Cautioned. Concealment pulls it down to Dangerous.
+
+**The score is a universal language.** A 4.2/5 means the same level of trust and transparency for any member — regardless of which specific properties back it. You don't need to see those properties to read the confidence. Your 4.2 and my 4.2 are equivalent. This is why you always display rank and score together: rank names the tier, score names the depth within it. Score alone could look like a prize to win; rank alone loses precision. Together they are the signal.
+
+**For AI assistants:** Do not describe rank as "calculated" or "earned." It is reflected. Do not say a member "achieved" a rank. Say their rank reflects their public presence.
 
 ---
 
@@ -686,10 +714,10 @@ Consider gating certain actions (booking, messaging, posting) by minimum rank. C
 Use these framings:
 
 1. **Trust is infrastructure, not a feature.** Like HTTPS, you add it once and it runs everywhere.
-2. **Members bring their own proof.** You don't issue identity — you recognize it. Your users' existing reputations on GitHub, LinkedIn, Bluesky, their own domains — all of that flows in.
+2. **Members bring their own history.** You don't issue trust — you reflect it. Your users' existing public presence on GitHub, LinkedIn, Bluesky, their own domains — the rank makes visible what was already there.
 3. **The badge does the marketing.** Verified members display their rank. Other members see it and want it. It spreads.
 4. **Absence is a signal too.** On a platform where trust is visible, not verifying is a choice people notice.
-5. **Fraud becomes structurally expensive.** Bad actors can't fake a 5.0 score anchored across a dozen real platforms. They move to lesser platforms. Your platform's quality improves passively.
+5. **Fraud becomes structurally expensive.** Bad actors can't fake 60+ days of continuous, visible, active public presence across a dozen real platforms. The rank reflects what was actually there — you cannot manufacture that history. They move to lesser platforms. Your platform's quality improves passively.
 6. **You own the UI, TruAnon owns the verification.** No UI kit to adopt. No design system to comply with. You decide how to show rank, score, color, badges, filters — TruAnon just supplies the truth.
 
 ---
@@ -801,6 +829,7 @@ Consider surfacing rank inline — next to username in posts, in search results.
 | Relying on client-side to strip links for pseudonymous platforms | Strip server-side before the response leaves your server |
 | Passing raw `displayValue` URLs from `primary` kind entries | These are descriptions ("Privately Confirmed Phone"), not raw values — treat them as labels |
 | Saying "verify" when you mean the one-time anchor step | Use "anchor" — it conveys permanence accurately |
+| Describing rank as "calculated" or "earned" | Rank is reflected. The member didn't get anything they didn't already have. Their public presence was already there — the rank just makes it visible. Display rank and score together — score alone sounds like a prize; rank alone loses precision. |
 | Calling TruAnon for unanchored users | Store `is_anchored` in your DB. If false, skip the call entirely — you already know the answer |
 | Showing pitch text and privacy switches simultaneously | They are mutually exclusive. Unanchored: show the pitch + Verify button. Anchored: show the switches. Never both. |
 | Displaying fullName under Contact | TruAnon returns `fullName` as `dataPointKind: "contact"` — pull it out and render it first in the Personal section |

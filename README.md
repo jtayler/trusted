@@ -16,7 +16,7 @@ TruAnon is a trust layer — not a verification gate, not KYC. Members anchor th
 
 The design principle: whatever your platform surfaces, the member gets the corresponding right to turn it off. Responsibility belongs to the rightful owner.
 
-Trust made visible also makes the choice not to have it visible. Absence is as legible as presence. On a platform where members anchor, opting out is conspicuous — and conspicuous in a way that belongs entirely to them.
+Trust made visible makes the choice not to have it equally visible. Unknown covers both states — never anchored and anchored-but-revoked look identical to any viewer. Avoiding is as clear as having it. On a platform where most members anchor, that choice is conspicuous — in a way that belongs entirely to them.
 
 ---
 
@@ -79,7 +79,7 @@ Authorization: [YOUR_PRIVATE_KEY]
 }
 ```
 
-`authorRank` is one of: `Genuine`, `Reliable`, `Credible`, `Cautioned`, `Dangerous` — or absent if unanchored. `authorRankScore` is a string out of `5.0`.
+`authorRank` is one of: `Genuine`, `Reliable`, `Credible`, `Cautioned`, `Dangerous` — or absent if unanchored. `authorRankScore` is a string out of `5.0`. Both reflect the member's existing public presence — not a score they earned. Cautioned means confused signals (some things visible, some hidden). Dangerous means a pattern of active concealment. A 4.2 means the same level of trust and transparency for any member — always display rank and score together.
 
 **`dataConfigurations` contains only what the member has granted.** Filter by `dataPointKind`:
 
