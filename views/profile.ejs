@@ -14,7 +14,7 @@
       <title> <%= user.full_name %> (@<%= user.username %>) - Profile</title>
       <meta property="og:title" content="<%= user.full_name %> (@<%= user.username %>) - Profile">
       <meta property="og:description" content="View the profile of <%= user.full_name %> (@<%= user.username %>) on our site.">
-      <meta property="og:url" content="https://demo.truanon.com/users/<%= user.username %>">
+      <meta property="og:url" content="https://devhauz.truanon.com/users/<%= user.username %>">
       <meta name="twitter:title" content="<%= user.full_name %> (@<%= user.username %>) - Profile">
       <meta name="twitter:description" content="View the profile of <%= user.full_name %> (@<%= user.username %>) on our site.">
 <meta property="og:image" content="<%= user.authorPhoto && user.switch_state === 'on' ? user.authorPhoto : user.photo %>">
@@ -57,7 +57,7 @@
                      </div>
                   </div>
                   <div id="personal-space" class="col-md-8"> 
-                     <div id="new-slot" class="card mb-3"></div>
+                     <div id="new-slot"></div>
                   </div>
                </div>
             </div>
@@ -178,12 +178,13 @@
 
       </script>
 
-      <% if (user.switch_state) { %>
+      <% if (user.is_anchored && user.switch_state === 'on') { %>
 <script>
 (function() {
-    var makePrivate = !!<%= user.make_private || 0 %>;
-    var showSocial   = !!(<%- (user.show_social   === undefined || user.show_social   !== 0) ? 1 : 0 %>);
+    var makePrivate  = !!<%= user.make_private  || 0 %>;
     var showPersonal = !!(<%- (user.show_personal === undefined || user.show_personal !== 0) ? 1 : 0 %>);
+    var showContact  = !!(<%- (user.show_contact  === undefined || user.show_contact  !== 0) ? 1 : 0 %>);
+    var showSocial   = !!(<%- (user.show_social   === undefined || user.show_social   !== 0) ? 1 : 0 %>);
 
     // Show spinner in badge area while TruAnon loads
     document.getElementById('badge-area').innerHTML =
@@ -198,7 +199,9 @@
 
             var badge = makePrivate ? document.createElement("span") : document.createElement("a");
             badge.className = "w-100 btn mb-4 btn-outline-" + getPhotoBorderColor(verifiedDetails.authorRank);
-            if (!makePrivate) {
+            if (makePrivate) {
+                badge.classList.add("disabled");
+            } else {
                 var truanonConfigs = filterDataConfigurations(verifiedDetails, "truanon", "social");
                 if (truanonConfigs.length) { badge.href = "https://" + truanonConfigs[0].displayValue; badge.target = "_blank"; }
             }
@@ -216,30 +219,28 @@
             badge.appendChild(badgeScore);
             $('#badge-area').html(badge);
 
-            // === SOCIAL PROFILES ===
-            var dataConfigurationsList = document.createElement("ul");
-            var filteredSocial = filterDataConfigurations(verifiedDetails, "", "social");
-            var truanonOnly    = filterDataConfigurations(verifiedDetails, "truanon", "social");
-            var filteredDataMinusTruanon = filteredSocial.filter(function(c) { return !truanonOnly.includes(c); });
-            var socialHTML = createDataConfigurationsList(filteredDataMinusTruanon, dataConfigurationsList);
-            if (showSocial) document.body.appendChild(socialHTML);
+            // === PERSONAL / CONTACT / SOCIAL sections ===
+            var truanonOnly = filterDataConfigurations(verifiedDetails, "truanon", "social");
 
-            // === CONTACT / PERSONAL ===
-            var filteredContact = filterDataConfigurations(verifiedDetails, "", "contact")
-                .concat(filterDataConfigurations(verifiedDetails, "location", "personal"))
-                .concat(filterDataConfigurations(verifiedDetails, "", "primary"))
-                .concat(filterDataConfigurations(verifiedDetails, "", "additional"));
-            var contactHTML = createContactList(filteredContact);
-            if (showPersonal) $('#personal-space').prepend(contactHTML);
+            var filteredPersonal = filterDataConfigurations(verifiedDetails, "", "personal");
+            var filteredContact  = filterDataConfigurations(verifiedDetails, "", "contact")
+                .concat(filterDataConfigurations(verifiedDetails, "", "primary"));
 
-            // === VERIFIED PROPERTIES SLOT ===
+            // fullName is dataPointKind:"contact" — pull it out and put it first in personal
+            var nameEntry = filteredContact.find(function(c) { return c.dataPointType === 'fullName'; });
+            if (nameEntry) {
+                filteredContact  = filteredContact.filter(function(c) { return c !== nameEntry; });
+                filteredPersonal = [nameEntry].concat(filteredPersonal);
+            }
+            var filteredSocial   = filterDataConfigurations(verifiedDetails, "", "social")
+                .filter(function(c) { return !truanonOnly.includes(c); });
+
             var newSlot = document.getElementById("new-slot");
             newSlot.innerHTML = '';
-            var slotHeader = document.createElement("div");
-            slotHeader.classList.add("card-header", "text-center", "h5", "text-secondary");
-            slotHeader.innerText = "Verified Properties";
-            newSlot.appendChild(slotHeader);
-            if (showSocial) newSlot.appendChild(dataConfigurationsList);
+
+            if (showPersonal && filteredPersonal.length) newSlot.appendChild(createInfoCard("Personal Details", filteredPersonal));
+            if (showContact  && filteredContact.length)  newSlot.appendChild(createInfoCard("Verified Contacts",  filteredContact));
+            if (showSocial   && filteredSocial.length)   newSlot.appendChild(createSocialCard(filteredSocial));
 
             // === GITHUB BADGE (after TruAnon data is available) ===
             var githubConfig = (verifiedDetails.dataConfigurations || []).find(function(c) {
@@ -316,16 +317,16 @@
             });
     }
 
-    function createContactList(filteredData) {
-        var list = document.createElement("div");
-        list.classList.add("card", "mb-3");
+    function createInfoCard(title, filteredData) {
+        var card = document.createElement("div");
+        card.classList.add("card", "mb-3");
         var header = document.createElement("div");
         header.classList.add("card-header", "text-center", "h5", "text-secondary");
-        header.innerText = "Contact Information";
-        list.appendChild(header);
+        header.innerText = title;
+        card.appendChild(header);
         var cardBody = document.createElement("div");
         cardBody.classList.add("card-body");
-        list.appendChild(cardBody);
+        card.appendChild(cardBody);
         filteredData.forEach(function(dataConfig, index) {
             var row = document.createElement("div");
             row.classList.add("row");
@@ -343,18 +344,24 @@
             row.appendChild(col2);
             if (index < filteredData.length - 1) cardBody.appendChild(document.createElement("hr"));
         });
-        return list;
+        return card;
     }
 
-    function createDataConfigurationsList(filteredData, dataConfigurationsList) {
-        dataConfigurationsList.classList.add("d-flex", "flex-wrap", "text-center");
+    function createSocialCard(filteredData) {
+        var card = document.createElement("div");
+        card.classList.add("card", "mb-3");
+        var header = document.createElement("div");
+        header.classList.add("card-header", "text-center", "h5", "text-secondary");
+        header.innerText = "Social Transparency";
+        card.appendChild(header);
+        var grid = document.createElement("div");
+        grid.classList.add("d-flex", "flex-wrap", "text-center", "p-2");
         var display = filteredData.filter(function(c) {
             return c.dataPointType !== "github" && c.dataPointType !== "trusted";
         });
         display.forEach(function(dataConfig) {
             var item = document.createElement("div");
             item.classList.add("text-secondary", "p-2", "m-1");
-            item.style.textAlign = "center";
             var link = document.createElement("a");
             if (makePrivate || dataConfig.displayValue.includes("Privately")) {
                 link.style.pointerEvents = "none";
@@ -373,18 +380,17 @@
             iconSpan.className = dataConfig.dataPointIconClass + " fa-5x mb-1";
             link.appendChild(iconSpan);
             var titleDiv = document.createElement("div");
-            titleDiv.style.textAlign = "center";
             titleDiv.style.width = "92px";
+            titleDiv.style.textAlign = "center";
             var titleSpan = document.createElement("div");
             titleSpan.innerText = dataConfig.dataPointName;
-            titleSpan.classList.add("title-span");
-            titleSpan.style.textAlign = "center";
             titleDiv.appendChild(titleSpan);
             item.appendChild(link);
             item.appendChild(titleDiv);
-            dataConfigurationsList.appendChild(item);
+            grid.appendChild(item);
         });
-        return dataConfigurationsList;
+        card.appendChild(grid);
+        return card;
     }
 })();
 </script>

@@ -332,12 +332,22 @@ const db = new sqlite3.Database(dbFilePath, sqlite3.OPEN_READWRITE, (err) => {
     }
     console.log('Connected to the database.');
     [
+        'ALTER TABLE users ADD COLUMN is_anchored INTEGER DEFAULT 0',
         'ALTER TABLE users ADD COLUMN show_personal INTEGER DEFAULT 1',
+        'ALTER TABLE users ADD COLUMN show_contact INTEGER DEFAULT 1',
         'ALTER TABLE users ADD COLUMN show_social INTEGER DEFAULT 1',
         'ALTER TABLE users ADD COLUMN make_private INTEGER DEFAULT 0',
     ].forEach(sql => db.run(sql, err => {
         if (err && !err.message.includes('duplicate column')) console.error('Migration error:', err.message);
     }));
+
+    // Backfill: anyone with a real rank gets anchored + identity on
+    db.run(
+        `UPDATE users SET switch_state = 'on', is_anchored = 1
+         WHERE authorRank IS NOT NULL AND authorRank != '' AND authorRank != 'Unknown'
+           AND is_anchored = 0`,
+        err => { if (err) console.error('Backfill error:', err.message); }
+    );
 });
 // Fetch the last five users and set the session variable on app startup
 db.all('SELECT username FROM users ORDER BY id DESC LIMIT 5', [], (err, rows) => {
@@ -492,8 +502,9 @@ app.get('/users/:username/truanon', async (req, res) => {
         const validPhoto = authorPhoto && authorPhoto !== "https://s3.amazonaws.com/truanon/nophoto.png" && authorPhoto.trim() !== "";
         const authorRank = profileData.authorRank || "Unknown";
 
-        db.run('UPDATE users SET authorPhoto = ?, authorRank = ? WHERE username = ?',
-            [validPhoto ? authorPhoto : null, authorRank, username],
+        const anchored = authorRank && authorRank !== 'Unknown' ? 1 : 0;
+        db.run('UPDATE users SET authorPhoto = ?, authorRank = ?, is_anchored = ? WHERE username = ?',
+            [validPhoto ? authorPhoto : null, authorRank, anchored, username],
             err => { if (err) console.error('Cache update error:', err.message); }
         );
 
@@ -586,81 +597,64 @@ app.get('/users/:username/token', (req, res) => {
         });
 });
 
-// Handle edit user form submission
-async function fetchTruAnonData(username, callbackUrl = null) {
+// Async endpoint called by the edit page after load — returns TruAnon anchor state as JSON
+app.get('/users/:username/edit-status', async (req, res) => {
+    if (!req.session.userId) return res.status(401).json({ error: 'Unauthorized' });
+    if (req.session.user?.username !== req.params.username) return res.status(403).json({ error: 'Forbidden' });
+
+    const { username } = req.params;
     const profileURL = `${apiRoute}get_profile?id=${username}&service=${serviceName}`;
     const tokenURL = `${apiRoute}get_token?id=${username}&service=${serviceName}`;
     const options = { headers: { Authorization: privateKey } };
-
-    console.log("Calling profile API:", profileURL);
+    const callbackUrl = `${req.protocol}://${req.get('host')}/verify-complete`;
 
     try {
-        const profileResponse = await fetchWithTimeout(profileURL, options, 30000);
+        const profileResponse = await fetchWithTimeout(profileURL, options, 10000);
         const profileData = await profileResponse.json();
 
-        console.log("Profile API Response:", profileData);
-
         if (profileData && profileData.type !== 'error') {
-            console.log("User is verified, fetching profile link...");
-            const profileLink = profileData.dataConfigurations.find(config => config.dataPointType === 'truanon')?.displayValue || null;
-            return { truanonProfileLink: profileLink, verifyLink: null };
-        } else {
-            console.log("User is not verified, fetching verification token...");
-            const tokenResponse = await fetchWithTimeout(tokenURL, options, 30000);
-            const tokenData = await tokenResponse.json();
-
-            console.log("Token API Response:", tokenData);
-
-            let verifyLink = `${apiRoute}verifyProfile?id=${username}&service=${serviceName}&token=${tokenData.id}`;
-            if (callbackUrl) verifyLink += `&callback=${encodeURIComponent(callbackUrl)}`;
-            return { truanonProfileLink: null, verifyLink: verifyLink };
+            const profileLink = profileData.dataConfigurations?.find(c => c.dataPointType === 'truanon')?.displayValue || null;
+            return res.json({ status: 'anchored', profileLink });
         }
+
+        const tokenResponse = await fetchWithTimeout(tokenURL, options, 10000);
+        const tokenData = await tokenResponse.json();
+        const verifyUrl = `${apiRoute}verifyProfile?id=${username}&service=${serviceName}&token=${tokenData.id}&callback=${encodeURIComponent(callbackUrl)}`;
+        return res.json({ status: 'unanchored', verifyUrl });
+
     } catch (err) {
-        console.error("TruAnon API unavailable in fetchTruAnonData:", err.message);
-        return { truanonProfileLink: null, verifyLink: null };
+        console.error(`edit-status fetch failed for ${username}:`, err.message);
+        return res.json({ status: 'unavailable' });
     }
-}
+});
 
-// GET route to render the profile edit page
-app.get('/users/:username/edit', async (req, res) => {
+// GET route to render the profile edit page — renders immediately from DB, no TruAnon call
+app.get('/users/:username/edit', (req, res) => {
     const userId = req.session.userId;
-
-    db.get('SELECT * FROM users WHERE id = ?', [userId], async (err, user) => {
+    db.get('SELECT * FROM users WHERE id = ?', [userId], (err, user) => {
         if (err) return res.status(500).send(err.message);
         if (!user) return res.status(404).send('User not found');
-
-        console.log("Rendering edit page for:", user.username);
-        const callbackUrl = `${req.protocol}://${req.get('host')}/verify-complete`;
-        const { truanonProfileLink, verifyLink } = await fetchTruAnonData(user.username, callbackUrl);
-        const displayData = app.locals.getUserDisplayData(user);
-
-        res.render('edit', {
-            user: {
-                ...user,
-                truanon_profile_link: truanonProfileLink,
-                verify_link: verifyLink
-            },
-            rank: displayData.authoRank
-        });
+        res.render('edit', { user });
     });
 });
 
 app.post('/users/:username/edit', async (req, res) => {
-    const { full_name, location, photo, switch_state } = req.body;
+    const { full_name, location, switch_state } = req.body;
     const show_personal = req.body.show_personal ? 1 : 0;
-    const show_social = req.body.show_social ? 1 : 0;
-    const make_private = req.body.make_private ? 1 : 0;
+    const show_contact  = req.body.show_contact  ? 1 : 0;
+    const show_social   = req.body.show_social   ? 1 : 0;
+    const make_private  = req.body.make_private  ? 1 : 0;
     const { username } = req.params;
 
     try {
         console.log("Received request to edit profile for:", username);
-        console.log("Form Data:", { full_name, location, photo, switch_state });
+        console.log("Form Data:", { full_name, location, switch_state });
 
         // Update user data in the database
         await new Promise((resolve, reject) => {
             db.run(
-                'UPDATE users SET full_name = ?, location = ?, photo = ?, switch_state = ?, show_personal = ?, show_social = ?, make_private = ? WHERE username = ?',
-                [full_name, location, photo, switch_state, show_personal, show_social, make_private, username],
+                'UPDATE users SET full_name = ?, location = ?, switch_state = ?, show_personal = ?, show_contact = ?, show_social = ?, make_private = ? WHERE username = ?',
+                [full_name, location, switch_state, show_personal, show_contact, show_social, make_private, username],
                 (err) => (err ? reject(err) : resolve())
             );
         });

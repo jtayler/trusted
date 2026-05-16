@@ -21,131 +21,129 @@
       <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
       <style>
          .form-switch .form-check-input {
-         height:2.0rem;
-         width:4.8rem;
+            height: 2.0rem;
+            width: 4.8rem;
          }
          .form-label {
-         padding-top:1rem;
+            padding-top: 1rem;
          }
       </style>
    </head>
    <body>
       <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab&display=swap" rel="stylesheet">
-      <%- include('header', { currentPage: 'Edit' }) %> <!-- Include your header -->
+      <%- include('header', { currentPage: 'Edit' }) %>
       <div class="container-xxl my-md-4 bd-layout">
          <div class="container">
             <div class="row justify-content-center mt-5">
-               <div class="col-md-8">
+               <div class="col-md-6">
                   <div class="card">
                      <div class="card-header">
                         <h1 class="text-center">Edit Profile</h1>
                      </div>
                      <div class="card-body">
-                        <div class="row">
-                           <div class="col-md-6">
-                              <form method="POST" action="/users/<%= user.username %>/edit">
-                                 <div class="form-group">
-                                    <label for="full_name-input" class="form-label"> Name:</label>
-                                    <input type="text" name="full_name" id="full_name-input" value="<%= user.full_name %>" class="form-control" />
+                        <form id="edit-form" method="POST" action="/users/<%= user.username %>/edit">
+
+                           <div class="form-group">
+                              <label for="full_name-input" class="form-label">Name:</label>
+                              <input type="text" name="full_name" id="full_name-input" value="<%= user.full_name %>" class="form-control" />
+                           </div>
+
+                           <div class="form-group">
+                              <label for="location-input" class="form-label">Location:</label>
+                              <input type="text" name="location" id="location-input" value="<%= user.location %>" class="form-control" />
+                           </div>
+
+                           <div class="form-group">
+                              <label class="form-label">Trusted Owner:</label>
+                              <div class="input-group" id="owner-status"></div>
+                           </div>
+
+                           <!-- Switches — hidden until async confirms anchored; pitch shown until then -->
+                           <div id="privacy-controls" style="display:none">
+                           <div class="form-group">
+                              <label for="verified-switch" class="form-label">Credibility Confidence:</label>
+                              <div class="switch-container form-switch form-switch-pill p-0">
+                                 <div class="border rounded px-3 d-flex align-items-center justify-content-between" style="background-color: #f8f9fa; padding:0.4em">
+                                    <span class="text-muted">Use Identity Presence</span>
+                                    <input class="form-check-input m-0" type="checkbox" name="switch_state" id="verified-switch"
+                                           disabled
+                                           <% if (user.switch_state === "on") { %>checked<% } %> />
                                  </div>
-                                 <div class="form-group">
-                                    <label for="location-input" class="form-label">Location:</label>
-                                    <input type="text" name="location" id="location-input" value="<%= user.location %>" class="form-control" />
+                              </div>
+                           </div>
+
+                           <div class="form-group">
+                              <div class="switch-container form-switch form-switch-pill p-0">
+                              <label for="verified-switch" class="form-label">Amplify:</label>
+                                 <div class="border rounded px-3 d-flex align-items-center justify-content-between" style="background-color: #f8f9fa; padding:0.4em">
+                                    <span class="text-muted">Present Personal Info</span>
+                                    <input class="form-check-input m-0" type="checkbox" name="show_personal" id="show-personal-switch"
+                                           disabled
+                                           <% if (user.show_personal !== 0) { %>checked<% } %> />
                                  </div>
-                           </div>
-                           <div class="col-md-6">
-                           <div class="form-group">
-                           <label for="photo-input" class="form-label"> Photo:</label>
-                           <input type="text" name="photo" id="photo-input" value="<%= user.photo %>" class="form-control" />
-                           </div>
-
-                           <label class="form-label">  Owner:</label>
-                           <div class="input-group">
-                              <% if (user.truanon_profile_link) { %>
-                                 <input type="text" class="form-control text-muted" value="Securely Assigned" readonly />
-                                 <a class="btn btn-primary rounded-end" href="https://<%= user.truanon_profile_link %>" target="_blank">
-                                    <%= user.truanon_profile_link %>
-                                 </a>
-                              <% } else { %>
-                                 <input type="text" class="form-control text-muted" value="Securely Assign Ownership" readonly />
-                                 <a id="verify-link" href="#" class="btn btn-primary"
-                                    onClick="openVerificationPopup('<%= user.verify_link %>')">Verify</a>
-                              <% } %>
+                              </div>
                            </div>
 
                            <div class="form-group">
-                           <label for="verified-switch" class="form-label"> Identity:</label>
-                           <div class="switch-container form-switch form-switch-pill p-0">
-
-                           <div class="border rounded px-3 d-flex align-items-center justify-content-between" style="background-color: #f8f9fa; padding:0.4em">
-                              <span class="text-muted">Use Verified Identity</span>
-                              <input class="form-check-input m-0" 
-                                     type="checkbox" 
-                                     name="switch_state" 
-                                     id="verified-switch" 
-                                     <% if (!user.truanon_profile_link) { %>disabled<% } %> 
-                                     <% if (user.switch_state === "on") { %>checked<% } %> />
-                           </div>
-                           </div>
+                              <div class="switch-container form-switch form-switch-pill p-0">
+                                 <div class="border rounded px-3 d-flex align-items-center justify-content-between" style="background-color: #f8f9fa; padding:0.4em">
+                                    <span class="text-muted">Display Contact Details</span>
+                                    <input class="form-check-input m-0" type="checkbox" name="show_contact" id="show-contact-switch"
+                                           disabled
+                                           <% if (user.show_contact !== 0) { %>checked<% } %> />
+                                 </div>
+                              </div>
                            </div>
 
                            <div class="form-group">
-                           <label for="show-personal-switch" class="form-label"> Personal:</label>
-                           <div class="border rounded px-3 d-flex align-items-center justify-content-between" style="background-color: #f8f9fa; padding:0.4em">
-                              <span class="text-muted">Show Personal Info</span>
-                              <input class="form-check-input m-0" type="checkbox" name="show_personal" id="show-personal-switch"
-                                     <% if (!user.truanon_profile_link) { %>disabled<% } %>
-                                     <% if (user.show_personal !== 0) { %>checked<% } %> />
-                           </div>
-                           </div>
-
-                           <div class="form-group">
-                           <label for="show-social-switch" class="form-label"> Social:</label>
-                           <div class="border rounded px-3 d-flex align-items-center justify-content-between" style="background-color: #f8f9fa; padding:0.4em">
-                              <span class="text-muted">Show Social Profiles</span>
-                              <input class="form-check-input m-0" type="checkbox" name="show_social" id="show-social-switch"
-                                     <% if (!user.truanon_profile_link) { %>disabled<% } %>
-                                     <% if (user.show_social !== 0) { %>checked<% } %> />
-                           </div>
+                              <div class="switch-container form-switch form-switch-pill p-0">
+                                 <div class="border rounded px-3 d-flex align-items-center justify-content-between" style="background-color: #f8f9fa; padding:0.4em">
+                                    <span class="text-muted">Showcase Social Confidence</span>
+                                    <input class="form-check-input m-0" type="checkbox" name="show_social" id="show-social-switch"
+                                           disabled
+                                           <% if (user.show_social !== 0) { %>checked<% } %> />
+                                 </div>
+                              </div>
                            </div>
 
                            <div class="form-group">
-                           <label for="make-private-switch" class="form-label"> Private:</label>
-                           <div class="border rounded px-3 d-flex align-items-center justify-content-between" style="background-color: #f8f9fa; padding:0.4em">
-                              <span class="text-muted">Make Private (no links)</span>
-                              <input class="form-check-input m-0" type="checkbox" name="make_private" id="make-private-switch"
-                                     <% if (!user.truanon_profile_link) { %>disabled<% } %>
-                                     <% if (user.make_private == 1) { %>checked<% } %> />
-                           </div>
+                              <label for="make-private-switch" class="form-label">Protection:</label>
+                              <div class="switch-container form-switch form-switch-pill p-0">
+                                 <div class="border rounded px-3 d-flex align-items-center justify-content-between" style="background-color: #f8f9fa; padding:0.4em">
+                                    <span class="text-muted">Make Private (no links)</span>
+                                    <input class="form-check-input m-0" type="checkbox" name="make_private" id="make-private-switch"
+                                           disabled
+                                           <% if (user.make_private == 1) { %>checked<% } %> />
+                                 </div>
+                              </div>
                            </div>
 
+                           </div><!-- /privacy-controls -->
+
+                           <div id="identity-pitch" class="pt-4 p-1">
+                              <h5>Verified Identity Will Boost Your Profile</h5>
+                              <ul>
+                                 <li>Show the history of expertise you want others to know you by.</li>
+                                 <li>Protect yourself against impersonation.</li>
+                                 <li>Gain trust and respect from the community.</li>
+                                 <li>Be immediately recognized as an influencer and authority.</li>
+                                 <li>Get more followers and more visibility.</li>
+                              </ul>
+                              <p>A verification badge signals that you are real, credible, authentic, and of interest to other members. It means that you are worthy of respect and understanding. It means that you care.</p>
                            </div>
-                        </div>
-                        <div class="pt-4 p-1">
-                        <h5>Verified Identity Will Boost Your Profile</h5>
-                        <ul>
-                        <li>Show the history of expertise you want others to know you by.</li>
-                        <li>Protect yourself against impersonation.</li>
-                        <li>Gain trust and respect from the community.</li>
-                        <li>Be immediately recognized as an influencer and authority.</li>
-                        <li>Get more followers and more visibility.</li>
-                        </ul>
-                        <p>A verification badge signals that you are real, credible, authentic, and of interest to other members. It means that you are worthy of respect and understanding. It means that you care.</p>
-                        </div>
+
+                        </form>
                      </div>
                      <div class="card-footer text-center">
-                     <button class="btn btn-primary" type="submit">Save Changes</button>
+                        <button class="btn btn-primary" type="submit" form="edit-form">Save Changes</button>
                      </div>
                   </div>
-                  </form>
                </div>
             </div>
          </div>
       </div>
-      
-      <!-- Bootstrap modal hosting TruAnon's verification UI in an iframe.
-           An iframe inside a modal is not a popup — browsers don't block it.
-           TruAnon sends a postMessage when done; we close the modal and reload. -->
+
+      <!-- Bootstrap modal hosting TruAnon's verification UI -->
       <div class="modal fade" id="verificationModal" tabindex="-1" aria-labelledby="verificationModalLabel" aria-hidden="true">
          <div class="modal-dialog modal-dialog-centered" style="max-width: 480px;">
             <div class="modal-content">
@@ -161,11 +159,81 @@
       </div>
 
       <script>
+         const username = '<%= user.username %>';
+         const ownerEl = document.getElementById('owner-status');
+         const identitySwitch = document.getElementById('verified-switch');
+         const dependentSwitches = [
+            document.getElementById('show-personal-switch'),
+            document.getElementById('show-contact-switch'),
+            document.getElementById('show-social-switch'),
+            document.getElementById('make-private-switch'),
+         ];
+
+         function syncDependents() {
+            const enabled = identitySwitch.checked && !identitySwitch.disabled;
+            dependentSwitches.forEach(sw => { sw.disabled = !enabled; });
+         }
+
+         identitySwitch.addEventListener('change', syncDependents);
+
+         // is_anchored is a DB fact — known immediately, no TruAnon call needed to determine state
+         const isAnchored = !!<%= user.is_anchored %>;
+
+         (function renderOwnerSection() {
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'form-control text-muted';
+            input.readOnly = true;
+
+            if (isAnchored) {
+               input.value = 'Securely Assigned';
+               ownerEl.replaceChildren(input);
+               identitySwitch.disabled = false;
+               syncDependents();
+               document.getElementById('privacy-controls').style.display = '';
+               document.getElementById('identity-pitch').style.display = 'none';
+
+               // Fetch profileLink in background — not needed to render, just adds the view button
+               fetch(`/users/${username}/edit-status`)
+                  .then(r => r.json())
+                  .then(data => {
+                     if (data.profileLink) {
+                        const link = document.createElement('a');
+                        link.className = 'btn btn-primary rounded-end';
+                        link.href = 'https://' + data.profileLink;
+                        link.target = '_blank';
+                        link.textContent = data.profileLink;
+                        ownerEl.appendChild(link);
+                     }
+                  })
+                  .catch(() => {});
+
+            } else {
+               input.value = 'Securely Assign Ownership';
+               const btn = document.createElement('a');
+               btn.href = '#';
+               btn.className = 'btn btn-primary';
+               btn.textContent = 'Verify';
+               btn.addEventListener('click', async (e) => {
+                  e.preventDefault();
+                  btn.textContent = '…';
+                  btn.classList.add('disabled');
+                  try {
+                     const res = await fetch(`/users/${username}/edit-status`);
+                     const data = await res.json();
+                     if (data.verifyUrl) openVerificationPopup(data.verifyUrl);
+                  } catch (_) {}
+                  btn.textContent = 'Verify';
+                  btn.classList.remove('disabled');
+               });
+               ownerEl.replaceChildren(input, btn);
+            }
+         })();
+
+         // Verification modal / polling logic
          let pollTimer = null;
 
-         function startVerificationPolling(username) {
-            // Poll our own endpoint until TruAnon status changes from Unknown.
-            // Works regardless of whether TruAnon supports a callback redirect.
+         function startVerificationPolling() {
             pollTimer = setInterval(async () => {
                try {
                   const res = await fetch(`/users/${username}/truanon`);
@@ -175,7 +243,7 @@
                      bootstrap.Modal.getInstance(document.getElementById('verificationModal')).hide();
                      window.location.reload();
                   }
-               } catch (e) { /* ignore transient errors, keep polling */ }
+               } catch (e) { /* keep polling */ }
             }, 3000);
          }
 
@@ -183,12 +251,9 @@
             if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
          }
 
-         // Two postMessage sources — whichever fires first wins:
-         // 1. TruAnon's component fires closeVerificationModal directly (component path)
-         // 2. Our /verify-complete page fires verificationComplete (server redirect path)
-         window.addEventListener("message", (event) => {
+         window.addEventListener('message', (event) => {
             const action = event.data && event.data.action;
-            if (action === "closeVerificationModal" || action === "verificationComplete") {
+            if (action === 'closeVerificationModal' || action === 'verificationComplete') {
                stopPolling();
                bootstrap.Modal.getInstance(document.getElementById('verificationModal')).hide();
                window.location.reload();
@@ -196,19 +261,17 @@
          });
 
          function openVerificationPopup(url) {
-            const username = '<%= user.username %>';
             document.getElementById('verificationIframe').src = url;
             const modal = new bootstrap.Modal(document.getElementById('verificationModal'));
             modal.show();
-            startVerificationPolling(username);
-            // Final fallback: user manually closes modal after verifying
+            startVerificationPolling();
             document.getElementById('verificationModal').addEventListener('hidden.bs.modal', () => {
                stopPolling();
                window.location.reload();
             }, { once: true });
          }
       </script>
-      
+
       <%- include('footer') %>
    </body>
 </html>
