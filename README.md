@@ -222,7 +222,7 @@ For pseudonymous platforms, strip `social` and `contact` entries server-side unc
 
 ## Quick Integration Checklist
 
-- [ ] Register at truanon.com — get `PRIVATE_KEY` and `SERVICE_NAME`
+- [ ] Register at developer.truanon.com — get `PRIVATE_KEY` and `SERVICE_NAME`
 - [ ] Proxy all TruAnon calls through your server — never expose `PRIVATE_KEY` client-side
 - [ ] Store `is_anchored` on the user record — gate all TruAnon calls on it
 - [ ] Cache `authorRank`, `authorRankScore`, `authorPhoto` — list views never need an API call
@@ -238,7 +238,7 @@ For pseudonymous platforms, strip `social` and `contact` entries server-side unc
 
 ## Economics
 
-First 1,000 verifications are free. After that: approximately **$0.04 per verification**. A bill means it's working.
+First 1,000 verifications are free. After that: approximately **$0.04 per verification**. A bill means trust and value unlocking are working.
 
 ---
 
