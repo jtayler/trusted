@@ -54,6 +54,8 @@ Show all three together. Never reduce to a checkmark — that discards most of t
 
 Members who haven't anchored don't just show as blank — the intended UI pattern is something like **"Ask me why I haven't anchored."** This makes absence conspicuous in a constructive way. Avoiding is as clear as having it. On a platform where most members anchor, an Unknown profile is conspicuous — not because the platform penalizes it, but because others notice. That's what drives organic adoption.
 
+Unknown is not just a UI state — it is a social prompt. Interaction reveals intention. A member who gets asked "why haven't you anchored?" and can't give a satisfying answer is self-selecting. The visibility of absence creates a natural moment where the platform can invite the member forward — without forcing anything. Think of it as a well-lit stairwell: safety cameras, good lighting, natural cues that guide behavior without coercion. The platform creates conditions. Members respond to them.
+
 ### The Economics
 
 - First **1,000 verifications are free**
@@ -73,6 +75,10 @@ Users control three layers via their own dashboard:
 
 **Real-world example to use with developers:** A dating site can show a user's verified age range, location area, and trust score — without exposing their LinkedIn URL or GitHub. The user is meaningfully known without being findable. This is impossible with most identity systems.
 
+**This architecture has a legal dimension.** The platform stores rank, score, and a photo — derived trust data, not PII. A database breach exposes nothing that identifies, locates, or contacts anyone. A subpoena cannot compel you to hand over what was never stored on your system. The separation is structural, not a policy decision.
+
+**Selective revelation is a platform feature, not a TruAnon feature.** A dating site might let one member choose to securely reveal their underlying TruAnon profile to a specific match — a gesture of trust that the receiver can see the backing identity. The default is private; revelation is a deliberate act. Pseudonymous platforms back their members' credibility without doxing them — the rank is real, the links stay hidden.
+
 Profile changes take effect **in real time**. No re-integration required.
 
 ### How Rank Works — Reflection, Not Calculation
@@ -85,17 +91,19 @@ The rank is **live and continuous**. A member removes their real name from a pub
 
 **Unknown is not a rank — it is the baseline.** Every member starts there. A member who has never anchored is Unknown. A member who anchored and then revoked is also Unknown. Both look identical from outside. That is by design.
 
+For regular people, Unknown is simply the starting point. Digital presence grows naturally over time — Myspace to Facebook to LinkedIn, each platform adding depth and years. Scores tend to rise on their own as members mature. The ladder goes up as life goes on.
+
 **What each rank reflects:**
 
 | Rank | What the mirror shows |
 |------|-----------------------|
-| **Genuine** | Deepest, most consistent, most transparent public presence. |
-| **Reliable** | Strong public history with good visibility and consistency. |
+| **Genuine** | Deepest, most consistent, most transparent public presence. Built over years. |
+| **Reliable** | Strong public history with real visibility and consistency. |
 | **Credible** | Meaningful public presence — real history, real visibility. |
-| **Cautioned** | Confused signals — some things visible, some hidden. Not dangerous, but the picture is mixed enough to warrant caution. |
-| **Dangerous** | A pattern of active concealment. Hiding, locking down, or abandoning properties consistently. The mirror reflects the effort to avoid reflection. |
+| **Cautioned** | Confused signals. Something is not quite right — some visibility, some hiding, a mixed picture. Not a permanent marker. The member can act: add transparency, validate contacts, make more public. Nobody should stay here. |
+| **Dangerous** | Abandonment or failure to maintain. Contacts not validated, properties not kept up. Often follows Cautioned rapidly — a threat actor realizes they cannot manufacture years of real public history, hits Cautioned at best, then abandons the effort entirely. Cautioned → Dangerous within days is the recognizable pattern. |
 
-The rank is a **trust ladder**. Transparency, consistency, and public depth climb it. Mixed signals stall it at Cautioned. Concealment pulls it down to Dangerous.
+The rank is a **trust ladder**. Transparency, consistency, and depth over time climb it. Confused signals stall at Cautioned — fixable. Abandonment falls to Dangerous.
 
 **The score is a universal language.** A 4.2/5 means the same level of trust and transparency for any member — regardless of which specific properties back it. You don't need to see those properties to read the confidence. Your 4.2 and my 4.2 are equivalent. This is why you always display rank and score together: rank names the tier, score names the depth within it. Score alone could look like a prize to win; rank alone loses precision. Together they are the signal.
 
@@ -270,15 +278,36 @@ Only expose the switches relevant to what your platform surfaces. A pseudonymous
 
 ### Badge Display
 
-Show all three signals together: **color + rank + score**. Don't show just a checkmark — that discards most of the value. The rank and score are what make the badge meaningful and comparable across users.
+The badge is a design canvas, not a prescribed widget. It can be:
+- **A pill** — color + rank + score inline with a username or listing
+- **A profile card element** — rank, score, verified properties, link to TruAnon profile
+- **An achievement** — a large platform-specific award derived from verified data
+
+The minimum is **rank + score + color, all three together**. Never reduce to a checkmark — that discards most of the value. The rank and score are what make the badge meaningful and comparable across users. Beyond that, the design is entirely yours.
+
+### Achievements from Verified Properties
+
+When a member grants visibility to a social property (GitHub, LinkedIn, TikTok, etc.), your platform gains access to a verified account it can query independently. The underlying link may be visible, hidden behind Private Mode, or never surfaced at all — your server can still call that platform's API with the verified account and retrieve real data.
+
+This is how platform-specific achievements work:
+
+1. Member grants GitHub visibility to TruAnon
+2. Your server queries the GitHub API with the verified username
+3. You evaluate: account age, repos, languages, stars, activity
+4. You decide whether to award a badge — "Verified Developer," "Open Source Contributor," whatever fits your platform
+5. Show the achievement — without ever showing the GitHub URL to viewers
+
+The verified account is the source of truth. The platform decides what to do with that signal. The member controls whether the underlying property is visible; the platform's derived achievement is a separate design decision.
+
+**This is not just trust and safety.** A dating site can show "Uses TikTok" — without showing the account — because the member's TikTok was verified. An AI referral system can use verified public data as grounded context for matching. The verified property is both a display signal and a data source your platform can act on.
 
 ### Absent Badge
 
 When a user has no TruAnon identity linked, render something like:
 
-> 🔘 *Ask me why I haven't verified*
+> *Ask me why I haven't anchored*
 
-This is optional but highly recommended. It makes the trust layer socially legible.
+This is optional but highly valuable and conspicuous to avoid. It makes the trust layer socially legible — and creates the interaction moment where intention becomes visible.
 
 ---
 
@@ -705,19 +734,21 @@ Don't rely on the user's Private Mode toggle for this. When you call `get_profil
 
 **Marketplace / trust-critical (Care.com, Craigslist-like):**
 
-Consider gating certain actions (booking, messaging, posting) by minimum rank. Credible = same confidence as ID verification. Reliable and above = deeper history. Use rank thresholds to make the trust layer structural, not cosmetic.
+Consider gating certain actions (booking, messaging, posting) by minimum rank. Credible is statistically equivalent to traditional ID verification — better in most cases, because it reflects years of real public history rather than a document that can be forged. Reliable and above reflects deeper commitment. Use rank thresholds to make the trust layer structural, not cosmetic.
 
 ---
 
 ## What to Tell Developers Who Ask "Why Bother?"
 
+This is not primarily a trust and safety feature. It is **reputation protection and opportunity** — for the platform and for its members. Members' verified presence becomes context an AI can use, data the platform can derive from, signal that raises the quality of every interaction. Weaving trust visibility into the platform is like installing a well-lit stairwell and safety cameras: natural conditions that guide behavior without rules or enforcement. The platform benefits. Members benefit. Bad actors find somewhere easier.
+
 Use these framings:
 
-1. **Trust is infrastructure, not a feature.** Like HTTPS, you add it once and it runs everywhere.
+1. **Trust is infrastructure, not a feature.** Like HTTPS, you add it once and it runs everywhere. Members anchor once — after that TruAnon runs silently. It doesn't change how people use your service, doesn't add repeated prompts, doesn't reshape the UX. One voluntary choice.
 2. **Members bring their own history.** You don't issue trust — you reflect it. Your users' existing public presence on GitHub, LinkedIn, Bluesky, their own domains — the rank makes visible what was already there.
-3. **The badge does the marketing.** Verified members display their rank. Other members see it and want it. It spreads.
+3. **The badge does the marketing.** Verified members display their rank. Other members see it and want it. It spreads. And once Credible is valued, members naturally push toward Reliable and Genuine on their own — not because the platform asked, but because if Credible is good, better must be better. This is emergent behavior that happens without incentives.
 4. **Absence is a signal too.** On a platform where trust is visible, not verifying is a choice people notice.
-5. **Fraud becomes structurally expensive.** Bad actors can't fake 60+ days of continuous, visible, active public presence across a dozen real platforms. The rank reflects what was actually there — you cannot manufacture that history. They move to lesser platforms. Your platform's quality improves passively.
+5. **The anchor turns the tables.** For honest members, anchoring is a gesture of good faith — accountability they're willing to offer because they have nothing to hide. For fraudsters, that same anchor is a binding liability: accountability is exposure, visibility is risk, permanence is a trap. You cannot manufacture 60+ days of real, consistent, public history across platforms the world knows. The honest member walks past easily. The fraudster hesitates, calculates the risk, and moves to a platform where the calculus works in their favor. They self-select out. Your platform's quality improves without active enforcement.
 6. **You own the UI, TruAnon owns the verification.** No UI kit to adopt. No design system to comply with. You decide how to show rank, score, color, badges, filters — TruAnon just supplies the truth.
 
 ---

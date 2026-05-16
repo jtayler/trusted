@@ -1,6 +1,6 @@
 # Building Trust Into Your Platform
 
-TruAnon is a trust layer — not a verification gate, not KYC. Members anchor their identity once using accounts the world already knows them by: GitHub, LinkedIn, Bluesky, their own domain. That history aggregates into a rank, score, and color that travels with them everywhere TruAnon is adopted. Platforms weave it in. Members control it. It runs itself.
+TruAnon is a trust layer — not a verification gate, not KYC. Members anchor their identity once using accounts the world already knows them by: GitHub, LinkedIn, Bluesky, their own domain. That history reflects back as a rank, score, and color that travels with them everywhere TruAnon is adopted. Platforms weave it in. Members control it. It runs itself.
 
 [Visit Demo Site](https://devhauz.truanon.com) · [Watch Demo Video](https://vimeo.com/1049232204) · [View Presentation](https://docs.google.com/presentation/d/1MBaGqDw_L_bgJ3y3c-qqSjzDbDutanBYfkpb75pr2pI/present)
 
@@ -8,31 +8,66 @@ TruAnon is a trust layer — not a verification gate, not KYC. Members anchor th
 
 ## Anchor, Grant, Revoke
 
-**Anchor** — A member connects their TruAnon identity to their account on your platform. Once. It cannot be undone. Rank and verified properties follow them automatically from that point forward. If a member is banned, they cannot return under a new account — the anchor persists. This is structural fraud prevention, not a policy rule.
+**Anchor** — A member connects their TruAnon identity to your platform. Once. Cannot be undone. Rank and verified properties follow automatically. A banned member cannot return under a new account — the anchor persists. This is structural, not a policy.
 
-**Grant** — The member turns on visibility of specific data categories. Your platform decides which categories to surface; the member decides whether to share each one.
+For honest members, anchoring is a gesture of good faith — accountability they offer freely because they have nothing to hide. For fraudsters, the same anchor is a binding liability. Every benefit flips to risk: accountability is exposure, permanence is a trap. They walk away to platforms where the calculus works in their favor. They self-select out.
 
-**Revoke** — The member turns off visibility. Their status returns to `Unknown` from any viewer's perspective. The anchor remains — nothing shows. Going dark is always an option. Erasing an anchor is not.
+**Grant** — The member turns on visibility of specific data categories. The platform decides which to surface; the member decides whether to share each one.
 
-The design principle: whatever your platform surfaces, the member gets the corresponding right to turn it off. Responsibility belongs to the rightful owner.
+**Revoke** — The member turns off visibility. Status returns to `Unknown`. The anchor remains. Going dark is always an option. Erasing an anchor is not.
 
-Trust made visible makes the choice not to have it equally visible. Unknown covers both states — never anchored and anchored-but-revoked look identical to any viewer. Avoiding is as clear as having it. On a platform where most members anchor, that choice is conspicuous — in a way that belongs entirely to them.
-
----
-
-## What You Display Is Entirely Your Choice
-
-This is not a badge system with a prescribed UI. It is an API that returns structured identity data. You decide what to render — if anything.
-
-A healthcare portal uses rank as a server-side gate and shows nothing. A classifieds platform attaches rank to listings — a seller anchors once and their Genuine 4.5 travels on every post they make, no profile page required. A pseudonymous community shows rank next to a username with no identity visible. A dating app shows age range and location, private by default, with social links never surfaced to strangers.
-
-The data can also power **achievements**. A member makes their GitHub visible — your platform reads it and awards a Developer badge with a quality score derived from repo count, age, and languages. A member shares a driving record link — your platform resolves it to a simple yes/no and displays "Verified Driver." The member controls what they share; your platform interprets it into its own domain language. TruAnon supplies the verified signal. You decide what it means on your platform.
-
-The principle is the same in every case: surface what's useful for your context, give the member the right to revoke each category you surface.
+Unknown covers both states — never anchored and anchored-but-revoked look identical to any viewer. Avoiding is as clear as having it. On a platform where most members anchor, that choice is conspicuous — in a way that belongs entirely to them. Unknown is a social prompt: interaction reveals intention.
 
 ---
 
-## The API Response
+## Rank
+
+Rank is a mirror, not a meter. It reflects the depth, consistency, and transparency of a member's existing public presence — not something they earned. 60+ days of continuous, visible, active presence is the meaningful signal. The rank is live: remove your name from a public profile and it drops; establish a long-active presence and it rises. The member didn't gain anything they didn't already have — the rank made it visible.
+
+| Rank | What it reflects |
+|------|-----------------|
+| **Genuine** | Deepest, most consistent, most transparent public presence |
+| **Reliable** | Strong public history with real visibility |
+| **Credible** | Meaningful public presence — statistically equivalent to ID verification |
+| **Cautioned** | Confused signals — some visible, some hidden. Not permanent; the member can improve. |
+| **Dangerous** | Abandonment or active concealment. Cautioned → Dangerous within days is the threat actor pattern. |
+
+Unknown is the baseline, not a rank. Regular people naturally move up over time. Credible is all most platforms need as a gate.
+
+---
+
+## The Badge
+
+Show rank, score, and color together — always. Never reduce to a checkmark; that discards most of the value. The score is a universal confidence reading: a 4.2 means the same level of trust and transparency for any member, regardless of which properties back it.
+
+The badge is a design canvas: a small pill inline with a username, a card on a profile, or a full achievement. The design is yours.
+
+**Achievements:** When a member grants visibility to GitHub, LinkedIn, TikTok, or any social property, your server can query that platform's API with the verified account. The link may never be shown to viewers — the derived badge is yours. "Verified Developer," "Active Creator" — whatever fits your platform. Verified properties are both a display signal and a data source your platform can act on independently.
+
+---
+
+## What You Display
+
+This is an API that returns structured identity data. You decide what to render — if anything.
+
+A healthcare portal uses rank as a server-side gate and shows nothing. A classifieds platform shows Genuine 4.5 on every listing — no profile page required. A pseudonymous community shows rank next to a username with no identity visible. A dating app shows age range and location, private by default, social links never surfaced to strangers.
+
+`dataConfigurations` contains only what the member has granted. Filter by `dataPointKind`:
+
+| `dataPointKind` | What it contains |
+|----------------|-----------------|
+| `personal` | Location, age, gender, bio |
+| `social` | Platform links — GitHub, LinkedIn, TikTok, etc. |
+| `contact` | Full name, preferred contact |
+| `primary` | Confirmed phone/email — description only, never the raw value |
+
+`"Privately Confirmed Phone"` means TruAnon confirmed the number. Your platform never receives it.
+
+**You cannot be compelled to reveal what you do not have.** The platform stores rank, score, and a photo — derived trust data, not PII. A database breach exposes nothing that identifies or contacts anyone. A subpoena cannot reach what was never stored.
+
+---
+
+## The API
 
 ```
 GET https://truanon.com/api/get_profile?id=[USERNAME]&service=[SERVICENAME]
@@ -47,62 +82,19 @@ Authorization: [YOUR_PRIVATE_KEY]
   "authorTitle": "Fisherman, Scholar, Huntsman",
   "authorPhoto": "https://s3.amazonaws.com/truanon/39-400.png",
   "dataConfigurations": [
-    {
-      "dataPointName": "GitHub",
-      "displayValue": "github.com/jtayler",
-      "dataPointIconClass": "fab fa-github",
-      "dataPointType": "github",
-      "dataPointKind": "social"
-    },
-    {
-      "dataPointName": "Location",
-      "displayValue": "Manhattan",
-      "dataPointIconClass": "fa fa-map-marked",
-      "dataPointType": "location",
-      "dataPointKind": "personal"
-    },
-    {
-      "dataPointName": "Birthday",
-      "displayValue": "Age 55",
-      "dataPointIconClass": "fa fa-birthday-cake",
-      "dataPointType": "birthday",
-      "dataPointKind": "personal"
-    },
-    {
-      "dataPointName": "Primary Phone",
-      "displayValue": "Privately Confirmed Phone",
-      "dataPointIconClass": "fas fa-mobile-alt",
-      "dataPointType": "phone",
-      "dataPointKind": "primary"
-    }
+    { "dataPointName": "GitHub", "displayValue": "github.com/jtayler",
+      "dataPointIconClass": "fab fa-github", "dataPointType": "github", "dataPointKind": "social" },
+    { "dataPointName": "Location", "displayValue": "Manhattan",
+      "dataPointIconClass": "fa fa-map-marked", "dataPointType": "location", "dataPointKind": "personal" },
+    { "dataPointName": "Primary Phone", "displayValue": "Privately Confirmed Phone",
+      "dataPointIconClass": "fas fa-mobile-alt", "dataPointType": "phone", "dataPointKind": "primary" }
   ]
 }
 ```
 
-`authorRank` is one of: `Genuine`, `Reliable`, `Credible`, `Cautioned`, `Dangerous` — or absent if unanchored. `authorRankScore` is a string out of `5.0`. Both reflect the member's existing public presence — not a score they earned. Cautioned means confused signals (some things visible, some hidden). Dangerous means a pattern of active concealment. A 4.2 means the same level of trust and transparency for any member — always display rank and score together.
+**`get_profile`** — on every profile view. Fast GET. Never block the page on TruAnon — render from cache, fetch async.
 
-**`dataConfigurations` contains only what the member has granted.** Filter by `dataPointKind`:
-
-| `dataPointKind` | What it contains |
-|----------------|-----------------|
-| `personal` | Location, age, gender, bio, zodiac |
-| `social` | Platform links — GitHub, LinkedIn, TikTok, etc. |
-| `contact` | Full name, preferred contact |
-| `primary` | Confirmed phone / email — description only, never the raw value |
-
-`"Privately Confirmed Phone"` means TruAnon has confirmed the number. Your platform never receives it. Show "Phone verified ✓" without ever seeing the data. The member confirmed it to TruAnon, not to you.
-
----
-
-## The Two API Calls
-
-**`get_profile` — on every profile view**
-
-Fast GET. Render from your DB cache immediately; fetch live data async after the page loads. Never block the page on TruAnon.
-
-**`get_token` — once, when anchoring**
-
-Only call this when `get_profile` returns an unanchored user and they are on their edit page. After they anchor once, you never call this again. `get_profile` is the only call for the rest of that member's time on your platform.
+**`get_token`** — once, when anchoring. Call only when `get_profile` returns an unanchored user on their edit page. After anchoring, never call again.
 
 ---
 
@@ -128,34 +120,19 @@ Member opens edit page
                     TruAnon redirects to your callback → reload
 ```
 
-Build the verify URL:
-
 ```
 https://truanon.com/api/verifyProfile?id=[USERNAME]&service=[SERVICENAME]&token=[TOKEN]&callback=[ENCODED_CALLBACK_URL]
 ```
 
-Open in a **modal with an iframe** — not `window.open()`, which browsers block. Add a `/verify-complete` route on your server that `postMessage`s back to the parent; use it as the `callback`.
-
-```javascript
-app.get('/verify-complete', (req, res) => {
-    res.send(`<!DOCTYPE html><html><body><script>
-        window.parent.postMessage({ action: 'verificationComplete' }, '*');
-    </script></body></html>`);
-});
-
-window.addEventListener('message', (event) => {
-    if (event.data?.action === 'verificationComplete') {
-        bootstrap.Modal.getInstance(document.getElementById('verificationModal')).hide();
-        window.location.reload();
-    }
-});
-```
-
-On mobile: `SFSafariViewController` (iOS) or Chrome Custom Tabs (Android) with a custom URL scheme as `callback`.
+Open in a **modal with an iframe** — not `window.open()`, which browsers block. On mobile: `SFSafariViewController` (iOS) or Chrome Custom Tabs (Android).
 
 ---
 
-## Non-Blocking Profile Render
+## Fetching
+
+Store `is_anchored` on the user record. Set it the first time `get_profile` returns a real rank. Gate all TruAnon calls on it — if false, skip. You already know the answer.
+
+Live TruAnon fetches belong in two places only: the profile view (async, after load) and the edit page (verify token, unanchored users only). Everything else — lists, feeds, search, comments — renders from your DB cache with zero API calls.
 
 ```javascript
 function fetchWithTimeout(url, options, ms = 30000) {
@@ -196,15 +173,7 @@ fetch(`/users/${username}/truanon`)
     .catch(() => {});
 ```
 
----
-
-## When to Fetch — and When Not To
-
-Store `is_anchored` on the user record. Set it the first time `get_profile` returns a real rank. Use it everywhere as the gate for TruAnon calls — if false, don't ping. You already know the answer.
-
-You only need a live TruAnon fetch in two places: the profile view (async, after the page loads) and the edit page (to get a verify token, only for unanchored users). Every other surface — lists, feeds, search results, comment threads — renders from your DB cache with zero API calls.
-
-Cache `authorRank`, `authorRankScore`, and `authorPhoto` on the user row. The rank maps directly to a color:
+Cache `authorRank`, `authorRankScore`, and `authorPhoto`. Map rank to color:
 
 ```javascript
 function rankToColor(rank) {
@@ -213,13 +182,13 @@ function rankToColor(rank) {
 }
 ```
 
-What you cache is derived trust data — not PII. A breach exposes rank and score. Nothing that identifies, locates, or contacts anyone. You cannot be compelled to give up what you do not have.
-
 ---
 
-## Rank as an Access Gate
+## Rank as a Gate
 
-Rank is a predicate. Check it before allowing any action — posting, messaging, booking, joining — using your cached value. Zero added latency. The gate is structural: a bad actor cannot route around it by creating a new account, because the anchor persists.
+Rank is a predicate. Check it before allowing any action — posting, messaging, booking — using your cached value. Zero added latency. The gate is structural: the anchor persists; a new account doesn't escape it.
+
+Credible is statistically equivalent to ID verification — for most platforms, it is all you need. Once members see Credible is valued, they naturally push toward Reliable and Genuine on their own.
 
 ```javascript
 const RANK_ORDER = ['Unknown', 'Cautioned', 'Dangerous', 'Credible', 'Reliable', 'Genuine'];
@@ -237,7 +206,7 @@ if (!meetsMinimumRank(user.authorRank, 'Credible')) {
 
 ## Privacy Switches
 
-Whatever data categories your platform surfaces, give the member a toggle for each one in your edit UI.
+Give the member a toggle for each category your platform surfaces.
 
 | Switch | Effect |
 |--------|--------|
@@ -247,7 +216,7 @@ Whatever data categories your platform surfaces, give the member a toggle for ea
 | **Private Profile** | Data shows, all URLs removed — nothing clickable |
 | **Display Contact Info** | Show / hide `dataPointKind: "contact"` and `"primary"` items |
 
-Expose only the switches relevant to what your platform surfaces. For pseudonymous platforms, strip `social` and `contact` entries server-side unconditionally — never rely on client-side for this.
+For pseudonymous platforms, strip `social` and `contact` entries server-side unconditionally.
 
 ---
 
@@ -259,7 +228,7 @@ Expose only the switches relevant to what your platform surfaces. For pseudonymo
 - [ ] Cache `authorRank`, `authorRankScore`, `authorPhoto` — list views never need an API call
 - [ ] Render profile pages immediately from DB cache — fetch TruAnon async from the client after load
 - [ ] Display rank + score + color — never reduce to a checkmark alone
-- [ ] Show *"Ask me why I haven't anchored"* for Unknown members
+- [ ] Show *"Ask me why I haven't anchored"* for Unknown members — this is optional but highly valuable and conspicuous to avoid
 - [ ] On edit page: read `is_anchored` from DB to know which state to render before any fetch
 - [ ] Fetch verify token only when the member clicks Verify — not on page load
 - [ ] Implement privacy switches for Personal, Contact, and Social — only show after anchoring
@@ -273,8 +242,4 @@ First 1,000 verifications are free. After that: approximately **$0.04 per verifi
 
 ---
 
-## About TruAnon
-
-TruAnon makes verified identity available to everyone. Credibility is equally available to anyone willing to show up as themselves. The badge spreads because members who have it prefer others who do. The absence of it speaks just as clearly.
-
-  [Example Public Profile — Hanna](https://truanon.com/p/hanna)                                                                                                                                                                                  
+[Example Public Profile — Hanna](https://truanon.com/p/hanna)
