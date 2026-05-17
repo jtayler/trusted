@@ -93,7 +93,7 @@ Authorization: [YOUR_PRIVATE_KEY]
 }
 ```
 
-**`get_profile`** — on every profile view. Fast GET. Never block the page on TruAnon — render from cache, fetch async.
+**`get_profile`** — on every profile where the databse shows they want identity. Fast GET. Never block the page on TruAnon — render from cache, fetch async.
 
 **`get_token`** — once, when anchoring. Call only when `get_profile` returns an unanchored user on their edit page. After anchoring, never call again.
 
@@ -125,7 +125,7 @@ Member opens edit page
 https://truanon.com/api/verifyProfile?id=[USERNAME]&service=[SERVICENAME]&token=[TOKEN]&callback=[ENCODED_CALLBACK_URL]
 ```
 
-Open in a **modal with an iframe** — not `window.open()`, which browsers block. On mobile: `SFSafariViewController` (iOS) or Chrome Custom Tabs (Android).
+Open however you want, in a **modal with an iframe** — not `window.open()`, which browsers block. On mobile: `SFSafariViewController` (iOS) or Chrome Custom Tabs (Android).
 
 ---
 
