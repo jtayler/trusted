@@ -22,7 +22,7 @@ Unknown covers both states — never anchored and anchored-but-revoked look iden
 
 ## Rank
 
-Rank is a mirror, not a meter. It reflects the depth, consistency, and transparency of a member's existing public presence — not something they earned. 60+ days of continuous, visible, active presence is the meaningful signal. The rank is live: remove your name from a public profile and it drops; establish a long-active presence and it rises. The member didn't gain anything they didn't already have — the rank made it visible.
+Rank is a mirror, not a meter. It reflects depth of history, and transparency of a member's existing public presence — not something they earned. Continuous, visible, active presence is the meaningful signal. The rank is live: remove your name from a public profile and it drops; establish a long-active presence and it rises. The member didn't gain anything they didn't already have — the rank made it's confidence of oversight and audience, visible.
 
 | Rank | What it reflects |
 |------|-----------------|
@@ -32,17 +32,17 @@ Rank is a mirror, not a meter. It reflects the depth, consistency, and transpare
 | **Cautioned** | Confused signals — some visible, some hidden. Not permanent; the member can improve. |
 | **Dangerous** | Abandonment or active concealment. Cautioned → Dangerous within days is the threat actor pattern. |
 
-Unknown is the baseline, not a rank. Regular people naturally move up over time. Credible is all most platforms need as a gate.
+Unknown is the baseline. Regular folks naturally move up over time. Credible is all most platforms need as a gate. If being Credible is valuable, then being Reliable or even Genuine must be more so, and people boost this score because they want to.
 
 ---
 
 ## The Badge
 
-Show rank, score, and color together — always. Never reduce to a checkmark; that discards most of the value. The score is a universal confidence reading: a 4.2 means the same level of trust and transparency for any member, regardless of which properties back it.
+Show rank, score, and color together — always. Don't reduce to just a checkmark; that discards most of the value. The score is a universal confidence reading: a 4.2 means the same level of trust and transparency for any member, regardless of which properties back it. People natureally trust it because they naturally understand it.
 
 The badge is a design canvas: a small pill inline with a username, a card on a profile, or a full achievement. The design is yours.
 
-**Achievements:** When a member grants visibility to GitHub, LinkedIn, TikTok, or any social property, your server can query that platform's API with the verified account. The link may never be shown to viewers — the derived badge is yours. "Verified Developer," "Active Creator" — whatever fits your platform. Verified properties are both a display signal and a data source your platform can act on independently.
+**Achievements:** When a member grants visibility to GitHub, LinkedIn, TikTok, or any type of property, your server can query that platform's API with the verified account. The link may never be shown to viewers — the derived badge is yours to create. "Verified Developer," "Active Creator" — whatever fits your platform. Verified properties are both a display signal and a data source your platform can act on independently.
 
 ---
 
