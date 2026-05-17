@@ -126,73 +126,71 @@ A successful `get_profile` response looks like this:
 
 ```json
 {
-  "id": "bzoflcmvoiucs",
-  "type": "ConfigurationSet",
-  "authorRank": "Genuine",
-  "authorRankScore": "5.0",
-  "authorFullName": "Jesse Tayler",
-  "authorTitle": "Fisherman, Scholar, Huntsman",
-  "authorPhoto": "https://s3.amazonaws.com/truanon/39-400.png",
-  "dataConfigurations": [
+  "rank": "Genuine",
+  "score": "5.0",
+  "name": "Jesse Tayler",
+  "title": "Fisherman, Scholar, Huntsman",
+  "photo": "https://s3.amazonaws.com/truanon/39-400.png",
+  "anchors": [
     {
-      "dataPointName": "TruAnon Profile",
-      "displayValue": "jtayler",
-      "dataPointIconClass": "fas fa-check-circle",
-      "dataPointType": "truanon",
-      "dataPointKind": "social"
+      "name": "TruAnon Profile",
+      "display": "jtayler",
+      "icon": "fas fa-check-circle",
+      "type": "truanon",
+      "kind": "social"
     },
     {
-      "dataPointName": "GitHub",
-      "displayValue": "github.com/jtayler",
-      "dataPointIconClass": "fab fa-github",
-      "dataPointType": "github",
-      "dataPointKind": "social"
+      "name": "GitHub",
+      "display": "github.com/jtayler",
+      "icon": "fab fa-github",
+      "type": "github",
+      "kind": "social"
     },
     {
-      "dataPointName": "Location",
-      "displayValue": "Manhattan",
-      "dataPointIconClass": "fa fa-map-marked",
-      "dataPointType": "location",
-      "dataPointKind": "personal"
+      "name": "Location",
+      "display": "Manhattan",
+      "icon": "fa fa-map-marked",
+      "type": "location",
+      "kind": "personal"
     },
     {
-      "dataPointName": "Birthday",
-      "displayValue": "Age 55",
-      "dataPointIconClass": "fa fa-birthday-cake",
-      "dataPointType": "birthday",
-      "dataPointKind": "personal"
+      "name": "Birthday",
+      "display": "Age 55",
+      "icon": "fa fa-birthday-cake",
+      "type": "birthday",
+      "kind": "personal"
     },
     {
-      "dataPointName": "Primary Phone",
-      "displayValue": "Privately Confirmed Phone",
-      "dataPointIconClass": "fas fa-mobile-alt",
-      "dataPointType": "phone",
-      "dataPointKind": "primary"
+      "name": "Primary Phone",
+      "display": "Privately Confirmed Phone",
+      "icon": "fas fa-mobile-alt",
+      "type": "phone",
+      "kind": "primary"
     },
     {
-      "dataPointName": "User Name",
-      "displayValue": "Jesse Tayler",
-      "dataPointIconClass": "fa fa-address-card",
-      "dataPointType": "fullName",
-      "dataPointKind": "contact"
+      "name": "User Name",
+      "display": "Jesse Tayler",
+      "icon": "fa fa-address-card",
+      "type": "fullName",
+      "kind": "contact"
     }
   ]
 }
 ```
 
-**`dataPointKind` is the key filter.** It tells you what category of data this entry is:
+**`kind` is the key filter.** It tells you what category of data this entry is:
 
-| `dataPointKind` | What it contains |
-|----------------|-----------------|
+| `kind` | What it contains |
+|--------|-----------------|
 | `personal` | Location, age, gender, bio, zodiac |
 | `social` | Platform profile links — GitHub, LinkedIn, Vimeo, TikTok, etc. |
 | `contact` | Full name, preferred contact info |
 | `primary` | Confirmed phone/email — description only, not the raw value |
-| `truanon` | The TruAnon profile entry itself (always `dataPointType: "truanon"`) |
+| `truanon` | The TruAnon profile entry itself (always `type: "truanon"`) |
 
-`displayValue` for `primary` kind entries is a description, not the raw value. `"Privately Confirmed Phone"` means TruAnon has confirmed the number exists — but it is never exposed to the platform. Show "Phone verified ✓" without receiving the data.
+`display` for `primary` kind entries is a description, not the raw value. `"Privately Confirmed Phone"` means TruAnon has confirmed the number exists — but it is never exposed to the platform. Show "Phone verified ✓" without receiving the data.
 
-The response contains **only what the member has granted visibility to**. An entry's presence in `dataConfigurations` means the member has granted it. Absence means they haven't, or have revoked it.
+The response contains **only what the member has granted visibility to**. An entry's presence in `anchors` means the member has granted it. Absence means they haven't, or have revoked it.
 
 ### The Two Endpoints
 
@@ -203,7 +201,7 @@ GET https://truanon.com/api/get_profile?id=[USERNAME]&service=[SERVICENAME]
 Authorization: [PRIVATE_KEY]
 ```
 
-Returns rank, score, photo, and all granted `dataConfigurations`.
+Returns rank, score, photo, and all granted `anchors`.
 
 **When to call it:** On every profile load. It's a fast GET — treat it like fetching an avatar URL.
 
@@ -263,14 +261,14 @@ Tell developers to think about identity as part of profile editing, not as a sep
 
 ```
 [ ] Use Verified Identity          ← master switch — off = shows as "Unknown"
-    [ ] Display Personal Info      ← shows dataPointKind: "personal" items
-    [ ] Display Social Profiles    ← shows dataPointKind: "social" links
+    [ ] Display Personal Info      ← shows kind: "personal" items
+    [ ] Display Social Profiles    ← shows kind: "social" links
     [ ] Private Profile            ← hides all URLs; data shows but nothing is clickable
 ```
 
 A platform may also add:
 ```
-    [ ] Display Contact Info       ← shows dataPointKind: "contact" and "primary" items
+    [ ] Display Contact Info       ← shows kind: "contact" and "primary" items
 ```
 
 Only expose the switches relevant to what your platform surfaces. A pseudonymous platform should not expose a social links toggle at all — strip those server-side unconditionally.
@@ -357,7 +355,7 @@ app.get('/users/:username/truanon', async (req, res) => {
         const data = await response.json();
         // Update your DB cache with latest rank/photo
         db.run('UPDATE users SET authorRank = ?, authorPhoto = ? WHERE username = ?',
-            [data.authorRank, data.authorPhoto, req.params.username]);
+            [data.rank, data.photo, req.params.username]);
         res.json(data);
     } catch (err) {
         res.status(503).json({ error: 'TruAnon unavailable' }); // client shows cached state
@@ -371,8 +369,8 @@ async function fetchTruAnonForEdit(username) {
     try {
         const profileRes = await fetchWithTimeout(`${apiBase}get_profile?id=${username}&service=${serviceName}`, options);
         const profileData = await profileRes.json();
-        if (profileData && profileData.type !== 'error') {
-            const link = (profileData.dataConfigurations || []).find(c => c.dataPointType === 'truanon')?.displayValue;
+        if (profileData && profileData.rank && profileData.rank !== 'Unknown') {
+            const link = (profileData.anchors || []).find(c => c.type === 'truanon')?.display;
             return { truanonProfileLink: link || null, verifyLink: null };
         }
         const tokenRes = await fetchWithTimeout(`${apiBase}get_token?id=${username}&service=${serviceName}`, options);
@@ -729,7 +727,7 @@ The goal is "meaningfully known, not findable." A verified age range (Over 18, O
 
 **Pseudonymous platforms — strip links server-side:**
 
-Don't rely on the user's Private Mode toggle for this. When you call `get_profile`, take `authorRank`, `score`, and `color` — discard all `displayValue` / URL fields before sending to the client. The rank is genuine even when the backing links are never shown. This is a design decision, not a privacy bug.
+Don't rely on the user's Private Mode toggle for this. When you call `get_profile`, take `rank`, `score`, and `color` — discard all `display` / URL fields before sending to the client. The rank is genuine even when the backing links are never shown. This is a design decision, not a privacy bug.
 
 **Marketplace / trust-critical (Care.com, Craigslist-like):**
 
@@ -825,7 +823,7 @@ Consider surfacing rank inline — next to username in posts, in search results.
 - Make Private: **on by default and locked** — or simply don't expose the links switch at all
 - Personal/social: off
 
-**Key insight for AI implementing this:** You may want to **never show links at all** — strip them server-side rather than relying on the client-side Private Mode toggle. Call `get_profile`, take the rank/score/color, discard `displayValue` fields. The rank is genuine even if the links are never shown.
+**Key insight for AI implementing this:** You may want to **never show links at all** — strip them server-side rather than relying on the client-side Private Mode toggle. Call `get_profile`, take the rank/score/color, discard `display` fields. The rank is genuine even if the links are never shown.
 
 ---
 
@@ -857,12 +855,12 @@ Consider surfacing rank inline — next to username in posts, in search results.
 | Exposing the private key client-side | Always server-side only; proxy all TruAnon calls through your server |
 | Not surfacing the privacy switches | Members need control; implement appropriate switches in your edit UI |
 | Relying on client-side to strip links for pseudonymous platforms | Strip server-side before the response leaves your server |
-| Passing raw `displayValue` URLs from `primary` kind entries | These are descriptions ("Privately Confirmed Phone"), not raw values — treat them as labels |
+| Passing raw `display` values from `primary` kind entries | These are descriptions ("Privately Confirmed Phone"), not raw values — treat them as labels |
 | Saying "verify" when you mean the one-time anchor step | Use "anchor" — it conveys permanence accurately |
 | Describing rank as "calculated" or "earned" | Rank is reflected. The member didn't get anything they didn't already have. Their public presence was already there — the rank just makes it visible. Display rank and score together — score alone sounds like a prize; rank alone loses precision. |
 | Calling TruAnon for unanchored users | Store `is_anchored` in your DB. If false, skip the call entirely — you already know the answer |
 | Showing pitch text and privacy switches simultaneously | They are mutually exclusive. Unanchored: show the pitch + Verify button. Anchored: show the switches. Never both. |
-| Displaying fullName under Contact | TruAnon returns `fullName` as `dataPointKind: "contact"` — pull it out and render it first in the Personal section |
+| Displaying fullName under Contact | TruAnon returns `fullName` as `kind: "contact"` — pull it out and render it first in the Personal section |
 | Mixing personal/contact/social into one block | Render three separate sections: Personal, Contact, Social — each gated by its own switch and only shown when non-empty |
 | Blocking the edit page on TruAnon | Read `is_anchored` from DB. Render the correct state immediately. Fetch the TruAnon profile link in background for anchored users only |
 
@@ -879,7 +877,7 @@ Consider surfacing rank inline — next to username in posts, in search results.
 - [ ] Implement privacy switches appropriate to your platform type (4 standard + optional contact switch)
 - [ ] For pseudonymous platforms: strip social/contact links server-side unconditionally
 - [ ] Store `is_anchored` in your DB — set it when `get_profile` returns a real rank, use it to gate all TruAnon calls
-- [ ] Cache `authorRank`, `authorRankScore`, `authorPhoto` in your DB for display continuity
+- [ ] Cache `authorRank`, `authorPhoto` in your DB for display continuity
 
 ---
 

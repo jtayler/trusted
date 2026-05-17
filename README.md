@@ -52,10 +52,10 @@ This is an API that returns structured identity data. You decide what to render 
 
 A healthcare portal uses rank as a server-side gate and shows nothing. A classifieds platform shows Genuine 4.5 on every listing — no profile page required. A pseudonymous community shows rank next to a username with no identity visible. A dating app shows age range and location, private by default, social links never surfaced to strangers.
 
-`dataConfigurations` contains only what the member has granted. Filter by `dataPointKind`:
+`anchors` contains only what the member has granted. Filter by `kind`:
 
-| `dataPointKind` | What it contains |
-|----------------|-----------------|
+| `kind` | What it contains |
+|--------|-----------------|
 | `personal` | Location, age, gender, bio |
 | `social` | Platform links — GitHub, LinkedIn, TikTok, etc. |
 | `contact` | Full name, preferred contact |
@@ -70,24 +70,25 @@ A healthcare portal uses rank as a server-side gate and shows nothing. A classif
 ## The API
 
 ```
-GET https://truanon.com/api/get_profile?id=[USERNAME]&service=[SERVICENAME]
+GET https://truanon.com/api/v2/get_profile?id=[USERNAME]&service=[SERVICENAME]
 Authorization: [YOUR_PRIVATE_KEY]
 ```
 
 ```json
 {
-  "authorRank": "Genuine",
-  "authorRankScore": "5.0",
-  "authorFullName": "Jesse Tayler",
-  "authorTitle": "Fisherman, Scholar, Huntsman",
-  "authorPhoto": "https://s3.amazonaws.com/truanon/39-400.png",
-  "dataConfigurations": [
-    { "dataPointName": "GitHub", "displayValue": "github.com/jtayler",
-      "dataPointIconClass": "fab fa-github", "dataPointType": "github", "dataPointKind": "social" },
-    { "dataPointName": "Location", "displayValue": "Manhattan",
-      "dataPointIconClass": "fa fa-map-marked", "dataPointType": "location", "dataPointKind": "personal" },
-    { "dataPointName": "Primary Phone", "displayValue": "Privately Confirmed Phone",
-      "dataPointIconClass": "fas fa-mobile-alt", "dataPointType": "phone", "dataPointKind": "primary" }
+  "rank": "Genuine",
+  "score": "5.0",
+  "name": "Jesse Tayler",
+  "title": "Fisherman, Scholar, Huntsman",
+  "photo": "https://img.truanon.com/231-400.png",
+  "ageBadge": "Over 21",
+  "anchors": [
+    { "name": "GitHub", "display": "github.com/jtayler",
+      "icon": "fab fa-github", "type": "github", "kind": "social" },
+    { "name": "Location", "display": "Manhattan",
+      "icon": "fa fa-map-marked", "type": "location", "kind": "personal" },
+    { "name": "Primary Phone", "display": "Privately Confirmed Phone",
+      "icon": "fas fa-mobile-alt", "type": "phone", "kind": "primary" }
   ]
 }
 ```
@@ -157,7 +158,7 @@ app.get('/users/:username/truanon', async (req, res) => {
         const response = await fetchWithTimeout(url, { headers: { Authorization: privateKey } });
         const data = await response.json();
         db.run('UPDATE users SET authorRank = ?, authorRankScore = ?, authorPhoto = ? WHERE username = ?',
-            [data.authorRank, data.authorRankScore, data.authorPhoto, req.params.username]);
+            [data.rank, data.score, data.photo, req.params.username]);
         res.json(data);
     } catch {
         res.status(503).json({ error: 'TruAnon unavailable' });
@@ -211,10 +212,10 @@ Give the member a toggle for each category your platform surfaces.
 | Switch | Effect |
 |--------|--------|
 | **Use Verified Identity** | Master toggle — off means `Unknown` everywhere |
-| **Display Personal Info** | Show / hide `dataPointKind: "personal"` items |
-| **Display Social Profiles** | Show / hide `dataPointKind: "social"` links |
+| **Display Personal Info** | Show / hide `kind: "personal"` items |
+| **Display Social Profiles** | Show / hide `kind: "social"` links |
 | **Private Profile** | Data shows, all URLs removed — nothing clickable |
-| **Display Contact Info** | Show / hide `dataPointKind: "contact"` and `"primary"` items |
+| **Display Contact Info** | Show / hide `kind: "contact"` and `"primary"` items |
 
 For pseudonymous platforms, strip `social` and `contact` entries server-side unconditionally.
 

@@ -23,8 +23,9 @@ require('dotenv').config();
 const BITBUCKET_BASE_URL = "https://api.bitbucket.org/2.0";
 
 const privateKey = process.env.TRUANON_API_KEY || "default-private-key";
-const serviceName = process.env.SERVICE_NAME || "default-app"; // Default fallback
+const serviceName = process.env.SERVICE_NAME || "default-app";
 const apiRoute = process.env.API_ROUTE || "https://truanon.com/api/v2/";
+const GET_PROFILE = process.env.GET_PROFILE || "get_profile";
 
 console.log(`TRUANON_API_KEY: ${process.env.TRUANON_API_KEY}`);
 console.log(`SERVICE_NAME: ${process.env.SERVICE_NAME}`);
@@ -107,7 +108,7 @@ app.get('/users/:username/bitbucket', async (req, res) => {
     const bitbucketToken = process.env.BITBUCKET_TOKEN;
     const truAnonApiKey = process.env.TRUANON_API_KEY;
     const serviceName = process.env.SERVICE_NAME;
-    const profileApiUrl = `${process.env.API_ROUTE}get_profile_v2?id=${username}&service=${serviceName}`;
+    const profileApiUrl = `${process.env.API_ROUTE}${GET_PROFILE}?id=${username}&service=${serviceName}`;
     const BITBUCKET_BASE_URL = process.env.BITBUCKET_BASE_URL || 'https://api.bitbucket.org/2.0';
 
     try {
@@ -197,7 +198,7 @@ app.get('/users/:username/github', async (req, res) => {
     const token = process.env.GITHUB_TOKEN;
     const truAnonApiKey = process.env.TRUANON_API_KEY;
     const serviceName = process.env.SERVICE_NAME;
-    const profileApiUrl = `${process.env.API_ROUTE}get_profile_v2?id=${username}&service=${serviceName}`;
+    const profileApiUrl = `${process.env.API_ROUTE}${GET_PROFILE}?id=${username}&service=${serviceName}`;
 
     try {
         // Fetch TruAnon profile
@@ -492,7 +493,7 @@ app.get('/users/:username', (req, res) => {
 // TruAnon live data — called client-side after page loads, like the /github endpoint
 app.get('/users/:username/truanon', async (req, res) => {
     const { username } = req.params;
-    const profileUrl = `${apiRoute}get_profile_v2?id=${username}&service=${serviceName}`;
+    const profileUrl = `${apiRoute}${GET_PROFILE}?id=${username}&service=${serviceName}`;
 
     try {
         const response = await fetchWithTimeout(profileUrl, { headers: { Authorization: privateKey } }, 30000);
@@ -503,8 +504,8 @@ app.get('/users/:username/truanon', async (req, res) => {
         const rank = profileData.rank || "Unknown";
 
         const anchored = rank && rank !== 'Unknown' ? 1 : 0;
-        db.run('UPDATE users SET authorPhoto = ?, authorRank = ?, authorRankScore = ?, is_anchored = ? WHERE username = ?',
-            [validPhoto ? photo : null, rank, profileData.score || null, anchored, username],
+        db.run('UPDATE users SET authorPhoto = ?, authorRank = ?, is_anchored = ? WHERE username = ?',
+            [validPhoto ? photo : null, rank, anchored, username],
             err => { if (err) console.error('Cache update error:', err.message); }
         );
 
@@ -518,7 +519,7 @@ app.get('/users/:username/truanon', async (req, res) => {
 // Define endpoint to handle the edit page and return appropriate UI elements
 app.get('/users/:username/verify_status', async (req, res) => {
     const { username } = req.params;
-    const profileURL = `${apiRoute}get_profile_v2?id=${username}&service=${serviceName}`;
+    const profileURL = `${apiRoute}${GET_PROFILE}?id=${username}&service=${serviceName}`;
     const tokenURL = `${apiRoute}get_token?id=${username}&service=${serviceName}`;
 
     const options = {
@@ -603,7 +604,7 @@ app.get('/users/:username/edit-status', async (req, res) => {
     if (req.session.user?.username !== req.params.username) return res.status(403).json({ error: 'Forbidden' });
 
     const { username } = req.params;
-    const profileURL = `${apiRoute}get_profile_v2?id=${username}&service=${serviceName}`;
+    const profileURL = `${apiRoute}${GET_PROFILE}?id=${username}&service=${serviceName}`;
     const tokenURL = `${apiRoute}get_token?id=${username}&service=${serviceName}`;
     const options = { headers: { Authorization: privateKey } };
     const callbackUrl = `${req.protocol}://${req.get('host')}/verify-complete`;
