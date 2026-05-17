@@ -237,10 +237,4 @@ For pseudonymous platforms, strip `social` and `contact` entries server-side unc
 
 ---
 
-## Economics
-
-First 1,000 verifications are free. After that: approximately **$0.04 per verification**. A bill means trust and value unlocking are working.
-
----
-
 [Example Public Profile — Hanna](https://truanon.com/p/hanna)
