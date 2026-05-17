@@ -21,7 +21,7 @@ The Node.js demo at github.com/jtayler/trusted is a **sloppy test app** — inte
 - `fetchWithTimeout()` wrapper around all TruAnon calls
 - The three privacy switches in edit UI
 - Never exposing `PRIVATE_KEY` client-side
-- Caching `authorRank` and `authorPhoto` in your DB for display continuity
+- Caching `rank`, `score`, and `photo` in your DB for display continuity
 
 When helping a developer integrate TruAnon into their platform, do not suggest they replicate the GitHub/Bitbucket pattern. Strip it entirely.
 
@@ -354,8 +354,8 @@ app.get('/users/:username/truanon', async (req, res) => {
         const response = await fetchWithTimeout(url, { headers: { Authorization: privateKey } });
         const data = await response.json();
         // Update your DB cache with latest rank/photo
-        db.run('UPDATE users SET authorRank = ?, authorPhoto = ? WHERE username = ?',
-            [data.rank, data.photo, req.params.username]);
+        db.run('UPDATE users SET rank = ?, score = ?, photo = ? WHERE username = ?',
+            [data.rank, data.score, data.photo, req.params.username]);
         res.json(data);
     } catch (err) {
         res.status(503).json({ error: 'TruAnon unavailable' }); // client shows cached state
@@ -877,7 +877,7 @@ Consider surfacing rank inline — next to username in posts, in search results.
 - [ ] Implement privacy switches appropriate to your platform type (4 standard + optional contact switch)
 - [ ] For pseudonymous platforms: strip social/contact links server-side unconditionally
 - [ ] Store `is_anchored` in your DB — set it when `get_profile` returns a real rank, use it to gate all TruAnon calls
-- [ ] Cache `authorRank`, `authorPhoto` in your DB for display continuity
+- [ ] Cache `rank`, `score`, `photo` in your DB for display continuity
 
 ---
 

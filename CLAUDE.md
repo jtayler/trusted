@@ -33,7 +33,7 @@ There are no tests configured (`npm test` returns an error).
 
 SQLite via `sqlite3` package, database file at `users.db`. No ORM — raw SQL queries in `app.js`. The `mongoose` dependency in `package.json` and `models/User.js` are unused.
 
-Key user columns: `switch_state` (TruAnon linked on/off), `is_anchored` (DB fact — gates all TruAnon API calls; set once when `get_profile` first returns a real rank), `authorRank` (cached rank string), `authorPhoto` (cached avatar URL), `show_personal`, `show_contact`, `show_social`, `make_private` (privacy tier switches).
+Key user columns: `switch_state` (TruAnon linked on/off), `is_anchored` (DB fact — gates all TruAnon API calls; set once when `get_profile` first returns a real rank), `rank` (cached rank string), `score` (cached score), `photo` (cached avatar URL), `show_personal`, `show_contact`, `show_social`, `make_private` (privacy tier switches).
 
 ### TruAnon API Integration
 
@@ -45,7 +45,7 @@ Key implementation details:
 - Profile pages render **immediately** from cached DB data; TruAnon data fetches async client-side via `GET /users/:username/truanon`
 - `fetchWithTimeout()` wraps all TruAnon calls to prevent hangs (5–30s timeouts)
 - Rank values: `Genuine`, `Reliable`, `Credible`, `Cautioned`, `Dangerous` — mapped to colors via `getPhotoBorderColor(rank)`
-- `authorRank` and `authorPhoto` are cached back to SQLite after each successful fetch
+- `rank`, `score`, and `photo` are cached back to SQLite after each successful fetch
 - List/search views render rank from the DB cache — no per-row API calls
 
 ### Privacy Model
@@ -90,7 +90,7 @@ BITBUCKET_TOKEN    # Bitbucket token (demo only)
 - Rank is a **reflection**, not a calculation. It mirrors the depth, consistency, and transparency of a member's existing public presence. Do not describe rank as something members earn, achieve, or are assigned. The member didn't gain anything they didn't already have — the rank made it visible.
 - Unknown is the **baseline**, not a rank. It covers two indistinguishable states: never anchored, and anchored-but-revoked. Both look identical from outside — by design. Avoiding is as clear as having it.
 - `is_anchored` is stored on the user record. Gate **all** TruAnon API calls on it — if false, skip the call entirely. You already know the answer.
-- Cache `authorRank` and `authorPhoto` in the DB. List views render from cache — no API calls per row.
+- Cache `rank`, `score`, and `photo` in the DB. List views render from cache — no API calls per row.
 - What you cache is derived trust data, not PII. A DB breach exposes rank/score — nothing that identifies or contacts anyone. A subpoena cannot reach what was never stored.
 - The anchor is permanent and asymmetric. A banned member cannot re-anchor under a new account. For honest members it is a gesture of good faith; for fraudsters it is a binding liability — they self-select out.
 - Rank is a gate predicate, not just a display value. Check it before allowing posts, messages, bookings. Credible is statistically equivalent to ID verification.

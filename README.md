@@ -157,7 +157,7 @@ app.get('/users/:username/truanon', async (req, res) => {
     try {
         const response = await fetchWithTimeout(url, { headers: { Authorization: privateKey } });
         const data = await response.json();
-        db.run('UPDATE users SET authorRank = ?, authorRankScore = ?, authorPhoto = ? WHERE username = ?',
+        db.run('UPDATE users SET rank = ?, score = ?, photo = ? WHERE username = ?',
             [data.rank, data.score, data.photo, req.params.username]);
         res.json(data);
     } catch {
@@ -174,7 +174,7 @@ fetch(`/users/${username}/truanon`)
     .catch(() => {});
 ```
 
-Cache `authorRank`, `authorRankScore`, and `authorPhoto`. Map rank to color:
+Cache `rank`, `score`, and `photo`. Map rank to color:
 
 ```javascript
 function rankToColor(rank) {
@@ -198,7 +198,7 @@ function meetsMinimumRank(userRank, minimumRank) {
     return RANK_ORDER.indexOf(userRank) >= RANK_ORDER.indexOf(minimumRank);
 }
 
-if (!meetsMinimumRank(user.authorRank, 'Credible')) {
+if (!meetsMinimumRank(user.rank, 'Credible')) {
     return res.status(403).json({ error: 'Credible rank required to post.' });
 }
 ```
@@ -226,7 +226,7 @@ For pseudonymous platforms, strip `social` and `contact` entries server-side unc
 - [ ] Register at developer.truanon.com — get `PRIVATE_KEY` and `SERVICE_NAME`
 - [ ] Proxy all TruAnon calls through your server — never expose `PRIVATE_KEY` client-side
 - [ ] Store `is_anchored` on the user record — gate all TruAnon calls on it
-- [ ] Cache `authorRank`, `authorRankScore`, `authorPhoto` — list views never need an API call
+- [ ] Cache `rank`, `score`, `photo` — list views never need an API call
 - [ ] Render profile pages immediately from DB cache — fetch TruAnon async from the client after load
 - [ ] Display rank + score + color — never reduce to a checkmark alone
 - [ ] Show *"Ask me why I haven't anchored"* for Unknown members — this is optional but highly valuable and conspicuous to avoid
