@@ -18,20 +18,20 @@ For honest members, anchoring is a gesture of good faith — accountability they
 
 Unknown covers both states — never anchored and anchored-but-revoked look identical to any viewer. Avoiding is as clear as having it. On a platform where most members anchor, that choice is conspicuous — in a way that belongs entirely to them. Unknown is a social prompt: interaction reveals intention.
 
-Anchor, Grant, and Revoke are **digital rights** — structural rules of how identity moves through the digital world, not features the platform turns on. The central question is *who can cut the cord?* — always the member, from their side. Think of the adjoining doors between hotel rooms: each side holds its own lock, both must be open for movement, either party can close their side and the connection ends. Neither can force the other. That asymmetric consent is what makes the visibility, when present, mean something.
+Anchor, Grant, and Revoke are **digital rights** — structural rules of how identity moves through the digital world, not features the platform turns on. The central question is _who can cut the cord?_ — always the member, from their side. Think of the adjoining doors between hotel rooms: each side holds its own lock, both must be open for movement, either party can close their side and the connection ends. Neither can force the other. That asymmetric consent is what makes the visibility, when present, mean something.
 
 ---
 
 ## Rank
 
-Rank is a mirror, not a meter. It reflects the depth, consistency, and transparency of a member's existing public presence — not something they earned. 60+ days of continuous, visible, active presence is the meaningful signal. The rank is live: remove your name from a public profile and it drops; establish a long-active presence and it rises. The member didn't gain anything they didn't already have — the rank made it visible.
+Rank is a mirror, not a meter. It reflects depth of history, and transparency of a member's existing public presence — not something they earned. Continuous, visible, active presence is the meaningful signal. The rank is live: remove your name from a public profile and it drops; establish a long-active presence and it rises. The member didn't gain anything they didn't already have — the rank made it's confidence of oversight and audience, visible.
 
-| Rank | What it reflects |
-|------|-----------------|
-| **Genuine** | Deepest, most consistent, most transparent public presence |
-| **Reliable** | Strong public history with real visibility |
-| **Credible** | Meaningful public presence — statistically equivalent to ID verification |
-| **Cautioned** | Confused signals — some visible, some hidden. Not permanent; the member can improve. |
+| Rank          | What it reflects                                                                                  |
+| ------------- | ------------------------------------------------------------------------------------------------- |
+| **Genuine**   | Deepest, most consistent, most transparent public presence                                        |
+| **Reliable**  | Strong public history with real visibility                                                        |
+| **Credible**  | Meaningful public presence — statistically equivalent to ID verification                          |
+| **Cautioned** | Confused signals — some visible, some hidden. Not permanent; the member can improve.              |
 | **Dangerous** | Abandonment or active concealment. Cautioned → Dangerous within days is the threat actor pattern. |
 
 Unknown is off-axis, not the bottom of the ladder. It covers two indistinguishable states — never anchored, and anchored-but-revoked — by design. Any anchored member can return to Unknown at any time; that is the right to revoke made structural. The positive ranks (Credible → Reliable → Genuine) form a continuum of depth. Cautioned and Dangerous are qualitatively different states — Cautioned is mendable, Dangerous is abandonment — not just lower rungs. Credible is all most platforms need as a gate.
@@ -40,11 +40,11 @@ Unknown is off-axis, not the bottom of the ladder. It covers two indistinguishab
 
 ## The Badge
 
-Show rank, score, and color together — always. Never reduce to a checkmark; that discards most of the value. The score is a universal confidence reading: a 4.2 means the same level of trust and transparency for any member, regardless of which properties back it.
+Show rank, score, and color together — always. Don't reduce to just a checkmark; that discards most of the value. The score is a universal confidence reading: a 4.2 means the same level of trust and transparency for any member, regardless of which properties back it. People natureally trust it because they naturally understand it.
 
 The badge is a design canvas: a small pill inline with a username, a card on a profile, or a full achievement. The design is yours.
 
-**Achievements:** When a member grants visibility to GitHub, LinkedIn, TikTok, or any social property, your server can query that platform's API with the verified account. The link may never be shown to viewers — the derived badge is yours. "Verified Developer," "Active Creator" — whatever fits your platform. Verified properties are both a display signal and a data source your platform can act on independently.
+**Achievements:** When a member grants visibility to GitHub, LinkedIn, TikTok, or any type of property, your server can query that platform's API with the verified account. The link may never be shown to viewers — the derived badge is yours to create. "Verified Developer," "Active Creator" — whatever fits your platform. Verified properties are both a display signal and a data source your platform can act on independently.
 
 ---
 
@@ -56,12 +56,12 @@ A healthcare portal uses rank as a server-side gate and shows nothing. A classif
 
 `anchors` contains only what the member has granted. Filter by `kind`:
 
-| `kind` | What it contains |
-|--------|-----------------|
-| `personal` | Location, age, gender, bio |
-| `social` | Platform links — GitHub, LinkedIn, TikTok, etc. |
-| `contact` | Full name, preferred contact |
-| `primary` | Confirmed phone/email — description only, never the raw value |
+| `kind`     | What it contains                                              |
+| ---------- | ------------------------------------------------------------- |
+| `personal` | Location, age, gender, bio                                    |
+| `social`   | Platform links — GitHub, LinkedIn, TikTok, etc.               |
+| `contact`  | Full name, preferred contact                                  |
+| `primary`  | Confirmed phone/email — description only, never the raw value |
 
 `"Privately Confirmed Phone"` means TruAnon confirmed the number. Your platform never receives it.
 
@@ -78,20 +78,35 @@ Authorization: [YOUR_PRIVATE_KEY]
 
 ```json
 {
-  "rank": "Genuine",
-  "score": "5.0",
-  "name": "Jesse Tayler",
-  "title": "Fisherman, Scholar, Huntsman",
-  "photo": "https://img.truanon.com/231-400.png",
-  "ageBadge": "Over 21",
-  "anchors": [
-    { "name": "GitHub", "display": "github.com/jtayler",
-      "icon": "fab fa-github", "type": "github", "kind": "social" },
-    { "name": "Location", "display": "Manhattan",
-      "icon": "fa fa-map-marked", "type": "location", "kind": "personal" },
-    { "name": "Primary Phone", "display": "Privately Confirmed Phone",
-      "icon": "fas fa-mobile-alt", "type": "phone", "kind": "primary" }
-  ]
+    "rank": "Genuine",
+    "score": "5.0",
+    "name": "Jesse Tayler",
+    "title": "Fisherman, Scholar, Huntsman",
+    "photo": "https://img.truanon.com/231-400.png",
+    "ageBadge": "Over 21",
+    "anchors": [
+        {
+            "name": "GitHub",
+            "display": "github.com/jtayler",
+            "icon": "fab fa-github",
+            "type": "github",
+            "kind": "social"
+        },
+        {
+            "name": "Location",
+            "display": "Manhattan",
+            "icon": "fa fa-map-marked",
+            "type": "location",
+            "kind": "personal"
+        },
+        {
+            "name": "Primary Phone",
+            "display": "Privately Confirmed Phone",
+            "icon": "fas fa-mobile-alt",
+            "type": "phone",
+            "kind": "primary"
+        }
+    ]
 }
 ```
 
@@ -141,29 +156,39 @@ Live TruAnon fetches belong in two places only: the profile view (async, after l
 function fetchWithTimeout(url, options, ms = 30000) {
     return Promise.race([
         fetch(url, options),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), ms))
+        new Promise((_, reject) =>
+            setTimeout(() => reject(new Error("timeout")), ms),
+        ),
     ]);
 }
 
 // Render immediately from cache — badge loads async
-app.get('/users/:username', (req, res) => {
-    db.get('SELECT * FROM users WHERE username = ?', [req.params.username], (err, user) => {
-        if (err || !user) return res.status(404).send('Not found');
-        res.render('profile', { user });
-    });
+app.get("/users/:username", (req, res) => {
+    db.get(
+        "SELECT * FROM users WHERE username = ?",
+        [req.params.username],
+        (err, user) => {
+            if (err || !user) return res.status(404).send("Not found");
+            res.render("profile", { user });
+        },
+    );
 });
 
 // TruAnon proxy — called by client JS after page loads
-app.get('/users/:username/truanon', async (req, res) => {
+app.get("/users/:username/truanon", async (req, res) => {
     const url = `${apiBase}get_profile?id=${req.params.username}&service=${serviceName}`;
     try {
-        const response = await fetchWithTimeout(url, { headers: { Authorization: privateKey } });
+        const response = await fetchWithTimeout(url, {
+            headers: { Authorization: privateKey },
+        });
         const data = await response.json();
-        db.run('UPDATE users SET rank = ?, score = ?, photo = ? WHERE username = ?',
-            [data.rank, data.score, data.photo, req.params.username]);
+        db.run(
+            "UPDATE users SET rank = ?, score = ?, photo = ? WHERE username = ?",
+            [data.rank, data.score, data.photo, req.params.username],
+        );
         res.json(data);
     } catch {
-        res.status(503).json({ error: 'TruAnon unavailable' });
+        res.status(503).json({ error: "TruAnon unavailable" });
     }
 });
 ```
@@ -171,8 +196,8 @@ app.get('/users/:username/truanon', async (req, res) => {
 ```javascript
 // Client
 fetch(`/users/${username}/truanon`)
-    .then(r => r.ok ? r.json() : Promise.reject())
-    .then(data => renderTruAnonBadge(data))
+    .then((r) => (r.ok ? r.json() : Promise.reject()))
+    .then((data) => renderTruAnonBadge(data))
     .catch(() => {});
 ```
 
@@ -180,8 +205,15 @@ Cache `rank`, `score`, and `photo`. Map rank to color:
 
 ```javascript
 function rankToColor(rank) {
-    return { Genuine: 'primary', Reliable: 'success', Credible: 'secondary',
-             Cautioned: 'warning', Dangerous: 'danger' }[rank] || 'light';
+    return (
+        {
+            Genuine: "primary",
+            Reliable: "success",
+            Credible: "secondary",
+            Cautioned: "warning",
+            Dangerous: "danger",
+        }[rank] || "light"
+    );
 }
 ```
 
@@ -195,15 +227,21 @@ Credible is statistically equivalent to ID verification — for most platforms, 
 
 ```javascript
 // Unknown is off-axis — never satisfies a minimum, but isn't "below Dangerous"
-const RANK_ORDER = ['Dangerous', 'Cautioned', 'Credible', 'Reliable', 'Genuine'];
+const RANK_ORDER = [
+    "Dangerous",
+    "Cautioned",
+    "Credible",
+    "Reliable",
+    "Genuine",
+];
 
 function meetsMinimumRank(userRank, minimumRank) {
-    if (userRank === 'Unknown') return false;
+    if (userRank === "Unknown") return false;
     return RANK_ORDER.indexOf(userRank) >= RANK_ORDER.indexOf(minimumRank);
 }
 
-if (!meetsMinimumRank(user.rank, 'Credible')) {
-    return res.status(403).json({ error: 'Credible rank required to post.' });
+if (!meetsMinimumRank(user.rank, "Credible")) {
+    return res.status(403).json({ error: "Credible rank required to post." });
 }
 ```
 
@@ -213,13 +251,13 @@ if (!meetsMinimumRank(user.rank, 'Credible')) {
 
 Give the member a toggle for each category your platform surfaces.
 
-| Switch | Effect |
-|--------|--------|
-| **Use Verified Identity** | Master toggle — off means `Unknown` everywhere |
-| **Display Personal Info** | Show / hide `kind: "personal"` items |
-| **Display Social Profiles** | Show / hide `kind: "social"` links |
-| **Private Profile** | Data shows, all URLs removed — nothing clickable |
-| **Display Contact Info** | Show / hide `kind: "contact"` and `"primary"` items |
+| Switch                      | Effect                                              |
+| --------------------------- | --------------------------------------------------- |
+| **Use Verified Identity**   | Master toggle — off means `Unknown` everywhere      |
+| **Display Personal Info**   | Show / hide `kind: "personal"` items                |
+| **Display Social Profiles** | Show / hide `kind: "social"` links                  |
+| **Private Profile**         | Data shows, all URLs removed — nothing clickable    |
+| **Display Contact Info**    | Show / hide `kind: "contact"` and `"primary"` items |
 
 For pseudonymous platforms, strip `social` and `contact` entries server-side unconditionally.
 
@@ -233,7 +271,7 @@ For pseudonymous platforms, strip `social` and `contact` entries server-side unc
 - [ ] Cache `rank`, `score`, `photo` — list views never need an API call
 - [ ] Render profile pages immediately from DB cache — fetch TruAnon async from the client after load
 - [ ] Display rank + score + color — never reduce to a checkmark alone
-- [ ] Show *"Ask me why I haven't anchored"* for Unknown members — this is optional but highly valuable and conspicuous to avoid
+- [ ] Show _"Ask me why I haven't anchored"_ for Unknown members — this is optional but highly valuable and conspicuous to avoid
 - [ ] On edit page: read `is_anchored` from DB to know which state to render before any fetch
 - [ ] Fetch verify token only when the member clicks Verify — not on page load
 - [ ] Implement privacy switches for Personal, Contact, and Social — only show after anchoring
