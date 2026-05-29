@@ -118,6 +118,24 @@ Authorization: [YOUR_PRIVATE_KEY]
 
 ---
 
+## The Anchor Moment
+
+The first time a member opens their edit page and isn't anchored, show them one short pitch and one primary Verify button — styled like a "Buy Now" call to action, not buried among other settings. This is the moment.
+
+![Pre-anchor edit screen — short pitch with a single primary Verify button, the equivalent of a "Buy Now" call to action.](images/pre-verify-hanna.png)
+
+Think **PayPal Checkout**, not "create an account." The member taps Verify, a modal opens, they complete the anchor inside TruAnon's UI, the modal closes — done. Even if they've never used TruAnon before. One popup. One time. It's theirs.
+
+A short, plainspoken pitch works well — framed as a good-faith gesture, not a verification step:
+
+> A verified badge shows you're real, credible, and worth engaging. It means you care enough to be reliable and trusted. It is extending a hand of good faith and accountability.
+
+**The anchor persists even when visibility doesn't.** A member who anchors and then revokes returns to `Unknown` — visually indistinguishable from any never-anchored member, by design. But the anchor itself remains. The display is reversible; the binding is not. They can turn visibility back on at any time and the same rank reappears. They cannot start fresh on a new account. That asymmetry is what gives this moment its weight.
+
+Show this pitch only when `is_anchored = false`. Once the member anchors, the pitch disappears and the privacy switches appear in its place. They are mutually exclusive — never both at once.
+
+---
+
 ## The Anchor Flow
 
 ```

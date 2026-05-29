@@ -261,6 +261,24 @@ After the first verification, the flow is always: **fetch → display**. That's 
 
 Tell developers to think about identity as part of profile editing, not as a separate flow.
 
+### The Pre-Anchor Pitch (Edit Page)
+
+Before any privacy switches, an unanchored member should see one short pitch and one primary Verify button — nothing else. Treat it as a "Buy Now" call to action: sized and styled to draw the eye, not buried in settings.
+
+![Pre-anchor edit screen — single Verify button with a short pitch underneath.](images/pre-verify-hanna.png)
+
+The analogy that lands with developers and members alike is **PayPal Checkout**. The member may have never touched TruAnon before. They tap Verify, a modal opens, they complete the anchor inside TruAnon's UI, the modal closes — done. One popup. One time. It's theirs forever after.
+
+Recommended pitch copy (adapt for your platform's tone):
+
+> A verified badge shows you're real, credible, and worth engaging. It means you care enough to be reliable and trusted. It is extending a hand of good faith and accountability.
+
+Frame it as a good-faith gesture, not a verification step or KYC flow. The member is taking ownership of a permanent identity binding — that framing lands.
+
+**Critical detail to honor in the pitch:** the anchor persists even when the member later revokes visibility. Anchored-but-revoked is visually indistinguishable from never-anchored, by design — but the binding remains, and rank can be reinstated by re-granting visibility. Display is reversible; the anchor is not. This is what gives the moment its weight and what makes the pitch honest — the member really is making a lasting choice.
+
+The pre-anchor pitch and the privacy switches are **mutually exclusive UI states**. Show pitch + Verify button when `is_anchored = false`. Show switches when `is_anchored = true`. Never both. Use `is_anchored` from your DB to decide which to render — no fetch required.
+
 ### The Four Switches (Profile Edit Page)
 
 ```
