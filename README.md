@@ -18,6 +18,8 @@ For honest members, anchoring is a gesture of good faith — accountability they
 
 Unknown covers both states — never anchored and anchored-but-revoked look identical to any viewer. Avoiding is as clear as having it. On a platform where most members anchor, that choice is conspicuous — in a way that belongs entirely to them. Unknown is a social prompt: interaction reveals intention.
 
+Anchor, Grant, and Revoke are **digital rights** — structural rules of how identity moves through the digital world, not features the platform turns on. The central question is *who can cut the cord?* — always the member, from their side. Think of the adjoining doors between hotel rooms: each side holds its own lock, both must be open for movement, either party can close their side and the connection ends. Neither can force the other. That asymmetric consent is what makes the visibility, when present, mean something.
+
 ---
 
 ## Rank
@@ -32,7 +34,7 @@ Rank is a mirror, not a meter. It reflects the depth, consistency, and transpare
 | **Cautioned** | Confused signals — some visible, some hidden. Not permanent; the member can improve. |
 | **Dangerous** | Abandonment or active concealment. Cautioned → Dangerous within days is the threat actor pattern. |
 
-Unknown is the baseline, not a rank. Regular people naturally move up over time. Credible is all most platforms need as a gate.
+Unknown is off-axis, not the bottom of the ladder. It covers two indistinguishable states — never anchored, and anchored-but-revoked — by design. Any anchored member can return to Unknown at any time; that is the right to revoke made structural. The positive ranks (Credible → Reliable → Genuine) form a continuum of depth. Cautioned and Dangerous are qualitatively different states — Cautioned is mendable, Dangerous is abandonment — not just lower rungs. Credible is all most platforms need as a gate.
 
 ---
 
@@ -192,9 +194,11 @@ Rank is a predicate. Check it before allowing any action — posting, messaging,
 Credible is statistically equivalent to ID verification — for most platforms, it is all you need. Once members see Credible is valued, they naturally push toward Reliable and Genuine on their own.
 
 ```javascript
-const RANK_ORDER = ['Unknown', 'Cautioned', 'Dangerous', 'Credible', 'Reliable', 'Genuine'];
+// Unknown is off-axis — never satisfies a minimum, but isn't "below Dangerous"
+const RANK_ORDER = ['Dangerous', 'Cautioned', 'Credible', 'Reliable', 'Genuine'];
 
 function meetsMinimumRank(userRank, minimumRank) {
+    if (userRank === 'Unknown') return false;
     return RANK_ORDER.indexOf(userRank) >= RANK_ORDER.indexOf(minimumRank);
 }
 

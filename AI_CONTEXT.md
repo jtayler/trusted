@@ -39,6 +39,10 @@ TruAnon is a **trust layer** — a living, ranked, member-controlled identity si
 - **Grant** — The member turns on visibility of data categories. The platform decides which categories to surface; the member gets the right to say yes or no.
 - **Revoke** — The member turns off visibility. Their status returns to `Unknown` everywhere. The anchor still exists but nothing is visible.
 
+**These are digital rights, not features.** Anchor, Grant, and Revoke are operative rules — like encryption keys and signatures, they are structural, not amenities the platform offers. The central question every TruAnon integration answers is *who can cut the cord?* — and the answer is always the member, from their side. The platform cannot reach into someone's TruAnon and pull data they have revoked. Asymmetric consent is the architecture.
+
+The closest (imperfect) analogy is the adjoining doors between hotel rooms: each side has its own lock, both must be open for movement, either party can close their side and the connection ends. Neither can force the other. That is the shape of Grant and Revoke — and what makes the visibility, when present, mean something.
+
 **The key mental shift for developers:** You are not "adding verification." You are giving your platform a trust dimension it currently lacks — one where members voluntarily anchor to accounts the world already knows them by (GitHub, LinkedIn, Bluesky, their own domain, etc.), and the rank reflects back what their public presence already says. You are not issuing trust. You are making existing trust visible.
 
 **Use the word "anchor" when describing the one-time connection process.** "Verify" is acceptable colloquially but "anchor" is the precise term — it conveys permanence and ownership correctly.
@@ -88,7 +92,7 @@ The meaningful signal is **60+ days of continuous, visible, active presence** ac
 
 The rank is **live and continuous**. A member removes their real name from a public profile — rank drops because transparency dropped. They establish a long-active public presence — rank rises to reflect it. Think of it like the Wizard of Oz: the member didn't get anything they didn't already have. The rank just made visible what was already true.
 
-**Unknown is not a rank — it is the baseline.** Every member starts there. A member who has never anchored is Unknown. A member who anchored and then revoked is also Unknown. Both look identical from outside. That is by design.
+**Unknown is not a rank on the ladder — it is off-axis.** It covers two indistinguishable states: *never anchored* and *anchored-but-revoked*. Both look identical from outside, by design. That indistinguishability is what makes revocation a real digital right rather than a stain — a member can step back to neutral without leaving a "was-here" trace, because the absence of a claim is not evidence of a hidden claim. Unknown is where every member begins, and where any anchored member can return. It can hide an anchored profile completely, and that capability is part of the structure, not a leak.
 
 For regular people, Unknown is simply the starting point. Digital presence grows naturally over time — Myspace to Facebook to LinkedIn, each platform adding depth and years. Scores tend to rise on their own as members mature. The ladder goes up as life goes on.
 
@@ -102,7 +106,7 @@ For regular people, Unknown is simply the starting point. Digital presence grows
 | **Cautioned** | Confused signals. Something is not quite right — some visibility, some hiding, a mixed picture. Not a permanent marker. The member can act: add transparency, validate contacts, make more public. Nobody should stay here. |
 | **Dangerous** | Abandonment or failure to maintain. Contacts not validated, properties not kept up. Often follows Cautioned rapidly — a threat actor realizes they cannot manufacture years of real public history, hits Cautioned at best, then abandons the effort entirely. Cautioned → Dangerous within days is the recognizable pattern. |
 
-The rank is a **trust ladder**. Transparency, consistency, and depth over time climb it. Confused signals stall at Cautioned — fixable. Abandonment falls to Dangerous.
+The ranks are not a single linear ladder. The positive ranks — Credible → Reliable → Genuine — form a continuum: climbing reflects deeper, longer, more transparent presence. But Cautioned and Dangerous are *qualitative* states with their own meanings: Cautioned is a work-in-progress, a mendable mixed signal; Dangerous is abandonment. And Unknown is off-axis entirely — neutral, voluntary, not a lower rung. Read the ranks as a *set of distinct positions*, not points on a line.
 
 **The score is a universal language.** A 4.2/5 means the same level of trust and transparency for any member — regardless of which specific properties back it. You don't need to see those properties to read the confidence. Your 4.2 and my 4.2 are equivalent. This is why you always display rank and score together: rank names the tier, score names the depth within it. Score alone could look like a prize to win; rank alone loses precision. Together they are the signal.
 
@@ -859,6 +863,8 @@ Consider surfacing rank inline — next to username in posts, in search results.
 | Saying "verify" when you mean the one-time anchor step | Use "anchor" — it conveys permanence accurately |
 | Describing rank as "calculated" or "earned" | Rank is reflected. The member didn't get anything they didn't already have. Their public presence was already there — the rank just makes it visible. Display rank and score together — score alone sounds like a prize; rank alone loses precision. |
 | Calling TruAnon for unanchored users | Store `is_anchored` in your DB. If false, skip the call entirely — you already know the answer |
+| Treating Unknown as the bottom of a linear scale | Unknown is off-axis — indistinguishable from never-anchored, voluntary, returnable by any anchored member. It is not "below Dangerous"; it is a different category. |
+| Calling Anchor/Grant/Revoke "features" or "settings" | They are digital rights — structural rules, not amenities the platform offers. Each side holds its own lock; either can close. Frame revocation as a right the member holds, not a switch the platform exposes. |
 | Showing pitch text and privacy switches simultaneously | They are mutually exclusive. Unanchored: show the pitch + Verify button. Anchored: show the switches. Never both. |
 | Displaying fullName under Contact | TruAnon returns `fullName` as `kind: "contact"` — pull it out and render it first in the Personal section |
 | Mixing personal/contact/social into one block | Render three separate sections: Personal, Contact, Social — each gated by its own switch and only shown when non-empty |
