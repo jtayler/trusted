@@ -42,6 +42,8 @@ Unknown is off-axis, not the bottom of the ladder. It covers two indistinguishab
 
 Show rank, score, and color together — always. Don't reduce to just a checkmark; that discards most of the value. The score is a universal confidence reading: a 4.2 means the same level of trust and transparency for any member, regardless of which properties back it. People natureally trust it because they naturally understand it.
 
+![Hanna's badge in a Bluesky-style profile — rank, score, and color together, never a checkmark alone.](images/badge-hanna-bluesky.png)
+
 The badge is a design canvas: a small pill inline with a username, a card on a profile, or a full achievement. The design is yours.
 
 **Achievements:** When a member grants visibility to GitHub, LinkedIn, TikTok, or any type of property, your server can query that platform's API with the verified account. The link may never be shown to viewers — the derived badge is yours to create. "Verified Developer," "Active Creator" — whatever fits your platform. Verified properties are both a display signal and a data source your platform can act on independently.
