@@ -31,8 +31,8 @@ Rank is a mirror, not a meter. It reflects depth of history, and transparency of
 | **Genuine**   | Deepest, most consistent, most transparent public presence                                        |
 | **Reliable**  | Strong public history with real visibility                                                        |
 | **Credible**  | Meaningful public presence — statistically equivalent to ID verification                          |
-| **Cautioned** | Confused signals — some visible, some hidden. Not permanent; the member can improve.              |
-| **Dangerous** | Abandonment or active concealment. Cautioned → Dangerous within days is the threat actor pattern. |
+| **Cautioned** | Confused signals — some visible, some hidden. Not permanent; the member can improve. Also the ceiling for unmaintained-but-honest accounts whose presence has gone quiet. |
+| **Dangerous** | Active abandonment. Cautioned → Dangerous within days is the threat-actor pattern; honest members do not move that fast. Reserved for abandonment; not used for honest members whose maintenance has lapsed. |
 
 Unknown is off-axis, not the bottom of the ladder. It covers two indistinguishable states — never anchored, and anchored-but-revoked — by design. Any anchored member can return to Unknown at any time; that is the right to revoke made structural. The positive ranks (Credible → Reliable → Genuine) form a continuum of depth. Cautioned and Dangerous are qualitatively different states — Cautioned is mendable, Dangerous is abandonment — not just lower rungs. Credible is all most platforms need as a gate.
 
@@ -68,6 +68,20 @@ A healthcare portal uses rank as a server-side gate and shows nothing. A classif
 `"Privately Confirmed Phone"` means TruAnon confirmed the number. Your platform never receives it.
 
 **You cannot be compelled to reveal what you do not have.** The platform stores rank, score, and a photo — derived trust data, not PII. A database breach exposes nothing that identifies or contacts anyone. A subpoena cannot reach what was never stored.
+
+---
+
+## Service Registration: Public or Private
+
+When you register your service with TruAnon, you choose its privacy posture — a structural decision, not a per-member toggle.
+
+**Public service (default).** Receives a member's public-by-default profile data automatically. Members revoke what they don't want shared with your platform. Right for social networks and public-facing platforms where identity surface is expected.
+
+**Private service.** Receives only rank and score by default. Every additional property requires an explicit per-service grant from the member, even items the member has set public on their TruAnon profile. Right for anonymous-leaning platforms — marketplaces, anonymous review sites, dating sites with privacy defaults, pseudonymous communities.
+
+The grant model inverts between the two: public is opt-out (everything visible unless revoked); private is opt-in (nothing visible unless granted). Same API, opposite default — chosen once at registration so your integration code doesn't need to branch on privacy posture per member. The response itself already reflects what the member has granted.
+
+Choose based on what your platform is. If members come to be visible (social), register public. If members come to do business or speak with credibility but without exposure (marketplace, anonymous review, dating), register private.
 
 ---
 

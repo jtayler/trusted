@@ -84,11 +84,36 @@ Users control three layers via their own dashboard:
 
 Profile changes take effect **in real time**. No re-integration required.
 
+### Public vs Private Service Registration
+
+TruAnon services register in one of two modes — a choice made by the platform owner at service-creation time, not per member.
+
+**Public service (default).** The service receives all of a member's public-by-default profile data automatically. Members revoke what they don't want shared on that platform. This is the right mode for public-facing platforms where identity surface is expected: social networks, public profiles, anything where members have reason to be visible.
+
+**Private service.** The service receives only rank and score by default. Every additional property — socials, location, contact info, even items the member has set public on their TruAnon profile — requires an explicit per-service grant from the member. This is the right mode for anonymous-leaning or trust-critical platforms: Craigslist-style marketplaces, anonymous review sites, dating sites with privacy defaults, pseudonymous communities.
+
+**Why both modes exist.** Rank and score are derived trust signals, not PII; showing them never doxes anyone. Private services let platforms be *generous* with derived trust signal but *strict* with identifying data — the right line for platforms whose value depends on members being credibly anonymous.
+
+**The grant model inverts between modes.** A public service is opt-out (everything visible unless revoked). A private service is opt-in (nothing visible unless granted). Same API, same data model, opposite default. The platform-side integration code does not branch on this — TruAnon's response itself already reflects the mode. The render template just shows what it receives.
+
+**Practical implications:**
+
+- Choose the mode at service registration based on what your platform fundamentally is. Privacy posture is structural, not a per-user configuration.
+- A private-service integration does not need a separate "anonymous mode" feature. Pseudonymity is the default; members layer credentials by granting.
+- A private-service integration does not need extra per-property branching on the platform side. The API response already reflects what the member granted.
+- Switching modes post-launch is possible but disruptive — pick well at the start.
+
+**For AI assistants:** when scoping an integration, ask early which mode is appropriate. Default-public social platforms register as public. Marketplaces, anonymous-leaning communities, dating sites, and pseudonymous platforms register as private. The choice shapes surface coverage and what your render templates need to handle. Do not propose per-post anonymity mechanics, multi-account schemes, or user-discipline-based pseudonymity as workarounds for the wrong registration mode — register correctly instead.
+
 ### How Rank Works — Reflection, Not Calculation
 
 Rank is a mirror, not a meter. It reflects the depth, consistency, and transparency of a member's existing public presence — the accounts the world already knows them by.
 
 The meaningful signal is **60+ days of continuous, visible, active presence** across real platforms. A public profile with a real name, consistent history, and genuine audience contributes meaningfully. A blank or locked-down account contributes little.
+
+**Proofs are binary.** TruAnon does not fuzzy-match property variations. It does not try to interpret that a different name spelling might mean a marriage, or that an inconsistency might be benign. If a property is publicly consistent and verifiable, it counts; if not, it doesn't. This is deliberate: soft-matching would have the system pretend to understand context it can't reliably interpret. Binary proofs reflect what a careful human reader at a glance would already conclude — and that's the right reference point. The score should *feel* right at a glance because it reflects what an at-a-glance reader is already noticing.
+
+**The transparency chain is sequential.** Properties are read in order, and each step gates the next. A missing or hidden first step (like full name) makes downstream properties contribute little, because there is no anchor for transparency to attach to. Take your name off and the chain breaks — not as punishment, but because the structure no longer holds together for an outside reader.
 
 The rank is **live and continuous**. A member removes their real name from a public profile — rank drops because transparency dropped. They establish a long-active public presence — rank rises to reflect it. Think of it like the Wizard of Oz: the member didn't get anything they didn't already have. The rank just made visible what was already true.
 
@@ -108,9 +133,13 @@ For regular people, Unknown is simply the starting point. Digital presence grows
 
 The ranks are not a single linear ladder. The positive ranks — Credible → Reliable → Genuine — form a continuum: climbing reflects deeper, longer, more transparent presence. But Cautioned and Dangerous are *qualitative* states with their own meanings: Cautioned is a work-in-progress, a mendable mixed signal; Dangerous is abandonment. And Unknown is off-axis entirely — neutral, voluntary, not a lower rung. Read the ranks as a *set of distinct positions*, not points on a line.
 
+**Maintenance is part of the signal.** Rank is continuously read, not earned-once. A member whose primary contacts go un-reasserted, whose public properties go unmaintained, or whose presence on anchored platforms goes quiet will see rank degrade — not as punishment, but because the reflection updates. The member dropped their transparency; the mirror shows it. This rewards continuous care without asking members to do anything beyond keeping what's already public still public.
+
+**Cautioned is the ceiling for unmaintained-but-honest accounts.** A high-history member who lets things lapse moves toward Cautioned, not toward Dangerous. Dangerous is reserved for the *active abandonment* pattern — a threat actor realizing they cannot manufacture years of real public history, hitting Cautioned, then walking away within days. The speed of the Cautioned-to-Dangerous transition is itself the threat-actor signature; honest members move through Cautioned slowly or stay there. **Calling an honest member "Dangerous" would be defamatory; the system deliberately does not go there.** Most reputation systems happily slap scary labels on accounts that look bad on paper. TruAnon explicitly does not.
+
 **The score is a universal language.** A 4.2/5 means the same level of trust and transparency for any member — regardless of which specific properties back it. You don't need to see those properties to read the confidence. Your 4.2 and my 4.2 are equivalent. This is why you always display rank and score together: rank names the tier, score names the depth within it. Score alone could look like a prize to win; rank alone loses precision. Together they are the signal.
 
-**For AI assistants:** Do not describe rank as "calculated" or "earned." It is reflected. Do not say a member "achieved" a rank. Say their rank reflects their public presence.
+**For AI assistants:** Do not describe rank as "calculated" or "earned." It is reflected. Do not say a member "achieved" a rank. Say their rank reflects their public presence. Do not propose schemes that fuzzy-match property variations — TruAnon is binary by design. Do not describe rank degradation as punishment — describe it as the mirror updating. Do not call unmaintained-but-honest accounts "Dangerous" — that label is reserved for the active-abandonment pattern.
 
 ---
 
@@ -887,6 +916,12 @@ Consider surfacing rank inline — next to username in posts, in search results.
 | Displaying fullName under Contact | TruAnon returns `fullName` as `kind: "contact"` — pull it out and render it first in the Personal section |
 | Mixing personal/contact/social into one block | Render three separate sections: Personal, Contact, Social — each gated by its own switch and only shown when non-empty |
 | Blocking the edit page on TruAnon | Read `is_anchored` from DB. Render the correct state immediately. Fetch the TruAnon profile link in background for anchored users only |
+| Anchoring the same person to multiple accounts on the same network | TruAnon enforces one anchor per network. A single member gets one Bluesky, one GitHub, one LinkedIn — never multiple. Do not propose multi-account architectures for pseudonymity or sock-puppet management; pseudonymity comes from leaving identifying fields blank on the single anchored account (or from registering the service as private), not from multiple accounts |
+| Fuzzy-matching property variations | TruAnon is binary. Different name spellings, possible marriages, hijacked-account excuses — the system does not interpret these. If publicly consistent, it counts; if not, it doesn't. Do not propose soft-matching layers |
+| Calling unmaintained-but-honest accounts "Dangerous" | Dangerous is reserved for the active-abandonment pattern (threat actor hits Cautioned, walks away within days). Honest members whose presence has gone quiet land in Cautioned, which is mendable. Calling an honest user "Dangerous" would be defamatory; the system deliberately does not go there |
+| Treating rank as earned-once | Rank is continuously read. Maintenance is part of the signal — un-reasserted primary contacts, unmaintained properties, dropped presence all degrade rank as the reflection updates. Describe rank changes as the mirror updating, not as punishment or reward |
+| Treating "public service" as the only registration mode | Services register as public (opt-out: receive default-visible data, member revokes) or private (opt-in: receive only rank/score, member grants additions). Choose at registration time based on the platform's privacy posture. Anonymous-leaning platforms should register as private |
+| Trying to build per-post anonymity inside TruAnon's live-reflection model | Dynamic TruAnon badge requires the platform to know the author to look up rank. Anonymity-from-the-public is achievable (private service + pseudonymous account, or platform-side anonymous-display while platform-knows-author); anonymity-from-the-platform-itself is not. Don't promise what the architecture cannot deliver |
 
 ---
 
