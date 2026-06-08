@@ -6,6 +6,8 @@
 
 **iTunes for trust.** Before iTunes, music online was a swamp of pirated files — you couldn't tell what was legit. iTunes didn't invent the songs; it made it visible which ones were real, and the swamp drained on its own. TruAnon does the same for identity claims: the data already exists publicly across GitHub, LinkedIn, Bluesky, and the rest — TruAnon makes it legibly real, in one signal, on your platform. Nothing of value is stored on your side; nothing identifying is held. What can't be stolen also can't be subpoenaed.
 
+**Outside experts have already done the validation. You inherit the assurance just by offering it.** GitHub verified that members control their accounts. LinkedIn confirmed their professional identities. Bluesky tracks real activity. Institutions issued .edu, .corp, and .mil credentials behind their own verification gates. TruAnon does not re-verify any of it — it reflects what the underlying authorities have already verified. By offering TruAnon as a simple option, your platform inherits the entire chain of pre-existing verification for free, without doing the work itself. Members who care about trust will self-select toward platforms that offer it; some will certainly prefer yours. **The approach itself is government-tested:** Australia evaluated 30 identity solutions in its trial for protecting children online, and TruAnon was the only one that structurally separates identity from the account.
+
 [Visit Demo Site](https://devhauz.truanon.com) · [Watch Demo Video](https://vimeo.com/1049232204) · [View Presentation](https://docs.google.com/presentation/d/1MBaGqDw_L_bgJ3y3c-qqSjzDbDutanBYfkpb75pr2pI/present)
 
 ---
