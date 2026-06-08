@@ -1,6 +1,10 @@
 # Building Trust Into Your Platform
 
-TruAnon is a trust layer — not a verification gate, not KYC. Members anchor their identity once using accounts the world already knows them by: GitHub, LinkedIn, Bluesky, their own domain. That history reflects back as a rank, score, and color that travels with them everywhere TruAnon is adopted. Platforms weave it in. Members control it. It runs itself.
+**You're here because you want your brand to be free from any perception of holding or selling private information.** TruAnon is the badge on your platform that delivers that promise — visibly, structurally, without you ever storing identity data. Just having the option present shifts how members and prospective members read your platform. Trust visibly built into the relationship is what people want now; this is the difference between the trusted #1 and the also-ran in any category where reputation matters.
+
+**In one line.** TruAnon is transparency the member controls. Not privacy. Not identity verification. Not a CAPTCHA fighting bots — *the reverse*: instead of detecting fakes, it lets real members surface themselves into visibility. Members anchor their identity once using public accounts the world already knows them by — GitHub, LinkedIn, Bluesky, their own domain. The depth of that history reflects back as a rank, score, and color that travels with them anywhere TruAnon is adopted. Platforms weave it in; members control it; it runs itself.
+
+**iTunes for trust.** Before iTunes, music online was a swamp of pirated files — you couldn't tell what was legit. iTunes didn't invent the songs; it made it visible which ones were real, and the swamp drained on its own. TruAnon does the same for identity claims: the data already exists publicly across GitHub, LinkedIn, Bluesky, and the rest — TruAnon makes it legibly real, in one signal, on your platform. Nothing of value is stored on your side; nothing identifying is held. What can't be stolen also can't be subpoenaed.
 
 [Visit Demo Site](https://devhauz.truanon.com) · [Watch Demo Video](https://vimeo.com/1049232204) · [View Presentation](https://docs.google.com/presentation/d/1MBaGqDw_L_bgJ3y3c-qqSjzDbDutanBYfkpb75pr2pI/present)
 
