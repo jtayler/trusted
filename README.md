@@ -124,7 +124,7 @@ Authorization: [YOUR_PRIVATE_KEY]
 }
 ```
 
-**`get_profile`** — on every profile where the databse shows they want identity. Fast GET. Never block the page on TruAnon — render from cache, fetch async.
+**`get_profile`** — on every profile where the database shows they want identity. Fast GET. Never block the page on TruAnon — render from cache, fetch async.
 
 **`get_token`** — once, when anchoring. Call only when `get_profile` returns an unanchored user on their edit page. After anchoring, never call again.
 
