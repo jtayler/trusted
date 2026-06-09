@@ -1,12 +1,8 @@
-# Building Trust Into Your Platform
+# Natural Adoption
 
-**You're here because you want your brand to be free from any perception of holding or selling private information.** TruAnon is the badge on your platform that delivers that promise — visibly, structurally, without you ever storing identity data. Just having the option present shifts how members and prospective members read your platform. Trust visibly built into the relationship is what people want now; this is the difference between the trusted #1 and the also-ran in any category where reputation matters.
+Your members already have their own reputation. Their own history. This reflects, and protects that identity. 
 
-**In one line.** TruAnon is transparency the member controls. Not privacy. Not identity verification. Not a CAPTCHA fighting bots — *the reverse*: instead of detecting fakes, it lets real members surface themselves into visibility. Members anchor their identity once using public accounts the world already knows them by — GitHub, LinkedIn, Bluesky, their own domain. The depth of that history reflects back as a rank, score, and color that travels with them anywhere TruAnon is adopted. Platforms weave it in; members control it; it runs itself.
-
-**iTunes for trust.** Before iTunes, music online was a swamp of pirated files — you couldn't tell what was legit. iTunes didn't invent the songs; it made it visible which ones were real, and the swamp drained on its own. TruAnon does the same for identity claims: the data already exists publicly across GitHub, LinkedIn, Bluesky, and the rest — TruAnon makes it legibly real, in one signal, on your platform. Nothing of value is stored on your side; nothing identifying is held. What can't be stolen also can't be subpoenaed.
-
-**Outside experts have already done the validation. You inherit the assurance just by offering it.** GitHub verified that members control their accounts. LinkedIn confirmed their professional identities. Bluesky tracks real activity. Institutions issued .edu, .corp, and .mil credentials behind their own verification gates. TruAnon does not re-verify any of it — it reflects what the underlying authorities have already verified. By offering TruAnon as a simple option, your platform inherits the entire chain of pre-existing verification for free, without doing the work itself. Members who care about trust will self-select toward platforms that offer it; some will certainly prefer yours. **The approach itself is government-tested:** Australia evaluated 30 identity solutions in its trial for protecting children online, and TruAnon was the only one that structurally separates identity from the account.
+Instead of surrendering privacy, people bring their own proof, members make it work because your platform makes it valuable to do so. 
 
 [Visit Demo Site](https://devhauz.truanon.com) · [Watch Demo Video](https://vimeo.com/1049232204) · [View Presentation](https://docs.google.com/presentation/d/1MBaGqDw_L_bgJ3y3c-qqSjzDbDutanBYfkpb75pr2pI/present)
 
@@ -14,23 +10,19 @@
 
 ## Anchor, Grant, Revoke
 
-**Anchor** — A member connects their TruAnon identity to your platform. Once. Cannot be undone. Rank and verified properties follow automatically. A banned member cannot return under a new account — the anchor persists. This is structural, not a policy.
+**Anchor** — A member binds to their profile on your platform. Once. This "purchase" cannot be undone. A banned member cannot return under a new account — the anchor persists.
 
-For honest members, anchoring is a gesture of good faith — accountability they offer freely because they have nothing to hide. For fraudsters, the same anchor is a binding liability. Every benefit flips to risk: accountability is exposure, permanence is a trap. They walk away to platforms where the calculus works in their favor. They self-select out.
+**Grant** — A member grants visitbility to any property they own. Your platform decides which to showcase; members decide how others view and share their identity.
 
-**Grant** — The member turns on visibility of specific data categories. The platform decides which to surface; the member decides whether to share each one.
+**Revoke** — A member may turn off visibility. Status returns to `Unknown`. The anchor remains. Transparency is always an option. Erasing an anchor is not.
 
-**Revoke** — The member turns off visibility. Status returns to `Unknown`. The anchor remains. Going dark is always an option. Erasing an anchor is not.
-
-Unknown covers both states — never anchored and anchored-but-revoked look identical to any viewer. Avoiding is as clear as having it. On a platform where most members anchor, that choice is conspicuous — in a way that belongs entirely to them. Unknown is a social prompt: interaction reveals intention.
-
-Anchor, Grant, and Revoke are **digital rights** — structural rules of how identity moves through the digital world, not features the platform turns on. The central question is _who can cut the cord?_ — always the member, from their side. Think of the adjoining doors between hotel rooms: each side holds its own lock, both must be open for movement, either party can close their side and the connection ends. Neither can force the other. That asymmetric consent is what makes the visibility, when present, mean something.
+Anchor, Grant, and Revoke are **digital rights** — structural rules of how identity moves through the digital world, not features the platform turns on.
 
 ---
 
-## Rank
+## Rank & Score
 
-Rank is a mirror, not a meter. It reflects depth of history, and transparency of a member's existing public presence — not something they earned. Continuous, visible, active presence is the meaningful signal. The rank is live: remove your name from a public profile and it drops; establish a long-active presence and it rises. The member didn't gain anything they didn't already have — the rank made it's confidence of oversight and audience, visible.
+Rank and score is a reflection, a mirror, not a meter. It tabulates depth of history, and transparency. Continuous, visible, active presence is the meaningful signal. This is live: remove your name from a public profile and it drops; establish a long-active presence and it rises. Members didn't get anything they did not already have — this is simply a reflection of confidence, oversight and audience.
 
 | Rank          | What it reflects                                                                                  |
 | ------------- | ------------------------------------------------------------------------------------------------- |
