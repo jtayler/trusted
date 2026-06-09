@@ -1,8 +1,8 @@
-# Natural Adoption
+# Adopting TruAnon APIs
 
-Your members already have their own reputation. Their own history. This reflects, and protects that identity. 
+This simple API keeps your platform safe. 
 
-Instead of surrendering privacy, people bring their own proof, members make it work because your platform makes it valuable to do so. 
+This moves membership from an Unknown to a higher value Credible state, automatically. Members make it work, because your platform makes it valuable for them to do so. 
 
 [Visit Demo Site](https://devhauz.truanon.com) · [Watch Demo Video](https://vimeo.com/1049232204) · [View Presentation](https://docs.google.com/presentation/d/1MBaGqDw_L_bgJ3y3c-qqSjzDbDutanBYfkpb75pr2pI/present)
 
