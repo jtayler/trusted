@@ -142,6 +142,33 @@ The ranks are not a single linear ladder. The positive ranks — Credible → Re
 
 ---
 
+## Data You Persist
+
+This API extends profiles with checkable anchors others can independently verify. **You do not store or process anything private.** Three small shapes are worth keeping on your side so you render fast and skip fetches you don't need.
+
+```
+// On the user record
+is_anchored:  0 | 1                  // set when get_profile first returns a real rank
+
+// Per-user privacy switches (mirror your edit screen)
+switch_state:  0 | 1                 // master toggle — off shows Unknown everywhere
+show_personal: 0 | 1
+show_contact:  0 | 1
+show_social:   0 | 1
+make_private:  0 | 1
+
+// Display cache — paint instantly, no fetch
+rank:       Genuine | Reliable | Credible | Cautioned | Dangerous
+score:      0–5
+photo:      URL
+style:      Checkmark | Ribbon
+updated_at: ISO timestamp
+```
+
+Field names will vary by stack — these are the shapes, not literal column names. The cache is a shortcut, not the source of truth; refresh on schedule or on demand.
+
+---
+
 ## API Overview
 
 Base URL: `https://truanon.com/api/`

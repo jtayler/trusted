@@ -33,7 +33,7 @@ There are no tests configured (`npm test` returns an error).
 
 SQLite via `sqlite3` package, database file at `users.db`. No ORM — raw SQL queries in `app.js`. The `mongoose` dependency in `package.json` and `models/User.js` are unused.
 
-Key user columns: `switch_state` (TruAnon linked on/off), `is_anchored` (DB fact — gates all TruAnon API calls; set once when `get_profile` first returns a real rank), `rank` (cached rank string), `score` (cached score), `photo` (cached avatar URL), `show_personal`, `show_contact`, `show_social`, `make_private` (privacy tier switches).
+Key user columns: `switch_state` (TruAnon linked on/off), `is_anchored` (DB fact — gates all TruAnon API calls; set once when `get_profile` first returns a real rank), `rank`, `score`, `photo`, `style` (Checkmark / Ribbon), `updated_at` (cache: paint instantly, no fetch), `show_personal`, `show_contact`, `show_social`, `make_private` (privacy tier switches).
 
 ### TruAnon API Integration
 
