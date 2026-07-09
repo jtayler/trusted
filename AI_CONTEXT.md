@@ -281,11 +281,27 @@ Returns a **short-lived, one-time-use token** used to build a verification link.
 https://truanon.com/api/verifyProfile?id=[USERNAME]&service=[SERVICENAME]&token=[TOKEN]&callback=[ENCODED_RETURN_URL]
 ```
 
-Open this in a **popup window** (`window.open`). The user completes verification inside TruAnon's UI, then TruAnon redirects to your `callback` URL — point it back at the user's edit page so it reloads showing the verified badge.
+Open this in a **modal with an iframe** — an iframe inside a modal is part of your own page, so browsers don't block it (they do block `window.open()` popups). TruAnon sends a `postMessage` with `action: "closeVerificationModal"` when done; your listener closes the modal and reloads. On native mobile, use `SFSafariViewController` (iOS) or Chrome Custom Tabs (Android) with a custom URL scheme `callback` parameter.
 
-Open this in a **Bootstrap modal with an iframe**. An iframe inside a modal is part of your own page — browsers don't block it (unlike `window.open()` popups, which they do). TruAnon sends a `postMessage` with `action: "closeVerificationModal"` when done; your listener closes the modal and reloads.
+**The callback and postMessage are conveniences, not the source of truth.** They can be lost to a closed tab, a blocked frame message, or a navigation race — and the anchor still succeeded. The only proof the switch is thrown is `get_profile` returning real data. Re-check it when the modal closes *for any reason*, and again on the next edit-page load. Never leave a member looking unanchored because a `postMessage` went missing.
 
-On native mobile, use `SFSafariViewController` (iOS) or Chrome Custom Tabs (Android) with a custom URL scheme `callback` parameter.
+### The Platform's Switch: `disable_profile` / `enable_profile` (rare)
+
+Every party on the circuit holds its own lock. These two endpoints are the **platform's** — the member's grant/revoke controls are theirs, and this pair is yours. Not part of the normal integration flow; you wire them to your own account-lifecycle actions (account retirement, a ban, a school-calendar close of term), or call them by hand. The reference app deliberately has no admin UI for this — `curl` is the admin UI:
+
+```
+GET https://truanon.com/api/disable_profile?id=[USERNAME]&service=[SERVICENAME]
+GET https://truanon.com/api/enable_profile?id=[USERNAME]&service=[SERVICENAME]
+Authorization: [PRIVATE_KEY]
+```
+
+What `disable_profile` does — and doesn't do:
+- The member's connection to your platform **leaves their score and their public profile** immediately. On their TruAnon dashboard the card goes static: "Account disabled," no actions.
+- The anchor itself is **untouched**. The member keeps their identity; the one-anchor-per-network slot for your service stays occupied, so a disabled member cannot re-anchor a fresh account on your platform. `get_token` for a disabled member returns `403 profile_disabled`.
+- `enable_profile` restores everything instantly — same anchor, same history, no re-onboarding. The member re-grants public visibility themselves.
+- **This is a digital right, not a judgment.** TruAnon records no reason and displays none. Use the word "disabled" — never "banned" or "revoked" — and expect the member's profile to simply show absence, not accusation.
+
+Both calls are idempotent and return `{"type": "profile", "id": ..., "service": ..., "status": "disabled"|"enabled"}`.
 
 ---
 
@@ -358,6 +374,21 @@ The badge is a design canvas, not a prescribed widget. It can be:
 - **An achievement** — a large platform-specific award derived from verified data
 
 The minimum is **rank + score + color, all three together**. Never reduce to a checkmark — that discards most of the value. The rank and score are what make the badge meaningful and comparable across users. Beyond that, the design is entirely yours.
+
+The proven starting point is the **two-layer pill**: rank word as the dominant layer, `(score of 5)` as the quieter layer beneath or beside it, the whole pill tinted with the rank color. One glance carries all three signals. The rank→color mapping is fixed — don't invent your own:
+
+| Rank | Color (Bootstrap name) |
+|------|------------------------|
+| Genuine | `primary` (blue) |
+| Reliable | `success` (green) |
+| Credible | `secondary` (gray) |
+| Cautioned | `warning` (yellow) |
+| Dangerous | `danger` (red) |
+| Unknown | `secondary`, muted |
+
+![Two-layer pill badge inline on a profile.](images/badge-hanna-bluesky.png)
+
+Adapt the pill to the host site's own components (Bootstrap `btn-outline-*`, a Tailwind chip, a native view) rather than importing foreign styles — the badge should look like it belongs to the platform while keeping rank + score + color inseparable. Private Mode renders the same pill non-clickable; otherwise it links to the member's TruAnon profile (the `type: "truanon"` anchor's `display` value).
 
 ### Achievements from Verified Properties
 
@@ -920,6 +951,36 @@ Consider surfacing rank inline — next to username in posts, in search results.
 **What TruAnon adds over domain verification alone:** A domain proves ownership — it doesn't prove history, depth, or consistency across multiple independent platforms. A Genuine rank means all of that. Frame accordingly.
 
 ---
+
+## Testing & Troubleshooting — Proving the Switch Is Thrown
+
+Integrations fail quietly in one place: trusting the UI ceremony instead of the API. The modal closed, so the developer assumes the member is anchored — or the callback never fired, so they assume the member isn't. Both are wrong the same way. **`get_profile` is the only truth.** Test with `curl` at every stage, outside your app, so you always know which side of a bug you're on:
+
+**1. Confirm the member is unknown.**
+```
+curl -H "Authorization: $PRIVATE_KEY" "https://truanon.com/api/get_profile?id=testuser&service=$SERVICE"
+```
+Expect `member_unknown`. If you get `401 unknown_key`, stop — your key or service name is wrong, or your server isn't actually sending the `Authorization` header. Fix auth before touching any UI.
+
+**2. Get a token and anchor by hand.** Call `get_token` the same way, build the `verifyProfile` URL from the returned token, open it in a plain browser tab, and complete the anchor. No modal, no iframe — this isolates TruAnon from your frontend.
+
+**3. Re-run `get_profile`.** Real `rank`, `score`, and `anchors` back means **the switch is fully anchored and thrown** — anything still wrong is in your display code, not the integration.
+
+**4. Now test your UI against a truth you've verified.** If the badge doesn't appear after the modal closes, your code is gating on the callback — re-check `get_profile` whenever the modal closes and on every edit-page load.
+
+Symptoms and what they actually mean:
+
+| Symptom | Meaning |
+|---------|---------|
+| Modal completed but member still shows unanchored | You trusted the callback. Re-poll `get_profile` on modal close and page load — the anchor is already there. |
+| `get_token` returns `409 already_verified` | **Success, not an error.** The member is anchored; your state is stale. Call `get_profile`, set `is_anchored`, stop offering Verify. |
+| `401 unknown_key` | Key/service mismatch, or the header never left your server. Verify with the step-1 curl. |
+| `403 service_inactive` | Your service is switched off on TruAnon's side. |
+| `403 profile_disabled` | *Your platform* disabled this member via `disable_profile`. Restore with `enable_profile`. |
+| Profile returns but `anchors` is missing entries | Not a bug — presence means granted. The member kept those private or revoked them. |
+| Anchored member suddenly returns Unknown | The member revoked visibility — their right, indistinguishable from never-anchored by design. Show the Unknown state; don't "fix" it. |
+
+Badge check, last: rank word + `(score of 5)` + rank color rendered together, correct color per the mapping above, readable at inline size next to a username, non-clickable in Private Mode, and the Unknown state shows *"Ask me why I haven't anchored."* If all of that holds against a member you anchored by hand in step 2, the integration is done.
 
 ## Common Mistakes to Correct
 
