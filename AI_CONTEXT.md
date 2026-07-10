@@ -144,7 +144,7 @@ The ranks are not a single linear ladder. The positive ranks — Credible → Re
 
 ## Data You Persist
 
-This API extends profiles with checkable anchors others can independently verify. **You do not store or process anything private.** Three small shapes are worth keeping on your side so you render fast and skip fetches you don't need.
+This API extends profiles with checkable anchors others can independently verify. **You do not store or process anything private.** Three small shapes are worth keeping on your side so you render fast and skip fetches for members you already know are unanchored.
 
 ```
 // On the user record
@@ -165,7 +165,15 @@ style:      Checkmark | Ribbon
 updated_at: ISO timestamp
 ```
 
-Field names will vary by stack — these are the shapes, not literal column names. The cache is a shortcut, not the source of truth; refresh on schedule or on demand.
+Field names will vary by stack — these are the shapes, not literal column names.
+
+**Two rules make this cache safe. Break either and the integration is wrong:**
+
+1. **The cache never replaces the call.** Every profile view of an anchored member still calls `get_profile` — async and non-blocking: paint instantly from cache, update from the live response, store back the fresh rank/score/photo. A member's revoke, a rank change, or a platform disable must show up on the next page view, not when a cron job runs. A scheduled background refresh alone leaves a revoked member's data on display for hours — the digital right stops working.
+
+2. **The `anchors` payload is render-through only. Never persist it.** Names, locations, ages, social links, contact descriptions: fetch, render, discard. Not in your database, not in server logs, not in a "performance cache." Stored granted details are exactly what the platform promises never to hold — breachable, subpoenable — and they keep displaying after the member revokes. Rank, score, and photo are the *entire* allowed cache: non-private values that degrade gracefully.
+
+**The litmus test: kill the network and load a profile.** Correct integration — the badge still paints (continuity cache) and the personal/contact/social sections are simply absent. If member details render with the network down, the integration stored what it must not. Instant links are the smoking gun, not a feature: the correct feel is badge immediately, anchors a beat later.
 
 ---
 
@@ -979,6 +987,7 @@ Symptoms and what they actually mean:
 | `403 profile_disabled` | *Your platform* disabled this member via `disable_profile`. Restore with `enable_profile`. |
 | Profile returns but `anchors` is missing entries | Not a bug — presence means granted. The member kept those private or revoked them. |
 | Anchored member suddenly returns Unknown | The member revoked visibility — their right, indistinguishable from never-anchored by design. Show the Unknown state; don't "fix" it. |
+| Links and member details render instantly (0ms), or render with the network down | They're coming from your database — the `anchors` payload was persisted. That stores private data the platform must never hold and keeps displaying it after a revoke. Delete the stored copies; fetch-render-discard on every view. |
 
 Badge check, last: rank word + `(score of 5)` + rank color rendered together, correct color per the mapping above, readable at inline size next to a username, non-clickable in Private Mode, and the Unknown state shows *"Ask me why I haven't anchored."* If all of that holds against a member you anchored by hand in step 2, the integration is done.
 
@@ -997,6 +1006,7 @@ Badge check, last: rank word + `(score of 5)` + rank color rendered together, co
 | Saying "verify" when you mean the one-time anchor step | Use "anchor" — it conveys permanence accurately |
 | Describing rank as "calculated" or "earned" | Rank is reflected. The member didn't get anything they didn't already have. Their public presence was already there — the rank just makes it visible. Display rank and score together — score alone sounds like a prize; rank alone loses precision. |
 | Calling TruAnon for unanchored users | Store `is_anchored` in your DB. If false, skip the call entirely — you already know the answer |
+| Persisting the `anchors` payload, or rendering member details from your own DB | Render-through only: fetch per view, display, discard. The allowed cache is rank/score/photo — and it never replaces the per-view call. Stored anchors are stored private data (breach + subpoena surface) that keep displaying after the member revokes: both promises broken at once |
 | Treating Unknown as the bottom of a linear scale | Unknown is off-axis — indistinguishable from never-anchored, voluntary, returnable by any anchored member. It is not "below Dangerous"; it is a different category. |
 | Calling Anchor/Grant/Revoke "features" or "settings" | They are digital rights — structural rules, not amenities the platform offers. Each side holds its own lock; either can close. Frame revocation as a right the member holds, not a switch the platform exposes. |
 | Showing pitch text and privacy switches simultaneously | They are mutually exclusive. Unanchored: show the pitch + Verify button. Anchored: show the switches. Never both. |
