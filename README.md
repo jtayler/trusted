@@ -8,22 +8,6 @@ This moves membership from an `Unknown` to a higher value `Credible` state, auto
 
 ---
 
-## Where This Fits
-
-TruAnon anchors **any digital property a member controls** — an employer directory, a school or patient portal, a licensing board, a professional society, a GitHub account. Each of those institutions already did its own identity work. TruAnon carries the fact that one person holds them, and lets that member decide who sees which.
-
-The brokering is the point. Two institutions can corroborate the same person with **no data-sharing agreement, no integration between them, and neither one learning the other exists.** Only the member can connect them. Forging that presence means holding accounts at several unrelated institutions at once — and knowing which ones to connect in the first place. Compromising any single property is not enough.
-
-There is nothing to hold and nothing to install. No wallet, no chain, no coin, no app, no key for the member to lose. A member anchors once in a browser and it is theirs.
-
-**Accreditation is not granted here — it is made portable.** TruAnon issues no licenses and certifies nothing; a registrar, a licensing board, or a hospital already did that, because law and regulation required it of them. What TruAnon carries is that *this account* holds it — checkable by anyone the member grants, with no copy of the record changing hands. A medical school confirms its own graduate, the answer travels, the diploma never leaves.
-
-Three things are anchorable here and each is worth having. An `mit.edu` address proves affiliation. A curated alumni roster proves membership. Querying the registrar directly is **primary source verification** — the standard regulated credentialing actually requires, delivered live rather than every two years by fax. They are not interchangeable, so say which one you have.
-
-**Also not:** a moderation or quality meter. Rank reflects transparency, history, and presence — not whether someone writes good posts or ships on time. Pair it with your own reputation system.
-
----
-
 ## Anchor, Grant, Revoke
 
 **Anchor** — A member binds to their profile on your platform. Once. This "purchase" cannot be undone. A banned member cannot return under a new account — the anchor persists.
@@ -149,6 +133,8 @@ Authorization: [YOUR_PRIVATE_KEY]
 **This is not part of signup.** TruAnon never touches registration, adds no step to onboarding, and cannot affect signup conversion. It appears on the edit page, to members who already joined, as something they choose to do.
 
 It is also less work, not more. A member editing their profile either fills the fields in by hand, or flips the switch — a smart verify panel opens, the identity anchors, and from there they grant visibility to pronouns, contacts, and social properties, or hide every link and detail and stay anonymous. Typing it all in manually is the slower path.
+
+There is nothing to hold and nothing to install. No wallet, no chain, no coin, no app, no key for the member to lose. A member anchors once in a browser and it is theirs.
 
 The first time a member opens their edit page and isn't anchored, show them one short pitch and one primary Verify button — styled like a "Buy Now" call to action, not buried among other settings. This is the moment.
 
@@ -417,6 +403,10 @@ TruAnon brokers the introduction and stays out of the live path. Which questions
 - **A live answer needs a live publisher.** Nothing is cached, because a cache is a copy. Offline and air-gapped verification is what physical credentials are already for; this is the digital universe, and the two do not compete.
 - **Nothing is issued** — no credential, no license, no certification.
 - **Rank is not a quality signal.** It reflects transparency, history, and presence, never whether someone writes good posts or ships on time.
+
+## Accreditation is not granted here — it is made portable
+
+TruAnon issues no licenses and certifies nothing; a registrar, a licensing board, or a hospital already did that, because law and regulation required it of them. What TruAnon carries is that *this account* holds it — checkable by anyone the member grants, with no copy of the record changing hands. A medical school confirms its own graduate, the answer travels, the diploma never leaves.
 
 ## Wallets and credential standards
 
