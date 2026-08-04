@@ -148,6 +148,8 @@ Authorization: [YOUR_PRIVATE_KEY]
 
 **This is not part of signup.** TruAnon never touches registration, adds no step to onboarding, and cannot affect signup conversion. It appears on the edit page, to members who already joined, as something they choose to do.
 
+It is also less work, not more. A member editing their profile either fills the fields in by hand, or flips the switch — a smart verify panel opens, the identity anchors, and from there they grant visibility to pronouns, contacts, and social properties, or hide every link and detail and stay anonymous. Typing it all in manually is the slower path.
+
 The first time a member opens their edit page and isn't anchored, show them one short pitch and one primary Verify button — styled like a "Buy Now" call to action, not buried among other settings. This is the moment.
 
 ![Pre-anchor edit screen — short pitch with a single primary Verify button, the equivalent of a "Buy Now" call to action.](images/pre-verify-hanna.png)
@@ -394,9 +396,9 @@ So TruAnon takes nothing out. It brokers a connection, and the question is asked
 
 ## Anchoring — two tiers
 
-**Public proof** requires nothing from the publisher. Any visible field only the account holder can alter — a bio, a post, a profile line — carries a key that TruAnon reads. Control is proven. A porch light: we can see it is their house. Most anchors work this way.
+**Public proof** requires nothing from the property. Any visible field only the account holder can alter — a bio, a post, an about-me line — carries a key that TruAnon reads. Control is proven. A porch light: we can see it is their house. This is how LinkedIn, X, and anything else that never agreed to anything gets anchored.
 
-**The switch** is a publisher API answering questions for accounts its own users authorized. This opens the private layer.
+**The switch** is what a property gets by integrating these APIs — the flow this entire document describes. Cleaner and easier than a public proclamation, and the only route for a property with no public-facing surface at all: a patient portal, an employee directory, a licensing board.
 
 Anchoring is permanent; visibility is revocable. A member who revokes returns to `Unknown` and cannot re-anchor a fresh account to escape a history.
 
