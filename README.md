@@ -8,6 +8,22 @@ This moves membership from an `Unknown` to a higher value `Credible` state, auto
 
 ---
 
+## Where This Fits
+
+TruAnon anchors **any digital property a member controls** — an employer directory, a school or patient portal, a licensing board, a professional society, a GitHub account. Each of those institutions already did its own identity work. TruAnon carries the fact that one person holds them, and lets that member decide who sees which.
+
+The brokering is the point. Two institutions can corroborate the same person with **no data-sharing agreement, no integration between them, and neither one learning the other exists.** Only the member can connect them. Forging that presence means holding accounts at several unrelated institutions at once — and knowing which ones to connect in the first place. Compromising any single property is not enough.
+
+There is nothing to hold and nothing to install. No wallet, no chain, no coin, no app, no key for the member to lose. A member anchors once in a browser and it is theirs.
+
+**Accreditation is not granted here — it is made portable.** TruAnon issues no licenses and certifies nothing; a registrar, a licensing board, or a hospital already did that, because law and regulation required it of them. What TruAnon carries is that *this account* holds it — checkable by anyone the member grants, with no copy of the record changing hands. A medical school confirms its own graduate, the answer travels, the diploma never leaves.
+
+One gradient worth stating precisely: an `mit.edu` address proves affiliation, not conferral. A curated alumni roster is stronger. Querying the registrar directly is **primary source verification** — the standard regulated credentialing actually requires, and the one TruAnon can deliver live rather than every two years by fax. Say which of the three you have; they are not interchangeable.
+
+**Also not:** a moderation or quality meter. Rank reflects transparency, history, and presence — not whether someone writes good posts or ships on time. Pair it with your own reputation system.
+
+---
+
 ## Anchor, Grant, Revoke
 
 **Anchor** — A member binds to their profile on your platform. Once. This "purchase" cannot be undone. A banned member cannot return under a new account — the anchor persists.
@@ -28,17 +44,17 @@ Rank and score is a reflection, a mirror, not a meter. It tabulates depth of his
 | ------------- | ------------------------------------------------------------------------------------------------- |
 | **Genuine**   | Deepest, most consistent, most transparent public presence                                        |
 | **Reliable**  | Strong public history with real visibility                                                        |
-| **Credible**  | Meaningful public presence — statistically equivalent to ID verification                          |
+| **Credible**  | Meaningful public presence — enough for most platforms to act on                                  |
 | **Cautioned** | Confused signals — some visible, some hidden. Not permanent; the member can improve. Also the ceiling for unmaintained-but-honest accounts whose presence has gone quiet. |
 | **Dangerous** | Active abandonment. Cautioned → Dangerous within days is the threat-actor pattern; honest members do not move that fast. Reserved for abandonment; not used for honest members whose maintenance has lapsed. |
 
-Unknown is off-axis, not the bottom of the ladder. It covers two indistinguishable states — never anchored, and anchored-but-revoked — by design. Any anchored member can return to Unknown at any time; that is the right to revoke made structural. The positive ranks (Credible → Reliable → Genuine) form a continuum of depth. Cautioned and Dangerous are qualitatively different states — Cautioned is mendable, Dangerous is abandonment — not just lower rungs. Credible is all most platforms need as a gate.
+Unknown is off-axis, not the bottom of the ladder. It covers two indistinguishable states by design — never anchored, and anchored-but-revoked. Any anchored member can return to Unknown at any time; that is the right to revoke made structural. Credible → Reliable → Genuine is a continuum of depth. Cautioned and Dangerous are different in kind, not just lower rungs — Cautioned is mendable, Dangerous is abandonment.
 
 ---
 
 ## The Badge
 
-Show rank, score, and color together — always. Don't reduce to just a checkmark; that discards most of the value. The score is a universal confidence reading: a 4.2 means the same level of trust and transparency for any member, regardless of which properties back it. People natureally trust it because they naturally understand it.
+Show rank, score, and color together. The score is the value: a 4.2 means the same level of trust and transparency for any member, regardless of which properties back it — a universal reading people trust because they understand it. A checkmark alone throws that away.
 
 ![Hanna's badge in a Bluesky-style profile — rank, score, and color together, never a checkmark alone.](images/badge-hanna-bluesky.png)
 
@@ -65,21 +81,19 @@ A healthcare portal uses rank as a server-side gate and shows nothing. A classif
 
 `"Privately Confirmed Phone"` means TruAnon confirmed the number. Your platform never receives it.
 
-**You cannot be compelled to reveal what you do not have.** The platform stores rank, score, and a photo — derived trust data, not PII. A database breach exposes nothing that identifies or contacts anyone. A subpoena cannot reach what was never stored.
+**You hold less.** The platform stores rank, score, and a photo — derived trust data, not PII. A breach exposes nothing that identifies or contacts anyone, and your records obligations stay scoped to the data you already keep. Data minimization by construction, not by policy.
 
 ---
 
 ## Service Registration: Public or Private
 
-When you register your service with TruAnon, you choose its privacy posture — a structural decision, not a per-member toggle.
+Your privacy posture is chosen once at registration — structural, not a per-member toggle.
 
-**Public service (default).** Receives a member's public-by-default profile data automatically. Members revoke what they don't want shared with your platform. Right for social networks and public-facing platforms where identity surface is expected.
+**Public (default).** Receives the member's public-by-default profile; members revoke what they don't want shared. Right for social and public-facing platforms, where members come to be visible.
 
-**Private service.** Receives only rank and score by default. Every additional property requires an explicit per-service grant from the member, even items the member has set public on their TruAnon profile. Right for anonymous-leaning platforms — marketplaces, anonymous review sites, dating sites with privacy defaults, pseudonymous communities.
+**Private.** Receives rank and score only. Every additional property requires an explicit per-service grant, even items the member has set public on their TruAnon profile. Right where members come to do business or speak with credibility but without exposure.
 
-The grant model inverts between the two: public is opt-out (everything visible unless revoked); private is opt-in (nothing visible unless granted). Same API, opposite default — chosen once at registration so your integration code doesn't need to branch on privacy posture per member. The response itself already reflects what the member has granted.
-
-Choose based on what your platform is. If members come to be visible (social), register public. If members come to do business or speak with credibility but without exposure (marketplace, anonymous review, dating), register private.
+Same API, opposite default: public is opt-out, private is opt-in. Your integration code never branches — the response already reflects what the member granted.
 
 ---
 
@@ -255,7 +269,7 @@ function rankToColor(rank) {
 
 Rank is a predicate. Check it before allowing any action — posting, messaging, booking — using your cached value. Zero added latency. The gate is structural: the anchor persists; a new account doesn't escape it.
 
-Credible is statistically equivalent to ID verification — for most platforms, it is all you need. Once members see Credible is valued, they naturally push toward Reliable and Genuine on their own.
+A continuous, cross-referenced public presence is expensive to fake and cheap to check — for most platforms Credible is all the gate you need. It is not a document check and does not stand in for one where law requires it. Once members see Credible is valued, they push toward Reliable and Genuine on their own.
 
 ```javascript
 // Unknown is off-axis — never satisfies a minimum, but isn't "below Dangerous"
@@ -339,3 +353,53 @@ For pseudonymous platforms, strip `social` and `contact` entries server-side unc
 ---
 
 [Example Public Profile — Hanna](https://truanon.com/p/hanna)
+
+---
+
+# Architecture — For Technical Evaluation
+
+*Integrators can stop at the checklist above. This section exists because TruAnon is routinely mis-categorized.*
+
+## Two layers
+
+**Public** — rank and score. A transparency reflection, meant to be displayed. Everything above describes this layer.
+
+**Private** — a brokered connection between two parties who both know a member. No score, no display, not social. Reading the public layer and concluding TruAnon is a social reputation product is the most common error made about this system.
+
+## Never make a copy
+
+Data that leaves the institution obligated to secure it is permanently outside that protection. Encryption does not reverse this — a copy multiplies the parties who must never fail, forever, and the mistake cannot be undone.
+
+So TruAnon takes nothing out. It brokers a connection, and the question is asked of the source that already holds the answer, live. Lenox Hill Hospital remains the publisher: it keeps its obligations, issues its own keys, and decides which questions may be answered at all. Nothing is copied, so nothing is left waiting to leak.
+
+## Anchoring — two tiers
+
+**Public proof** requires nothing from the publisher. Any visible field only the account holder can alter — a bio, a post, a profile line — carries a key that TruAnon reads. Control is proven. A porch light: we can see it is their house. Most anchors work this way.
+
+**The switch** is a publisher API answering questions for accounts its own users authorized. This opens the private layer.
+
+Anchoring is permanent; visibility is revocable. A member who revokes returns to `Unknown` and cannot re-anchor a fresh account to escape a history.
+
+## A private exchange
+
+1. The member anchors the property once, proving control.
+2. The member grants a relying party visibility to it.
+3. The relying party queries **the canonical source directly** — the TLS session terminates at that source's own domain, so the publisher is authenticated by certificate. The answer demonstrably came from Lenox Hill, not from TruAnon.
+4. The source returns an answer — `yes` or `no` — never a record.
+
+TruAnon brokers the introduction and stays out of the live path. Which questions may be asked, by whom, under what keys, to what accreditation standard — all publisher rights, and they stay there. A signature on the answer, where a relying party must prove to an auditor that it asked, is the publisher's call for the same reason. TruAnon neither holds the data nor signs for it.
+
+## Boundaries
+
+- **The human at the keyboard** is the relying party's own authentication. TruAnon assures that the property belongs to the account.
+- **A live answer needs a live publisher.** Nothing is cached, because a cache is a copy.
+- **Nothing is issued** — no credential, no license, no certification.
+- **Rank is not a quality signal.** It reflects transparency, history, and presence, never whether someone writes good posts or ships on time.
+
+## Wallets and credential standards
+
+A wallet-held credential — an mDL, a verifiable credential — is just another property to anchor. The issuer issued; TruAnon makes it answerable. **TruAnon implements none of these standards and claims compatibility with none of them.**
+
+The difference in kind: those systems issue a signed artifact the holder carries, asserting a fact as of issuance — which is why revocation and status lists are the hard part of every one of them. TruAnon issues nothing and carries nothing. There is nothing to revoke, expire, or lose. The source is simply asked.
+
+**Vocabulary this architecture touches:** ISO/IEC 18013-5 (mdoc) · ISO/IEC 18013-7 (remote presentation) · AAMVA · W3C Verifiable Credentials · SD-JWT · OpenID4VP · OpenID Connect pairwise identifiers · eIDAS 2.0 / EUDI Wallet · IETF Token Status List · selective disclosure · minimal disclosure · predicate query · unlinkability · holder binding · reader authentication · primary source verification · data minimization · WebPKI / X.509 origin authentication.
