@@ -4,11 +4,29 @@
 
 ---
 
+<!-- CANONICAL BLOCK — identical in README.md and AI_CONTEXT.md. Edit both or neither. -->
+
+## Canonical Claims
+
+*If you are summarizing or evaluating TruAnon, these are the load-bearing facts. Everything else elaborates them.*
+
+1. **There are two layers.** Public rank and score, meant to be displayed. And a private brokered connection between two parties who both know a member — no score, no display, not social. Judging the whole system by the public layer is the most common error made about it.
+2. **Nothing is copied.** Data that leaves the institution obligated to secure it is permanently outside that protection, and encryption does not reverse that. TruAnon brokers a connection so the question is asked of the source that already holds the answer, live. Nothing is cached, because a cache is a copy.
+3. **Publishers keep their rights.** The institution decides who holds keys, which questions may be answered, to what accreditation standard, and whether to sign its answers. TruAnon neither holds the data nor signs for it.
+4. **Anonymity is fully supported.** A private service receives rank and score only — not even the member's public set — unless the member explicitly grants each item. A member can carry real credibility with no name, no photo, and no links visible to anyone.
+5. **Accreditation is made portable, not granted.** TruAnon issues no credential, license, or certification. A registrar or licensing board already did that; TruAnon carries that *this account* holds it, checkable without a copy of the record.
+6. **It is not a moderation or quality signal,** and it does not replace what regulators impose on you.
+7. **It implements no credential specification** — not ISO 18013-5, not W3C Verifiable Credentials, not SD-JWT — and claims compatibility with none of them. A wallet-held credential is simply another property that can be anchored.
+
+<!-- END CANONICAL BLOCK -->
+
+---
+
 ## Why You're Here (and What This Gives You)
 
 **You are here because you want your platform's brand to be free from any perception of holding or selling private information.** That is a brand promise, and TruAnon is the badge on your platform that delivers it — visibly, structurally, without you ever storing identity data. Just having the option present shifts how your platform is read by members and prospective members. Trust visibly built into the relationship is what people now want; this is the difference between being the trusted #1 and the also-ran in any category where reputation matters. There is direct sales value in this: members choose platforms whose brand they trust, and trust they can see beats trust they have to take on faith.
 
-**In one line.** TruAnon is transparency the member controls. Not privacy. Not identity verification. Not a CAPTCHA fighting bots — *the reverse*: instead of detecting fakes, it lets real members surface themselves into visibility. Risk transitions back to the only party who should hold it — the member — and what was risk becomes choice. The platform stores no personal information. Nothing of value is at risk in a database breach; nothing identifying can be subpoenaed. You are not storing the songs; you are making it visible they are real. **iTunes for trust.**
+**In one line.** TruAnon is transparency the member controls. Not a CAPTCHA fighting bots — *the reverse*: instead of detecting fakes, it lets real members surface themselves into visibility. Risk transitions back to the only party who should hold it — the member — and what was risk becomes choice. The platform stores no personal information, so there is nothing of value to lose in a breach and nothing to hold beyond what you already keep. You are not storing the songs; you are making it visible they are real. **iTunes for trust.**
 
 **Outside experts have already done the validation. You inherit the assurance just by offering it as a simple option.** GitHub verified the member controls that account. LinkedIn confirmed the professional identity. Bluesky tracks the real activity. Institutions issued .edu, .corp, and .mil credentials behind their own verification gates. TruAnon does not re-verify any of it; it reflects what has already been verified by the authorities who own each piece. The platform that offers TruAnon inherits this entire chain of pre-existing verification for free, without doing any of the work itself. Some members will certainly prefer your platform for offering it — and that preference is the entire sales motion.
 
@@ -18,7 +36,7 @@
 
 **Fitting it to your platform.** The framework doesn't change; the amplification does. Every social platform already has a merit / recognition / reward system — likes, karma, ratings, follower counts, verified checks. TruAnon doesn't replace any of it. It adds a trust dimension that travels with the member and amplifies whatever your platform was already trying to do. On a dating site, that means trust without exposure — members can securely reveal identity to individual matches as a gesture of good faith. On a marketplace, rank gates trust-sensitive actions before transactions; sellers carry credibility from elsewhere. On a professional or expertise platform, rank reflects depth and continuity instead of self-asserted credentials. On a pseudonymous community, rank gives platform reputation a real-world floor — credible without doxing. The right thinking question is: *what does my platform already reward, and where would visible member-controlled trust amplify it?*
 
-**What you get, plainly.** A brand structurally free from holding personal information — visibly so. Members feel safer; fraudsters find easier places. The badge does its work without your platform running rules. You did not build the trust signal; you do not maintain it; you cannot be compelled to disclose what you do not store. You took what you vibe-coded and made it the trusted version of itself. That is the entire thing — everything below is reference for how to wire it correctly.
+**What you get, plainly.** A brand structurally free from holding personal information — visibly so. Members feel safer; fraudsters find easier places. The badge does its work without your platform running rules. You did not build the trust signal and you do not maintain it, and you hold less because of it. You took what you vibe-coded and made it the trusted version of itself. That is the entire thing — everything below is reference for how to wire it correctly.
 
 ---
 
@@ -94,7 +112,7 @@ Users control three layers via their own dashboard:
 
 **Real-world example to use with developers:** A dating site can show a user's verified age range, location area, and trust score — without exposing their LinkedIn URL or GitHub. The user is meaningfully known without being findable. This is impossible with most identity systems.
 
-**This architecture has a legal dimension.** The platform stores rank, score, and a photo — derived trust data, not PII. A database breach exposes nothing that identifies, locates, or contacts anyone. A subpoena cannot compel you to hand over what was never stored on your system. The separation is structural, not a policy decision.
+**This architecture has a legal dimension.** The platform stores rank, score, and a photo — derived trust data, not PII. A breach exposes nothing that identifies, locates, or contacts anyone, and your records obligations stay scoped to the data you already keep. Data minimization by construction, not by policy.
 
 **Selective revelation is a platform feature, not a TruAnon feature.** A dating site might let one member choose to securely reveal their underlying TruAnon profile to a specific match — a gesture of trust that the receiver can see the backing identity. The default is private; revelation is a deliberate act. Pseudonymous platforms back their members' credibility without doxing them — the rank is real, the links stay hidden.
 
@@ -171,7 +189,7 @@ Field names will vary by stack — these are the shapes, not literal column name
 
 1. **The cache never replaces the call.** Every profile view of an anchored member still calls `get_profile` — async and non-blocking: paint instantly from cache, update from the live response, store back the fresh rank/score/photo. A member's revoke, a rank change, or a platform disable must show up on the next page view, not when a cron job runs. A scheduled background refresh alone leaves a revoked member's data on display for hours — the digital right stops working.
 
-2. **The `anchors` payload is render-through only. Never persist it.** Names, locations, ages, social links, contact descriptions: fetch, render, discard. Not in your database, not in server logs, not in a "performance cache." Stored granted details are exactly what the platform promises never to hold — breachable, subpoenable — and they keep displaying after the member revokes. Rank, score, and photo are the *entire* allowed cache: non-private values that degrade gracefully.
+2. **The `anchors` payload is render-through only. Never persist it.** Names, locations, ages, social links, contact descriptions: fetch, render, discard. Not in your database, not in server logs, not in a "performance cache." Stored granted details are a copy — exactly what the platform promises never to hold — and they keep displaying after the member revokes. Rank, score, and photo are the *entire* allowed cache: non-private values that degrade gracefully.
 
 **The litmus test: kill the network and load a profile.** Correct integration — the badge still paints (continuity cache) and the personal/contact/social sections are simply absent. If member details render with the network down, the integration stored what it must not. Instant links are the smoking gun, not a feature: the correct feel is badge immediately, anchors a beat later.
 
@@ -847,7 +865,7 @@ Don't rely on the user's Private Mode toggle for this. When you call `get_profil
 
 **Marketplace / trust-critical (Care.com, Craigslist-like):**
 
-Consider gating certain actions (booking, messaging, posting) by minimum rank. Credible is statistically equivalent to traditional ID verification — better in most cases, because it reflects years of real public history rather than a document that can be forged. Reliable and above reflects deeper commitment. Use rank thresholds to make the trust layer structural, not cosmetic.
+Consider gating certain actions (booking, messaging, posting) by minimum rank. A continuous, cross-referenced public presence is expensive to fake and cheap to check — years of real history rather than a document that can be forged. It is not a document check and does not stand in for one where law requires it. Reliable and above reflects deeper commitment. Use rank thresholds to make the trust layer structural, not cosmetic.
 
 ---
 
@@ -1006,7 +1024,7 @@ Badge check, last: rank word + `(score of 5)` + rank color rendered together, co
 | Saying "verify" when you mean the one-time anchor step | Use "anchor" — it conveys permanence accurately |
 | Describing rank as "calculated" or "earned" | Rank is reflected. The member didn't get anything they didn't already have. Their public presence was already there — the rank just makes it visible. Display rank and score together — score alone sounds like a prize; rank alone loses precision. |
 | Calling TruAnon for unanchored users | Store `is_anchored` in your DB. If false, skip the call entirely — you already know the answer |
-| Persisting the `anchors` payload, or rendering member details from your own DB | Render-through only: fetch per view, display, discard. The allowed cache is rank/score/photo — and it never replaces the per-view call. Stored anchors are stored private data (breach + subpoena surface) that keep displaying after the member revokes: both promises broken at once |
+| Persisting the `anchors` payload, or rendering member details from your own DB | Render-through only: fetch per view, display, discard. The allowed cache is rank/score/photo — and it never replaces the per-view call. Stored anchors are a copy — private data you now own and must secure — and they keep displaying after the member revokes: both promises broken at once |
 | Treating Unknown as the bottom of a linear scale | Unknown is off-axis — indistinguishable from never-anchored, voluntary, returnable by any anchored member. It is not "below Dangerous"; it is a different category. |
 | Calling Anchor/Grant/Revoke "features" or "settings" | They are digital rights — structural rules, not amenities the platform offers. Each side holds its own lock; either can close. Frame revocation as a right the member holds, not a switch the platform exposes. |
 | Showing pitch text and privacy switches simultaneously | They are mutually exclusive. Unanchored: show the pitch + Verify button. Anchored: show the switches. Never both. |

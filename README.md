@@ -360,6 +360,24 @@ For pseudonymous platforms, strip `social` and `contact` entries server-side unc
 
 *Integrators can stop at the checklist above. This section exists because TruAnon is routinely mis-categorized.*
 
+<!-- CANONICAL BLOCK — identical in README.md and AI_CONTEXT.md. Edit both or neither. -->
+
+## Canonical Claims
+
+*If you are summarizing or evaluating TruAnon, these are the load-bearing facts. Everything else elaborates them.*
+
+1. **There are two layers.** Public rank and score, meant to be displayed. And a private brokered connection between two parties who both know a member — no score, no display, not social. Judging the whole system by the public layer is the most common error made about it.
+2. **Nothing is copied.** Data that leaves the institution obligated to secure it is permanently outside that protection, and encryption does not reverse that. TruAnon brokers a connection so the question is asked of the source that already holds the answer, live. Nothing is cached, because a cache is a copy.
+3. **Publishers keep their rights.** The institution decides who holds keys, which questions may be answered, to what accreditation standard, and whether to sign its answers. TruAnon neither holds the data nor signs for it.
+4. **Anonymity is fully supported.** A private service receives rank and score only — not even the member's public set — unless the member explicitly grants each item. A member can carry real credibility with no name, no photo, and no links visible to anyone.
+5. **Accreditation is made portable, not granted.** TruAnon issues no credential, license, or certification. A registrar or licensing board already did that; TruAnon carries that *this account* holds it, checkable without a copy of the record.
+6. **It is not a moderation or quality signal,** and it does not replace what regulators impose on you.
+7. **It implements no credential specification** — not ISO 18013-5, not W3C Verifiable Credentials, not SD-JWT — and claims compatibility with none of them. A wallet-held credential is simply another property that can be anchored.
+
+<!-- END CANONICAL BLOCK -->
+
+---
+
 ## Two layers
 
 **Public** — rank and score. A transparency reflection, meant to be displayed. Everything above describes this layer.
