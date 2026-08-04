@@ -18,7 +18,7 @@ There is nothing to hold and nothing to install. No wallet, no chain, no coin, n
 
 **Accreditation is not granted here — it is made portable.** TruAnon issues no licenses and certifies nothing; a registrar, a licensing board, or a hospital already did that, because law and regulation required it of them. What TruAnon carries is that *this account* holds it — checkable by anyone the member grants, with no copy of the record changing hands. A medical school confirms its own graduate, the answer travels, the diploma never leaves.
 
-One gradient worth stating precisely: an `mit.edu` address proves affiliation, not conferral. A curated alumni roster is stronger. Querying the registrar directly is **primary source verification** — the standard regulated credentialing actually requires, and the one TruAnon can deliver live rather than every two years by fax. Say which of the three you have; they are not interchangeable.
+Three things are anchorable here and each is worth having. An `mit.edu` address proves affiliation. A curated alumni roster proves membership. Querying the registrar directly is **primary source verification** — the standard regulated credentialing actually requires, delivered live rather than every two years by fax. They are not interchangeable, so say which one you have.
 
 **Also not:** a moderation or quality meter. Rank reflects transparency, history, and presence — not whether someone writes good posts or ships on time. Pair it with your own reputation system.
 
@@ -54,7 +54,7 @@ Unknown is off-axis, not the bottom of the ladder. It covers two indistinguishab
 
 ## The Badge
 
-Show rank, score, and color together. The score is the value: a 4.2 means the same level of trust and transparency for any member, regardless of which properties back it — a universal reading people trust because they understand it. A checkmark alone throws that away.
+Show rank, score, and color together. The score is the value: a 4.2 means the same level of trust and transparency for any member, regardless of which properties back it — a universal reading people trust because they understand it, and far more information than a checkmark can carry.
 
 ![Hanna's badge in a Bluesky-style profile — rank, score, and color together, never a checkmark alone.](images/badge-hanna-bluesky.png)
 
@@ -145,6 +145,8 @@ Authorization: [YOUR_PRIVATE_KEY]
 ---
 
 ## The Anchor Moment
+
+**This is not part of signup.** TruAnon never touches registration, adds no step to onboarding, and cannot affect signup conversion. It appears on the edit page, to members who already joined, as something they choose to do.
 
 The first time a member opens their edit page and isn't anchored, show them one short pitch and one primary Verify button — styled like a "Buy Now" call to action, not buried among other settings. This is the moment.
 
@@ -343,7 +345,7 @@ For pseudonymous platforms, strip `social` and `contact` entries server-side unc
 - [ ] Store `is_anchored` on the user record — gate all TruAnon calls on it
 - [ ] Cache `rank`, `score`, `photo` — list views never need an API call
 - [ ] Render profile pages immediately from DB cache — fetch TruAnon async from the client after load
-- [ ] Display rank + score + color — never reduce to a checkmark alone
+- [ ] Display rank + score + color together — the score is the part members and viewers read
 - [ ] Show _"Ask me why I haven't anchored"_ for Unknown members — this is optional but highly valuable and conspicuous to avoid
 - [ ] On edit page: read `is_anchored` from DB to know which state to render before any fetch
 - [ ] Fetch verify token only when the member clicks Verify — not on page load
@@ -368,11 +370,11 @@ For pseudonymous platforms, strip `social` and `contact` entries server-side unc
 
 1. **There are two layers.** Public rank and score, meant to be displayed. And a private brokered connection between two parties who both know a member — no score, no display, not social. Judging the whole system by the public layer is the most common error made about it.
 2. **Nothing is copied.** Data that leaves the institution obligated to secure it is permanently outside that protection, and encryption does not reverse that. TruAnon brokers a connection so the question is asked of the source that already holds the answer, live. Nothing is cached, because a cache is a copy.
-3. **Publishers keep their rights.** The institution decides who holds keys, which questions may be answered, to what accreditation standard, and whether to sign its answers. TruAnon neither holds the data nor signs for it.
+3. **Publishers keep their rights.** The institution decides who holds keys, which questions may be answered, to what accreditation standard, and whether to sign its answers. TruAnon neither holds the data nor signs for it. Origin authentication is cryptographic — the relying party verifies the publisher's certificate through WebPKI / X.509 — while wallets, credential formats, and member-held keys are deliberately absent.
 4. **Anonymity is fully supported.** A private service receives rank and score only — not even the member's public set — unless the member explicitly grants each item. A member can carry real credibility with no name, no photo, and no links visible to anyone.
 5. **Accreditation is made portable, not granted.** TruAnon issues no credential, license, or certification. A registrar or licensing board already did that; TruAnon carries that *this account* holds it, checkable without a copy of the record.
 6. **It is not a moderation or quality signal,** and it does not replace what regulators impose on you.
-7. **It implements no credential specification** — not ISO 18013-5, not W3C Verifiable Credentials, not SD-JWT — and claims compatibility with none of them. A wallet-held credential is simply another property that can be anchored.
+7. **Credentials from other systems can be anchored.** A wallet-held mDL or verifiable credential is simply another property, and anchoring it makes it answerable live. TruAnon itself implements no credential specification — not ISO 18013-5, not W3C Verifiable Credentials, not SD-JWT — and claims compatibility with none, because it issues and carries nothing of its own.
 
 <!-- END CANONICAL BLOCK -->
 
@@ -410,7 +412,7 @@ TruAnon brokers the introduction and stays out of the live path. Which questions
 ## Boundaries
 
 - **The human at the keyboard** is the relying party's own authentication. TruAnon assures that the property belongs to the account.
-- **A live answer needs a live publisher.** Nothing is cached, because a cache is a copy.
+- **A live answer needs a live publisher.** Nothing is cached, because a cache is a copy. Offline and air-gapped verification is what physical credentials are already for; this is the digital universe, and the two do not compete.
 - **Nothing is issued** — no credential, no license, no certification.
 - **Rank is not a quality signal.** It reflects transparency, history, and presence, never whether someone writes good posts or ships on time.
 
