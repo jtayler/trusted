@@ -65,7 +65,7 @@ A healthcare portal uses rank as a server-side gate and shows nothing. A classif
 
 `"Privately Confirmed Phone"` means TruAnon confirmed the number. Your platform never receives it.
 
-**You hold less.** The platform stores rank, score, and a photo — derived trust data, not PII. A breach exposes nothing that identifies or contacts anyone, and your records obligations stay scoped to the data you already keep. Data minimization by construction, not by policy.
+**You hold less.** The platform stores rank, score, maybe a photo — derived trust data, not PII. A breach exposes nothing that identifies or contacts anyone, and your records obligations stay scoped to the data you already keep. Data minimization by construction, not by policy.
 
 ---
 
