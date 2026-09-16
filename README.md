@@ -4,7 +4,7 @@ This simple API keeps your platform safe.
 
 This moves membership from an `Unknown` to a higher value `Credible` state, automatically. Members make it work, because your platform makes it valuable for them to do so. 
 
-[Visit Demo Site](https://devhauz.truanon.com) · [Watch Demo Video](https://vimeo.com/1049232204) · [View Presentation](https://docs.google.com/presentation/d/1MBaGqDw_L_bgJ3y3c-qqSjzDbDutanBYfkpb75pr2pI/present)
+[Visit Demo Site](https://devhauz.truanon.com) · [Watch Demo Video](https://vimeo.com/1049232204) · [View Presentation](https://docs.google.com/presentation/d/1MBaGqDw_L_bgJ3y3c-qqSjzDbDutanBYfkpb75pr2pI/present) · [Merit Recognition and Reward](https://truanon.com/writing/posts/merit-recognition-and-reward/) · [Brand Kit](https://img.truanon.com/MediaKit/truanon-brand-kit-v1/README.html)
 
 ---
 
@@ -38,13 +38,13 @@ Unknown is off-axis, not the bottom of the ladder. It covers two indistinguishab
 
 ## The Badge
 
-Show rank, score, and color together. The score is the value: a 4.2 means the same level of trust and transparency for any member, regardless of which properties back it — a universal reading people trust because they understand it, and far more information than a checkmark can carry.
+On a profile, show the full badge: rank, score, and color together. The score is the value: a 4.2 means the same level of trust and transparency for any member, regardless of which properties back it.
 
-![Hanna's badge in a Bluesky-style profile — rank, score, and color together, never a checkmark alone.](images/badge-hanna-bluesky.png)
+![Hanna's badge in a Bluesky-style profile — rank, score, and color together.](images/badge-hanna-bluesky.png)
 
-The badge is a design canvas: a small pill inline with a username, a card on a profile, or a full achievement. The design is yours.
+Everywhere else, reduce it the way a military ribbon rack does: a rank-colored ring around a photo, a colored check beside a name, or just the rank word. Color alone carries rank. A reduced mark that opens the full rank and score when tapped is richer still. The design is yours. Colors and display examples are in the [Brand Kit](https://img.truanon.com/MediaKit/truanon-brand-kit-v1/README.html); why a visible ladder motivates members is in [Merit Recognition and Reward](https://truanon.com/writing/posts/merit-recognition-and-reward/).
 
-**Achievements:** When a member grants visibility to GitHub, LinkedIn, TikTok, or any type of property, your server can query that platform's API with the verified account. The link may never be shown to viewers — the derived badge is yours to create. "Verified Developer," "Active Creator" — whatever fits your platform. Verified properties are both a display signal and a data source your platform can act on independently.
+**Achievements:** When a member grants visibility to GitHub, LinkedIn, TikTok, or any type of property, your server can query that platform's API with the verified account. The link may never be shown to viewers — the derived badge is yours to create. "Verified Developer," "Active Creator" — whatever fits your platform. Verified properties are both a display signal and a data source your platform can act on independently. These are your ribbons: you award them and can take them back. Rank is different: it is reflected, never awarded.
 
 ---
 
@@ -53,6 +53,8 @@ The badge is a design canvas: a small pill inline with a username, a card on a p
 This is an API that returns structured identity data. You decide what to render — if anything.
 
 A healthcare portal uses rank as a server-side gate and shows nothing. A classifieds platform shows Genuine 4.5 on every listing — no profile page required. A pseudonymous community shows rank next to a username with no identity visible. A dating app shows age range and location, private by default, social links never surfaced to strangers.
+
+**Details carry the rank's weight.** Any claim is only as good as what backs it. An `ageBadge` of "Over 18" from a Credible member is as good as ID; the same badge from a Dangerous member is not. For age-restricted actions, check the age badge and a minimum rank together, using the live `get_profile` response (age is a granted detail, not part of your cache).
 
 `anchors` contains only what the member has granted. Filter by `kind`:
 
@@ -65,7 +67,7 @@ A healthcare portal uses rank as a server-side gate and shows nothing. A classif
 
 `"Privately Confirmed Phone"` means TruAnon confirmed the number. Your platform never receives it.
 
-**You hold less.** The platform stores rank, score, maybe a photo — derived trust data, not PII. A breach exposes nothing that identifies or contacts anyone, and your records obligations stay scoped to the data you already keep. Data minimization by construction, not by policy.
+**You hold less.** The platform stores rank and score — derived trust data, not PII. The `photo` field is optional; you never need to store it. A breach exposes nothing that identifies or contacts anyone, and your records obligations stay scoped to the data you already keep. Data minimization by construction, not by policy.
 
 ---
 
@@ -219,8 +221,8 @@ app.get("/users/:username/truanon", async (req, res) => {
         });
         const data = await response.json();
         db.run(
-            "UPDATE users SET rank = ?, score = ?, photo = ? WHERE username = ?",
-            [data.rank, data.score, data.photo, req.params.username],
+            "UPDATE users SET rank = ?, score = ? WHERE username = ?",
+            [data.rank, data.score, req.params.username],
         );
         res.json(data);
     } catch {
@@ -237,7 +239,7 @@ fetch(`/users/${username}/truanon`)
     .catch(() => {});
 ```
 
-Cache `rank`, `score`, and `photo`. Map rank to color:
+Cache `rank` and `score`. Map rank to color:
 
 ```javascript
 function rankToColor(rank) {
@@ -260,6 +262,8 @@ function rankToColor(rank) {
 Rank is a predicate. Check it before allowing any action — posting, messaging, booking — using your cached value. Zero added latency. The gate is structural: the anchor persists; a new account doesn't escape it.
 
 A continuous, cross-referenced public presence is expensive to fake and cheap to check — for most platforms Credible is all the gate you need. It is not a document check and does not stand in for one where law requires it. Once members see Credible is valued, they push toward Reliable and Genuine on their own.
+
+Gate on the rank word, not a score number. Rank and score are related, but rank follows its own rules, so a score value is not a stand-in for a rank.
 
 ```javascript
 // Unknown is off-axis — never satisfies a minimum, but isn't "below Dangerous"
@@ -301,7 +305,6 @@ make_private:  0 | 1
 // Display cache — paint instantly, no fetch
 rank:       Genuine | Reliable | Credible | Cautioned | Dangerous
 score:      0–5
-photo:      URL
 style:      Checkmark | Ribbon
 updated_at: ISO timestamp
 ```
@@ -331,9 +334,9 @@ For pseudonymous platforms, strip `social` and `contact` entries server-side unc
 - [ ] Register at developer.truanon.com — get `PRIVATE_KEY` and `SERVICE_NAME`
 - [ ] Proxy all TruAnon calls through your server — never expose `PRIVATE_KEY` client-side
 - [ ] Store `is_anchored` on the user record — gate all TruAnon calls on it
-- [ ] Cache `rank`, `score`, `photo` — list views never need an API call
+- [ ] Cache `rank` and `score` — list views never need an API call
 - [ ] Render profile pages immediately from DB cache — fetch TruAnon async from the client after load
-- [ ] Display rank + score + color together — the score is the part members and viewers read
+- [ ] On profiles, show rank + score + color together; elsewhere a colored photo ring or check is enough
 - [ ] Show _"Ask me why I haven't anchored"_ for Unknown members — this is optional but highly valuable and conspicuous to avoid
 - [ ] On edit page: read `is_anchored` from DB to know which state to render before any fetch
 - [ ] Fetch verify token only when the member clicks Verify — not on page load

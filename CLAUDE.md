@@ -45,7 +45,7 @@ Key implementation details:
 - Profile pages render **immediately** from cached DB data; TruAnon data fetches async client-side via `GET /users/:username/truanon`
 - `fetchWithTimeout()` wraps all TruAnon calls to prevent hangs (5–30s timeouts)
 - Rank values: `Genuine`, `Reliable`, `Credible`, `Cautioned`, `Dangerous` — mapped to colors via `getPhotoBorderColor(rank)`
-- `rank`, `score`, and `photo` are cached back to SQLite after each successful fetch
+- `rank` and `score` are cached back to SQLite after each successful fetch (this demo also caches `photo`; that is optional, never required)
 - List/search views render rank from the DB cache — no per-row API calls
 
 ### Privacy Model
@@ -74,7 +74,7 @@ BITBUCKET_TOKEN    # Bitbucket token (demo only)
 
 ## AI Context
 
-**Read `AI_CONTEXT.md` before touching any TruAnon-related code.** It covers:
+**Read `AI_CONTEXT.md` before touching any TruAnon-related code.** For the display philosophy (stars vs. ribbons, reduced marks, age as confidence) see [Merit Recognition and Reward](https://truanon.com/writing/posts/merit-recognition-and-reward/); for rank colors and badge styles see the [Brand Kit](https://img.truanon.com/MediaKit/truanon-brand-kit-v1/README.html). `AI_CONTEXT.md` covers:
 - The Anchor / Grant / Revoke mental model (use this language)
 - What to ignore in this demo app (GitHub/Bitbucket integrations are demo noise, not TruAnon)
 - The real `anchors` JSON shape with `type` and `kind` fields
@@ -91,11 +91,14 @@ BITBUCKET_TOKEN    # Bitbucket token (demo only)
 - Unknown is **off-axis**, not a rank — and not the bottom of a linear scale. It covers two indistinguishable states: never anchored, and anchored-but-revoked. That indistinguishability is by design — it is what makes Revoke a real digital right rather than a stain. Unknown can hide an anchored profile completely; that capability is structural, not a leak. Avoiding is as clear as having it.
 - The ranks are not a single linear ladder. Genuine/Reliable/Credible form a continuum of depth. Cautioned and Dangerous are *qualitative* states — Cautioned is mendable (work-in-progress, member can improve), Dangerous is abandonment. Unknown is off-axis entirely. Read ranks as distinct positions, not points on a line.
 - `is_anchored` is stored on the user record. Gate **all** TruAnon API calls on it — if false, skip the call entirely. You already know the answer.
-- Cache `rank`, `score`, and `photo` in the DB. List views render from cache — no API calls per row.
+- Cache `rank` and `score` in the DB. List views render from cache — no API calls per row. Storing `photo` is optional, never required.
+- Display: the full badge (rank + score + color) belongs on the profile. Elsewhere, reduced marks are encouraged — a rank-colored photo ring (`getPhotoBorderColor`), a colored check, the rank word — like a ribbon rack. The design is the platform's; don't invent display rules beyond this.
 - What you cache is derived trust data, not PII. A DB breach exposes rank/score — nothing that identifies or contacts anyone. A subpoena cannot reach what was never stored.
 - The anchor is permanent and asymmetric. *Visibility* is reversible — a member can revoke and return to Unknown — but the **anchor itself cannot be undone**. A banned member cannot re-anchor under a new account. For honest members anchoring is a gesture of good faith; for fraudsters a binding liability — they self-select out.
 - The pre-anchor edit-page UI is one short pitch + one primary Verify button — styled like a "Buy Now" CTA, not buried among settings. Mental model: PayPal Checkout — one popup, one time, the member takes ownership of a permanent binding. Mutually exclusive with the privacy switches: show the pitch when `is_anchored = false`, switches when `is_anchored = true`, never both.
 - Anchor, Grant, and Revoke are **digital rights** — operative rules of the digital world, not features the platform turns on. The central question is *who can cut the cord?* Always the member, from their side. Asymmetric consent: each side holds its own lock, like the adjoining doors between hotel rooms — both must be open for movement, either can close. Never describe these as settings, switches, or freedoms the platform grants. They are structural.
-- Rank is a gate predicate, not just a display value. Check it before allowing posts, messages, bookings. Credible is statistically equivalent to ID verification.
+- Rank is a gate predicate, not just a display value. Check it before allowing posts, messages, bookings. Credible is statistically equivalent to ID verification. Gate on the rank word, never a score threshold; rank follows its own rules.
+- Granted details carry the weight of the rank behind them. "Over 18" from a Dangerous member is not trustworthy, so age-restricted actions check the age badge and a minimum rank together.
+- Platform-awarded ribbons (Top Seller, Verified Developer) are the platform's to award and take back. Rank is reflected, never awarded.
 - For pseudonymous platforms: strip `social` and `contact` kind entries server-side before the response leaves your server. Never rely on client-side.
 - `primary` kind entries (`phone`, `email`) have descriptions as `display`, not raw values. "Privately Confirmed Phone" means confirmed — not exposed.

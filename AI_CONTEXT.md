@@ -57,7 +57,7 @@ The Node.js demo at github.com/jtayler/trusted is a **sloppy test app** — inte
 - `fetchWithTimeout()` wrapper around all TruAnon calls
 - The three privacy switches in edit UI
 - Never exposing `PRIVATE_KEY` client-side
-- Caching `rank`, `score`, and `photo` in your DB for display continuity
+- Caching `rank` and `score` in your DB for display continuity (storing `photo` is never required)
 
 When helping a developer integrate TruAnon into their platform, do not suggest they replicate the GitHub/Bitbucket pattern. Strip it entirely.
 
@@ -83,12 +83,12 @@ The closest (imperfect) analogy is the adjoining doors between hotel rooms: each
 
 ### The Social Mechanic That Makes It Self-Reinforcing
 
-The badge is not just a checkmark. It shows:
+The full badge shows:
 - **A rank** (Genuine, Reliable, Credible, Cautioned, Dangerous)
 - **A confidence reading** (e.g., 5.0 — how strongly that rank is held)
 - **A color** (visual trust signal at a glance)
 
-Show all three together. Never reduce to a checkmark — that discards most of the value.
+On a profile, show all three together. Elsewhere, reduced marks carry rank the way a military ribbon rack does — a rank-colored photo ring, a colored check, the rank word.
 
 Members who haven't anchored don't just show as blank — the intended UI pattern is something like **"Ask me why I haven't anchored."** This makes absence conspicuous in a constructive way. Avoiding is as clear as having it. On a platform where most members anchor, an Unknown profile is conspicuous — not because the platform penalizes it, but because others notice. That's what drives organic adoption.
 
@@ -112,7 +112,9 @@ Users control three layers via their own dashboard:
 
 **Real-world example to use with developers:** A dating site can show a user's verified age range, location area, and trust score — without exposing their LinkedIn URL or GitHub. The user is meaningfully known without being findable. This is impossible with most identity systems.
 
-**This architecture has a legal dimension.** The platform stores rank, score, and a photo — derived trust data, not PII. A breach exposes nothing that identifies, locates, or contacts anyone, and your records obligations stay scoped to the data you already keep. Data minimization by construction, not by policy.
+**Details carry the rank's weight.** A photo ID is a single claim, easy to fake and cheap to steal. A granted detail is backed by the member's whole report instead: "Over 18" from a Credible member is as good as ID, and the same badge from a Dangerous member is not. For age-restricted actions, check the age badge and a minimum rank together, from the live `get_profile` response.
+
+**This architecture has a legal dimension.** The platform stores rank and score — derived trust data, not PII. A breach exposes nothing that identifies, locates, or contacts anyone, and your records obligations stay scoped to the data you already keep. Data minimization by construction, not by policy.
 
 **Selective revelation is a platform feature, not a TruAnon feature.** A dating site might let one member choose to securely reveal their underlying TruAnon profile to a specific match — a gesture of trust that the receiver can see the backing identity. The default is private; revelation is a deliberate act. Pseudonymous platforms back their members' credibility without doxing them — the rank is real, the links stay hidden.
 
@@ -178,7 +180,6 @@ make_private:  0 | 1
 // Display cache — paint instantly, no fetch
 rank:       Genuine | Reliable | Credible | Cautioned | Dangerous
 score:      0–5
-photo:      URL
 style:      Checkmark | Ribbon
 updated_at: ISO timestamp
 ```
@@ -187,9 +188,9 @@ Field names will vary by stack — these are the shapes, not literal column name
 
 **Two rules make this cache safe. Break either and the integration is wrong:**
 
-1. **The cache never replaces the call.** Every profile view of an anchored member still calls `get_profile` — async and non-blocking: paint instantly from cache, update from the live response, store back the fresh rank/score/photo. A member's revoke, a rank change, or a platform disable must show up on the next page view, not when a cron job runs. A scheduled background refresh alone leaves a revoked member's data on display for hours — the digital right stops working.
+1. **The cache never replaces the call.** Every profile view of an anchored member still calls `get_profile` — async and non-blocking: paint instantly from cache, update from the live response, store back the fresh rank and score. A member's revoke, a rank change, or a platform disable must show up on the next page view, not when a cron job runs. A scheduled background refresh alone leaves a revoked member's data on display for hours — the digital right stops working.
 
-2. **The `anchors` payload is render-through only. Never persist it.** Names, locations, ages, social links, contact descriptions: fetch, render, discard. Not in your database, not in server logs, not in a "performance cache." Stored granted details are a copy — exactly what the platform promises never to hold — and they keep displaying after the member revokes. Rank, score, and photo are the *entire* allowed cache: non-private values that degrade gracefully.
+2. **The `anchors` payload is render-through only. Never persist it.** Names, locations, ages, social links, contact descriptions: fetch, render, discard. Not in your database, not in server logs, not in a "performance cache." Stored granted details are a copy — exactly what the platform promises never to hold — and they keep displaying after the member revokes. Rank and score are the *entire* required cache (a `photo` only if you choose to show one): non-private values that degrade gracefully.
 
 **The litmus test: kill the network and load a profile.** Correct integration — the badge still paints (continuity cache) and the personal/contact/social sections are simply absent. If member details render with the network down, the integration stored what it must not. Instant links are the smoking gun, not a feature: the correct feel is badge immediately, anchors a beat later.
 
@@ -399,7 +400,7 @@ The badge is a design canvas, not a prescribed widget. It can be:
 - **A profile card element** — rank, score, verified properties, link to TruAnon profile
 - **An achievement** — a large platform-specific award derived from verified data
 
-The minimum is **rank + score + color, all three together**. Never reduce to a checkmark — that discards most of the value. The rank and score are what make the badge meaningful and comparable across users. Beyond that, the design is entirely yours.
+On a profile, show **rank + score + color together** — the rank and score are what make the badge meaningful and comparable across users. Everywhere else, reduce it the way a military ribbon rack does: a rank-colored ring around a photo, a colored check beside a name, or the rank word. A reduced mark that opens the full rank and score when tapped is richer still. Beyond that, the design is entirely yours. Rank colors and display examples: [Brand Kit](https://img.truanon.com/MediaKit/truanon-brand-kit-v1/README.html). Why a visible ladder motivates members (stars vs. ribbons, reduced marks, age as confidence): [Merit Recognition and Reward](https://truanon.com/writing/posts/merit-recognition-and-reward/).
 
 The proven starting point is the **two-layer pill**: rank word as the dominant layer, `(score of 5)` as the quieter layer beneath or beside it, the whole pill tinted with the rank color. One glance carries all three signals. The rank→color mapping is fixed — don't invent your own:
 
@@ -410,11 +411,11 @@ The proven starting point is the **two-layer pill**: rank word as the dominant l
 | Credible | `secondary` (gray) |
 | Cautioned | `warning` (yellow) |
 | Dangerous | `danger` (red) |
-| Unknown | `secondary`, muted |
+| Unknown | `light` (muted gray, distinct from Credible) |
 
 ![Two-layer pill badge inline on a profile.](images/badge-hanna-bluesky.png)
 
-Adapt the pill to the host site's own components (Bootstrap `btn-outline-*`, a Tailwind chip, a native view) rather than importing foreign styles — the badge should look like it belongs to the platform while keeping rank + score + color inseparable. Private Mode renders the same pill non-clickable; otherwise it links to the member's TruAnon profile (the `type: "truanon"` anchor's `display` value).
+Adapt the pill to the host site's own components (Bootstrap `btn-outline-*`, a Tailwind chip, a native view) rather than importing foreign styles — the badge should look like it belongs to the platform while keeping rank + score + color together on the full badge. Private Mode renders the same pill non-clickable; otherwise it links to the member's TruAnon profile (the `type: "truanon"` anchor's `display` value).
 
 ### Achievements from Verified Properties
 
@@ -428,7 +429,7 @@ This is how platform-specific achievements work:
 4. You decide whether to award a badge — "Verified Developer," "Open Source Contributor," whatever fits your platform
 5. Show the achievement — without ever showing the GitHub URL to viewers
 
-The verified account is the source of truth. The platform decides what to do with that signal. The member controls whether the underlying property is visible; the platform's derived achievement is a separate design decision.
+The verified account is the source of truth. The platform decides what to do with that signal. The member controls whether the underlying property is visible; the platform's derived achievement is a separate design decision. Think of achievements as ribbons the platform awards and can take back, while rank is reflected and never awarded.
 
 **This is not just trust and safety.** A dating site can show "Uses TikTok" — without showing the account — because the member's TikTok was verified. An AI referral system can use verified public data as grounded context for matching. The verified property is both a display signal and a data source your platform can act on.
 
@@ -487,9 +488,9 @@ app.get('/users/:username/truanon', async (req, res) => {
     try {
         const response = await fetchWithTimeout(url, { headers: { Authorization: privateKey } });
         const data = await response.json();
-        // Update your DB cache with latest rank/photo
-        db.run('UPDATE users SET rank = ?, score = ?, photo = ? WHERE username = ?',
-            [data.rank, data.score, data.photo, req.params.username]);
+        // Update your DB cache with latest rank/score
+        db.run('UPDATE users SET rank = ?, score = ? WHERE username = ?',
+            [data.rank, data.score, req.params.username]);
         res.json(data);
     } catch (err) {
         res.status(503).json({ error: 'TruAnon unavailable' }); // client shows cached state
@@ -1007,7 +1008,7 @@ Symptoms and what they actually mean:
 | Anchored member suddenly returns Unknown | The member revoked visibility — their right, indistinguishable from never-anchored by design. Show the Unknown state; don't "fix" it. |
 | Links and member details render instantly (0ms), or render with the network down | They're coming from your database — the `anchors` payload was persisted. That stores private data the platform must never hold and keeps displaying it after a revoke. Delete the stored copies; fetch-render-discard on every view. |
 
-Badge check, last: rank word + `(score of 5)` + rank color rendered together, correct color per the mapping above, readable at inline size next to a username, non-clickable in Private Mode, and the Unknown state shows *"Ask me why I haven't anchored."* If all of that holds against a member you anchored by hand in step 2, the integration is done.
+Badge check, last: on the profile, rank word + `(score of 5)` + rank color rendered together, correct color per the mapping above, readable at inline size next to a username, non-clickable in Private Mode, and the Unknown state shows *"Ask me why I haven't anchored."* If all of that holds against a member you anchored by hand in step 2, the integration is done.
 
 ## Common Mistakes to Correct
 
@@ -1015,7 +1016,9 @@ Badge check, last: rank word + `(score of 5)` + rank color rendered together, co
 |---------|------------|
 | Calling `get_token` on every page load | Only call it when user is unanchored AND on their edit page |
 | Treating it as a one-time verification gate | It's always-on; call `get_profile` on every profile view |
-| Hiding the rank/score and showing only a checkmark | The rank and score ARE the value; show both or show neither |
+| Gating on a score threshold (e.g. `score >= 2.0`) | Gate on the rank word. Rank and score are related, but rank follows its own rules |
+| Trusting an age badge on its own | Details carry the weight of the rank behind them. "Over 18" from a Dangerous member isn't trustworthy; check the age badge and a minimum rank together |
+| Showing only a checkmark on the profile | The profile gets the full badge — rank and score are the value. A colored check or photo ring is right for feeds and lists |
 | Not implementing the absent/Unknown state | The "ask me why I haven't anchored" message is part of the trust mechanic |
 | Exposing the private key client-side | Always server-side only; proxy all TruAnon calls through your server |
 | Not surfacing the privacy switches | Members need control; implement appropriate switches in your edit UI |
@@ -1024,7 +1027,7 @@ Badge check, last: rank word + `(score of 5)` + rank color rendered together, co
 | Saying "verify" when you mean the one-time anchor step | Use "anchor" — it conveys permanence accurately |
 | Describing rank as "calculated" or "earned" | Rank is reflected. The member didn't get anything they didn't already have. Their public presence was already there — the rank just makes it visible. Display rank and score together — score alone sounds like a prize; rank alone loses precision. |
 | Calling TruAnon for unanchored users | Store `is_anchored` in your DB. If false, skip the call entirely — you already know the answer |
-| Persisting the `anchors` payload, or rendering member details from your own DB | Render-through only: fetch per view, display, discard. The allowed cache is rank/score/photo — and it never replaces the per-view call. Stored anchors are a copy — private data you now own and must secure — and they keep displaying after the member revokes: both promises broken at once |
+| Persisting the `anchors` payload, or rendering member details from your own DB | Render-through only: fetch per view, display, discard. The allowed cache is rank and score — and it never replaces the per-view call. Stored anchors are a copy — private data you now own and must secure — and they keep displaying after the member revokes: both promises broken at once |
 | Treating Unknown as the bottom of a linear scale | Unknown is off-axis — indistinguishable from never-anchored, voluntary, returnable by any anchored member. It is not "below Dangerous"; it is a different category. |
 | Calling Anchor/Grant/Revoke "features" or "settings" | They are digital rights — structural rules, not amenities the platform offers. Each side holds its own lock; either can close. Frame revocation as a right the member holds, not a switch the platform exposes. |
 | Showing pitch text and privacy switches simultaneously | They are mutually exclusive. Unanchored: show the pitch + Verify button. Anchored: show the switches. Never both. |
@@ -1045,13 +1048,13 @@ Badge check, last: rank word + `(score of 5)` + rank color rendered together, co
 - [ ] Register a service at truanon.com, get `PRIVATE_KEY` and `SERVICE_NAME`
 - [ ] Proxy all TruAnon calls through your server — never expose `PRIVATE_KEY` client-side
 - [ ] Call `get_profile` on every profile view; render from DB cache, fetch async
-- [ ] Display rank + score — never reduce to a checkmark alone
+- [ ] Profile: rank + score + color together; feeds and lists: a colored photo ring or check
 - [ ] Add "Ask me why I haven't anchored" for Unknown members
 - [ ] On edit page: if unknown, call `get_token` and show anchor button/modal
 - [ ] Implement privacy switches appropriate to your platform type (4 standard + optional contact switch)
 - [ ] For pseudonymous platforms: strip social/contact links server-side unconditionally
 - [ ] Store `is_anchored` in your DB — set it when `get_profile` returns a real rank, use it to gate all TruAnon calls
-- [ ] Cache `rank`, `score`, `photo` in your DB for display continuity
+- [ ] Cache `rank` and `score` in your DB for display continuity — storing `photo` is never required
 
 ---
 
