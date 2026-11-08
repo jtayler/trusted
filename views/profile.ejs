@@ -27,7 +27,7 @@
        
        <style>
          .custom-border-4 {
-            border-width: 10.25px !important;
+            border-width: 4px !important;
          }
          .containerDiv ul {
             padding: 1rem;
@@ -188,6 +188,9 @@
     fetch('/users/<%= user.username %>/truanon')
         .then(function(r) { return r.ok ? r.json() : Promise.reject('unavailable'); })
         .then(function(verifiedDetails) {
+
+            // === PHOTO RING === keep in sync with the live rank, not just the cached DB value
+            photo.attr('class', 'rounded-circle border custom-border-4 border-' + getPhotoBorderColor(verifiedDetails.rank));
 
             // === MAIN BADGE ===
             $('#location').text(verifiedDetails.title);

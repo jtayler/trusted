@@ -68,8 +68,9 @@
             <% } %>
 
             <!-- Search Form -->
-            <form class="d-flex mx-4">
-                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+            <form class="d-flex mx-4" action="/users" method="GET">
+                <input class="form-control me-2" type="search" name="q" placeholder="Search members"
+                       aria-label="Search" value="<%= typeof query !== 'undefined' ? query : '' %>">
                 <button class="btn btn-outline-success" type="submit">Search</button>
             </form>
         </div>

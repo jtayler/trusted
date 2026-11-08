@@ -236,12 +236,16 @@ app.get('/users/:username/github', async (req, res) => {
         const GITHUB_PROFILE_API_URL = `https://api.github.com/users/${githubUsername}`;
         const REPOS_API_URL = `https://api.github.com/users/${githubUsername}/repos`;
 
+        // Without a token, fall back to anonymous (rate-limited) GitHub API access
+        // rather than sending a literal "token undefined" header, which GitHub rejects.
+        const githubHeaders = {
+            Accept: 'application/vnd.github.v3+json',
+            ...(token ? { Authorization: `token ${token}` } : {}),
+        };
+
         // Fetch GitHub profile information (includes account creation date)
         const githubProfileResponse = await fetch(GITHUB_PROFILE_API_URL, {
-            headers: {
-                Authorization: `token ${token}`,
-                Accept: 'application/vnd.github.v3+json',
-            },
+            headers: githubHeaders,
         });
 
         if (!githubProfileResponse.ok) {
@@ -275,10 +279,7 @@ app.get('/users/:username/github', async (req, res) => {
 
         // Fetch repositories
         const reposResponse = await fetch(REPOS_API_URL, {
-            headers: {
-                Authorization: `token ${token}`,
-                Accept: 'application/vnd.github.v3+json',
-            },
+            headers: githubHeaders,
         });
 
         if (!reposResponse.ok) {
@@ -291,10 +292,7 @@ app.get('/users/:username/github', async (req, res) => {
         const repoData = await Promise.all(
             repos.map(async repo => {
                 const languagesResponse = await fetch(repo.languages_url, {
-                    headers: {
-                        Authorization: `token ${token}`,
-                        Accept: 'application/vnd.github.v3+json',
-                    },
+                    headers: githubHeaders,
                 });
 
                 const languages = await languagesResponse.json();
@@ -491,6 +489,24 @@ app.get('/users/:username', (req, res) => {
 });
 
 // TruAnon live data — called client-side after page loads, like the /github endpoint
+// Caches a live get_profile response to the DB. First successful anchor (is_anchored 0 -> 1)
+// also defaults switch_state on; a failed/unchanged check or a later revoke leaves the
+// member's own switch_state setting alone.
+function cacheAnchorState(username, profileData) {
+    const photo = profileData.photo;
+    const validPhoto = photo && photo !== "https://s3.amazonaws.com/truanon/nophoto.png" && photo.trim() !== "";
+    const rank = profileData.rank || "Unknown";
+    const anchored = rank && rank !== 'Unknown' ? 1 : 0;
+
+    db.run(
+        `UPDATE users SET authorPhoto = ?, authorRank = ?, is_anchored = ?,
+                switch_state = CASE WHEN is_anchored = 0 AND ? = 1 THEN 'on' ELSE switch_state END
+         WHERE username = ?`,
+        [validPhoto ? photo : null, rank, anchored, anchored, username],
+        err => { if (err) console.error('Cache update error:', err.message); }
+    );
+}
+
 app.get('/users/:username/truanon', async (req, res) => {
     const { username } = req.params;
     const profileUrl = `${apiRoute}${GET_PROFILE}?id=${username}&service=${serviceName}`;
@@ -499,15 +515,7 @@ app.get('/users/:username/truanon', async (req, res) => {
         const response = await fetchWithTimeout(profileUrl, { headers: { Authorization: privateKey } }, 30000);
         const profileData = await response.json();
 
-        const photo = profileData.photo;
-        const validPhoto = photo && photo !== "https://s3.amazonaws.com/truanon/nophoto.png" && photo.trim() !== "";
-        const rank = profileData.rank || "Unknown";
-
-        const anchored = rank && rank !== 'Unknown' ? 1 : 0;
-        db.run('UPDATE users SET authorPhoto = ?, authorRank = ?, is_anchored = ? WHERE username = ?',
-            [validPhoto ? photo : null, rank, anchored, username],
-            err => { if (err) console.error('Cache update error:', err.message); }
-        );
+        cacheAnchorState(username, profileData);
 
         res.json(profileData);
     } catch (err) {
@@ -614,6 +622,7 @@ app.get('/users/:username/edit-status', async (req, res) => {
         const profileData = await profileResponse.json();
 
         if (profileData && profileData.rank && profileData.rank !== 'Unknown') {
+            cacheAnchorState(username, profileData);
             const profileLink = profileData.anchors?.find(c => c.type === 'truanon')?.display || null;
             return res.json({ status: 'anchored', profileLink });
         }
@@ -686,11 +695,17 @@ app.post('/users/:username/edit', async (req, res) => {
 
 
 app.get('/users', (req, res) => {
-  db.all('SELECT * FROM users', [], (err, rows) => {
+  const q = (req.query.q || '').trim();
+  const sql = q
+    ? 'SELECT * FROM users WHERE username LIKE ? OR full_name LIKE ?'
+    : 'SELECT * FROM users';
+  const params = q ? [`%${q}%`, `%${q}%`] : [];
+
+  db.all(sql, params, (err, rows) => {
     if (err) {
       return res.status(500).send(err.message);
     }
-    res.render('userList', { users: rows });
+    res.render('userList', { users: rows, query: q });
   });
 });
 

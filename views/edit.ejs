@@ -72,6 +72,7 @@
                               </div>
                            </div>
 
+                           <div id="dependent-switches">
                            <div class="form-group">
                               <div class="switch-container form-switch form-switch-pill p-0">
                               <label for="verified-switch" class="form-label">Amplify:</label>
@@ -116,6 +117,18 @@
                                            <% if (user.make_private == 1) { %>checked<% } %> />
                                  </div>
                               </div>
+                           </div>
+                           </div><!-- /dependent-switches -->
+
+                           <div id="identity-off-notice" class="pt-4 p-1" style="display:none">
+                              <h5>Your Verified Identity Is Currently Hidden</h5>
+                              <ul>
+                                 <li>Your anchor is still there — this only controls whether it's shown.</li>
+                                 <li>Right now visitors see you as Unknown, not as your reflected rank.</li>
+                                 <li>Messages, listings, and your profile lose the trust signal your rank already carries.</li>
+                                 <li>Turning this back on costs nothing — re-anchoring is never required.</li>
+                              </ul>
+                              <p>Flip Use Identity Presence back on above to make your verified standing visible again.</p>
                            </div>
 
                            </div><!-- /privacy-controls -->
@@ -172,6 +185,10 @@
          function syncDependents() {
             const enabled = identitySwitch.checked && !identitySwitch.disabled;
             dependentSwitches.forEach(sw => { sw.disabled = !enabled; });
+            // Anchored-but-hidden gets its own pitch, distinct from the pre-anchor one —
+            // the anchor already exists, this just explains what re-enabling restores.
+            document.getElementById('dependent-switches').style.display = enabled ? '' : 'none';
+            document.getElementById('identity-off-notice').style.display = enabled ? 'none' : '';
          }
 
          identitySwitch.addEventListener('change', syncDependents);

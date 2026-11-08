@@ -90,6 +90,10 @@
   </div>
 </div>
  
+<% if (typeof query !== 'undefined' && query && users.length === 0) { %>
+  <div class="text-center text-muted m-5">No members found for &ldquo;<%= query %>&rdquo;.</div>
+<% } %>
+
 <div class="row g-4 m-3 justify-content-center">
   <% users.reverse().forEach(function(user) { %>
     <div class="show col<% if (user.switch_state) { %> verified<% } %>">
