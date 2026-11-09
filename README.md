@@ -54,7 +54,9 @@ This is an API that returns structured identity data. You decide what to render 
 
 A healthcare portal uses rank as a server-side gate and shows nothing. A classifieds platform shows Genuine 4.5 on every listing — no profile page required. A pseudonymous community shows rank next to a username with no identity visible. A dating app shows age range and location, private by default, social links never surfaced to strangers.
 
-**Details carry the rank's weight.** Any claim is only as good as what backs it. An `ageBadge` of "Over 18" from a Credible member is as good as ID; the same badge from a Dangerous member is not. For age-restricted actions, check the age badge and a minimum rank together, using the live `get_profile` response (age is a granted detail, not part of your cache).
+**Details carry the rank's weight.** Any claim is only as good as what backs it. An `ageBadge` of "Over 18" from a Credible member is as good as ID; the same badge from a Dangerous member is not. For an age-*restricted action* — the moment you're actually authorizing something — check the age badge and a minimum rank together against the live `get_profile` response, not a cache: a gate has to see a revoke the instant it happens, not whenever the cache next refreshes.
+
+That's a rule about *authorizing*, not about *displaying*. If you're painting an age badge on a profile or a list card, it's a coarse, bucketed value shaped just like rank — cache it the same way, for the same reason (don't make a live call per row in a list). Just refresh it on the same cadence as rank/score, so a revoke shows up on the next view instead of lingering.
 
 `anchors` contains only what the member has granted. Filter by `kind`:
 
@@ -310,6 +312,8 @@ updated_at: ISO timestamp
 ```
 
 Field names will vary by stack — these are the shapes, not literal column names. The cache is a shortcut, not the source of truth; refresh on schedule or on demand.
+
+This is the common shape, not an exhaustive whitelist. `rank`/`score` are what nearly every integration needs, so that's what's shown — it isn't a rule that nothing else may ever be cached. Any other *coarse, non-identifying* granted detail shaped like rank (an `ageBadge` bucket, say, not a raw birthdate) is fair game to cache under the exact same discipline: paint instantly from the cache, refresh it on every live view, never let a stale copy outlive a revoke. A member list that would otherwise need one `get_profile` call per row to show an age badge is a textbook reason to do this. What stays render-through-only (see [Fetching](#fetching) above) is anything that identifies or can reach the member — name, contact details, social links — because a breach or a stale cache of *those* has real consequences a stale rank bucket doesn't.
 
 ---
 

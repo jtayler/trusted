@@ -67,6 +67,25 @@
     max-width: 100%;
   }
 }
+.list-photo-wrap {
+  position: relative;
+}
+.age-pill-sm {
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #FEF9F3;
+  color: #6c757d;
+  border: 2px solid currentColor;
+  border-radius: 999px;
+  padding: 0.05rem 0.5rem;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  box-shadow: 0 0 0 2px #FEF9F3;
+}
 
       </style>
 
@@ -101,15 +120,20 @@
       <div class="card border-<%= user.switch_state ? getPhotoBorderColor(user.authorRank) : 'secondary' %>">
         <a href="/users/<%= user.username %>">
           <!-- User Photo -->
-          <% 
-            var userPhoto = (user.switch_state && user.authorPhoto && user.authorPhoto !== "https://s3.amazonaws.com/truanon/nophoto.png") 
-              ? user.authorPhoto 
-              : user.photo; 
+          <%
+            var userPhoto = (user.switch_state && user.authorPhoto && user.authorPhoto !== "https://s3.amazonaws.com/truanon/nophoto.png")
+              ? user.authorPhoto
+              : user.photo;
           %>
-<img 
-    src="<%= userPhoto %>" 
-    class="card-img-top border-<%= user.switch_state ? getPhotoBorderColor(user.authorRank) : (user.switch_state === false ? 'dark' : 'light') %> custom-border" 
+<div class="list-photo-wrap">
+<img
+    src="<%= userPhoto %>"
+    class="card-img-top border-<%= user.switch_state ? getPhotoBorderColor(user.authorRank) : (user.switch_state === false ? 'dark' : 'light') %> custom-border"
     alt="User Photo">
+    <% if (user.switch_state && user.ageBadge) { %>
+       <span class="age-pill-sm"><%= user.ageBadge %></span>
+    <% } %>
+</div>
        </a>
         <div class="card-body">
           <h5 class="card-title">

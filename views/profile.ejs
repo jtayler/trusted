@@ -32,6 +32,62 @@
          .containerDiv ul {
             padding: 1rem;
          }
+         .photo-wrap {
+            position: relative;
+            display: inline-block;
+         }
+         .age-pill {
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #FDF5E6;
+            color: #6c757d;
+            border: 2px solid currentColor;
+            border-radius: 999px;
+            padding: 0.1rem 0.65rem;
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            white-space: nowrap;
+            box-shadow: 0 0 0 3px #FDF5E6;
+         }
+         .rank-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-radius: 999px;
+            border: 2px solid transparent;
+            background-color: transparent;
+            padding: 0.3rem 1.1rem 0.3rem 0.3rem;
+            text-decoration: none;
+            transition: background-color .2s ease, color .2s ease;
+         }
+         .rank-pill-icon {
+            display: flex;
+            font-size: 2.2rem;
+            line-height: 1;
+         }
+         .rank-pill-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.15;
+            text-align: left;
+         }
+         .rank-pill-rank {
+            font-weight: 700;
+            font-size: 0.9rem;
+         }
+         .rank-pill-score {
+            font-size: 0.7rem;
+            opacity: 0.85;
+         }
+         .rank-pill.is-live[href] {
+            cursor: pointer;
+         }
+         .rank-pill.is-live[href]:hover {
+            filter: brightness(0.95);
+         }
        </style>
       <div class="container-xxl my-md-4 bd-layout" >
          <div id="containerDiv">
@@ -41,16 +97,44 @@
                      <div class="card">
                         <div class="card-body">
                            <div class="align-items-center text-center ">
-                              <img id="photo" src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="Admin" class="rounded-circle border custom-border-4" width="150">
+                              <div class="photo-wrap">
+                                 <img id="photo" src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="Admin" class="rounded-circle border custom-border-4" width="150">
+                                 <% if (user.is_anchored && user.switch_state === 'on' && user.ageBadge) { %>
+                                    <span id="age-pill" class="age-pill"><%= user.ageBadge %></span>
+                                 <% } %>
+                              </div>
                               <div class="mt-3 ">
                                  <h4 id="fullname">John Doe</h4>
+                                 <div id="badge-area" class="my-2">
+                                    <% if (user.is_anchored && user.switch_state === 'on') { %>
+                                       <%
+                                          var cachedColor = getPhotoBorderColor(user.authorRank);
+                                          var cachedTextClass = cachedColor === 'warning' ? 'text-dark' : 'text-' + cachedColor;
+                                       %>
+                                       <a id="rank-pill" class="rank-pill border-<%= cachedColor %> <%= cachedTextClass %>">
+                                          <span class="fas fa-check-circle rank-pill-icon"></span>
+                                          <span class="rank-pill-text">
+                                             <span id="rank-pill-rank" class="rank-pill-rank"><%= user.authorRank %></span>
+                                             <span id="rank-pill-score" class="rank-pill-score"><%= user.authorRankScore ? user.authorRankScore + ' of 5' : ' ' %></span>
+                                          </span>
+                                       </a>
+                                    <% } else { %>
+                                       <span class="rank-pill border-secondary text-muted">
+                                          <span class="fas fa-check-circle rank-pill-icon"></span>
+                                          <span class="rank-pill-text">
+                                             <span class="rank-pill-rank">Unknown</span>
+                                             <span class="rank-pill-score">Ask to verify</span>
+                                          </span>
+                                       </span>
+                                    <% } %>
+                                 </div>
                                  <p id="username" class="text-secondary mb-1">Full Stack Developer</p>
                                  <p id="location" class="text-muted font-size-sm">Bay Area, San Francisco, CA</p>
                                  <div   class="pb-3 ">
                                    <button class="btn btn-primary ">Follow</button>
                                    <button class="btn btn-outline-primary">Message</button>
                                   </div>
-                                 <div id="badge-area"></div>
+                                 <div id="github-badge-anchor"></div>
                               </div>
                            </div>
                         </div>
@@ -140,27 +224,6 @@
          });
          return filteredData;
          }
-         
-         var badge = document.createElement("span");
-         badge.className = "w-100 btn disabled btn-outline-secondary mb-4";
-         
-         var badgeLogo = document.createElement("span");
-         badgeLogo.className = "fas fa-check-circle fa-5x align-middle p-2";
-         badge.appendChild(badgeLogo);
-         
-         var badgeRank = document.createElement("div");
-         badgeRank.className = "badge-rank text-muted h3";
-         badgeRank.innerText = "Unknown";
-         badge.appendChild(badgeRank);
-         
-         var badgeScore = document.createElement("div");
-         badgeScore.className = "badge-score text-muted h5";
-         badgeScore.innerText = "Ask This Member To Verify Their Identity";
-         badge.appendChild(badgeScore);
-         
-         //containerDivOld.append(badge);
-         $('#badge-area').html(badge);
-         
       </script>
 
       <script>
@@ -181,41 +244,47 @@
     var showContact  = !!(<%- (user.show_contact  === undefined || user.show_contact  !== 0) ? 1 : 0 %>);
     var showSocial   = !!(<%- (user.show_social   === undefined || user.show_social   !== 0) ? 1 : 0 %>);
 
-    // Show spinner in badge area while TruAnon loads
-    document.getElementById('badge-area').innerHTML =
-        '<div class="text-center text-muted p-3"><i class="fas fa-spinner fa-spin fa-2x"></i></div>';
-
+    // Cached rank/score/age already painted the pill instantly from the DB (see SSR markup
+    // above) — this just confirms it live, lights it from outline to solid, and links it.
     fetch('/users/<%= user.username %>/truanon')
         .then(function(r) { return r.ok ? r.json() : Promise.reject('unavailable'); })
         .then(function(verifiedDetails) {
 
-            // === PHOTO RING === keep in sync with the live rank, not just the cached DB value
-            photo.attr('class', 'rounded-circle border custom-border-4 border-' + getPhotoBorderColor(verifiedDetails.rank));
+            var liveColor = getPhotoBorderColor(verifiedDetails.rank);
 
-            // === MAIN BADGE ===
+            // === PHOTO RING === keep in sync with the live rank, not just the cached DB value
+            photo.attr('class', 'rounded-circle border custom-border-4 border-' + liveColor);
+
+            // === AGE PILL ===
+            var agePill = document.getElementById('age-pill');
+            if (verifiedDetails.ageBadge) {
+                if (!agePill) {
+                    agePill = document.createElement('span');
+                    agePill.id = 'age-pill';
+                    agePill.className = 'age-pill';
+                    document.querySelector('.photo-wrap').appendChild(agePill);
+                }
+                agePill.textContent = verifiedDetails.ageBadge;
+            } else if (agePill) {
+                agePill.remove();
+            }
+
+            // === RANK PILL === lights up from cached outline to a solid, confirmed badge
             $('#location').text(verifiedDetails.title);
 
-            var badge = makePrivate ? document.createElement("span") : document.createElement("a");
-            badge.className = "w-100 btn mb-4 btn-outline-" + getPhotoBorderColor(verifiedDetails.rank);
-            if (makePrivate) {
-                badge.classList.add("disabled");
-            } else {
+            var textClass = liveColor === 'warning' ? 'text-dark' : 'text-white';
+            var rankPill = document.getElementById('rank-pill');
+            rankPill.className = 'rank-pill is-live bg-' + liveColor + ' ' + textClass;
+            document.getElementById('rank-pill-rank').textContent = verifiedDetails.rank;
+            document.getElementById('rank-pill-score').textContent = verifiedDetails.score + ' of 5';
+
+            if (!makePrivate) {
                 var truanonConfigs = filterDataConfigurations(verifiedDetails, "truanon", "social");
-                if (truanonConfigs.length) { badge.href = "https://" + truanonConfigs[0].display; badge.target = "_blank"; }
+                if (truanonConfigs.length) {
+                    rankPill.href = "https://" + truanonConfigs[0].display;
+                    rankPill.target = "_blank";
+                }
             }
-            var badgeLogo = document.createElement("span");
-            badgeLogo.className = "fas fa-check-circle fa-5x align-middle p-2";
-            badge.appendChild(badgeLogo);
-            var badgeRank = document.createElement("div");
-            badgeRank.className = "badge-rank h3";
-            badgeRank.innerText = verifiedDetails.rank;
-            badge.appendChild(badgeRank);
-            var badgeScore = document.createElement("div");
-            badgeScore.className = "badge-score h5";
-            badgeScore.innerHTML = "(" + verifiedDetails.score + " of 5)<p class=\"pt-4\"><b>" +
-                (verifiedDetails.ageBadge ? " ⸻ " + verifiedDetails.ageBadge + " ⸻ " : "") + "</b></p>";
-            badge.appendChild(badgeScore);
-            $('#badge-area').html(badge);
 
             // === PERSONAL / CONTACT / SOCIAL sections ===
             var truanonOnly = filterDataConfigurations(verifiedDetails, "truanon", "social");
@@ -247,12 +316,13 @@
             loadGithubBadge(githubConfig);
         })
         .catch(function(err) {
-            console.log('TruAnon data unavailable:', err);
-            document.getElementById('badge-area').innerHTML = ''; // restore default Unknown badge
+            // TruAnon is down — leave the cached pill exactly as rendered server-side,
+            // it's already the member's last known rank/score, not a blank state.
+            console.log('TruAnon data unavailable, showing cached badge:', err);
         });
 
     function loadGithubBadge(githubConfig) {
-        var badgeArea = document.getElementById("badge-area");
+        var badgeArea = document.getElementById("github-badge-anchor");
         var icon = document.createElement("span");
         var title = document.createElement("h5");
         var description = document.createElement("p");

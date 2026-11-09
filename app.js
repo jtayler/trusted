@@ -336,6 +336,8 @@ const db = new sqlite3.Database(dbFilePath, sqlite3.OPEN_READWRITE, (err) => {
         'ALTER TABLE users ADD COLUMN show_contact INTEGER DEFAULT 1',
         'ALTER TABLE users ADD COLUMN show_social INTEGER DEFAULT 1',
         'ALTER TABLE users ADD COLUMN make_private INTEGER DEFAULT 0',
+        'ALTER TABLE users ADD COLUMN authorRankScore TEXT',
+        'ALTER TABLE users ADD COLUMN ageBadge TEXT',
     ].forEach(sql => db.run(sql, err => {
         if (err && !err.message.includes('duplicate column')) console.error('Migration error:', err.message);
     }));
@@ -499,10 +501,10 @@ function cacheAnchorState(username, profileData) {
     const anchored = rank && rank !== 'Unknown' ? 1 : 0;
 
     db.run(
-        `UPDATE users SET authorPhoto = ?, authorRank = ?, is_anchored = ?,
+        `UPDATE users SET authorPhoto = ?, authorRank = ?, authorRankScore = ?, ageBadge = ?, is_anchored = ?,
                 switch_state = CASE WHEN is_anchored = 0 AND ? = 1 THEN 'on' ELSE switch_state END
          WHERE username = ?`,
-        [validPhoto ? photo : null, rank, anchored, anchored, username],
+        [validPhoto ? photo : null, rank, profileData.score || null, profileData.ageBadge || null, anchored, anchored, username],
         err => { if (err) console.error('Cache update error:', err.message); }
     );
 }
@@ -660,11 +662,23 @@ app.post('/users/:username/edit', async (req, res) => {
         console.log("Received request to edit profile for:", username);
         console.log("Form Data:", { full_name, location, switch_state });
 
-        // Update user data in the database
+        // Update user data in the database. When identity presence is off, the dependent
+        // switches are disabled client-side and never make it into the POST body — preserve
+        // their existing values instead of clobbering them back to off.
         await new Promise((resolve, reject) => {
             db.run(
-                'UPDATE users SET full_name = ?, location = ?, switch_state = ?, show_personal = ?, show_contact = ?, show_social = ?, make_private = ? WHERE username = ?',
-                [full_name, location, switch_state, show_personal, show_contact, show_social, make_private, username],
+                `UPDATE users SET full_name = ?, location = ?, switch_state = ?,
+                        show_personal = CASE WHEN ? = 'on' THEN ? ELSE show_personal END,
+                        show_contact  = CASE WHEN ? = 'on' THEN ? ELSE show_contact  END,
+                        show_social   = CASE WHEN ? = 'on' THEN ? ELSE show_social   END,
+                        make_private  = CASE WHEN ? = 'on' THEN ? ELSE make_private  END
+                 WHERE username = ?`,
+                [full_name, location, switch_state,
+                 switch_state, show_personal,
+                 switch_state, show_contact,
+                 switch_state, show_social,
+                 switch_state, make_private,
+                 username],
                 (err) => (err ? reject(err) : resolve())
             );
         });
