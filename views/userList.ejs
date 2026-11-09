@@ -115,7 +115,7 @@
 
 <div class="row g-4 m-3 justify-content-center">
   <% users.reverse().forEach(function(user) { %>
-    <div class="show col<% if (user.switch_state) { %> verified<% } %>">
+    <div class="show col<% if (user.switch_state) { %> verified<% } %>" data-rank="<%= user.switch_state ? user.authorRank : 'Unknown' %>">
       <!-- Dynamic Border Based on Rank -->
       <div class="card border-<%= user.switch_state ? getPhotoBorderColor(user.authorRank) : 'secondary' %>">
         <a href="/users/<%= user.username %>">
@@ -184,21 +184,20 @@
   const savedState = getCookie('verifiedSwitch') === 'true';
   verifiedSwitch.checked = savedState;
 
-  // Apply filter based on saved state
+  // Trusted Identity Only shows Credible+ (Genuine, Reliable, Credible) — Cautioned,
+  // Dangerous, and Unknown are all below that threshold and get hidden. Gate on the
+  // rank word itself (data-rank), not on CSS classes that happen to be in the card.
+  var TRUSTED_RANKS = ['Genuine', 'Reliable', 'Credible'];
+
   function applyFilter() {
-    if (verifiedSwitch.checked) {
-      cards.forEach((card) => {
-        if (card.querySelector('.text-muted') || card.querySelector('.text-danger')) {
-          card.classList.add('hide');
-        } else {
-          card.classList.remove('hide');
-        }
-      });
-    } else {
-      cards.forEach((card) => {
+    cards.forEach((card) => {
+      var isTrusted = TRUSTED_RANKS.includes(card.dataset.rank);
+      if (verifiedSwitch.checked && !isTrusted) {
+        card.classList.add('hide');
+      } else {
         card.classList.remove('hide');
-      });
-    }
+      }
+    });
   }
 
   // Update filter on switch change and save state in cookie
