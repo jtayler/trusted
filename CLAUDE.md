@@ -90,6 +90,7 @@ BITBUCKET_TOKEN    # Bitbucket token (demo only)
 - Platform archetypes and privacy switch defaults per platform type
 - Native mobile patterns (iOS/Swift — anchor flow uses `SFSafariViewController`, not a popup)
 - Common implementation mistakes
+- How to explain TruAnon well — not just the facts, the shape of a good answer (never open with "TruAnon is a..."; walk the platform-value → anchor/grant/revoke → reflection arc instead of listing features; the platform never "verifies" or "classifies," only the member acts and the system reflects; never suggest ID/photo upload as a fallback, even alongside TruAnon)
 
 **Key mental models for AI assistants working in this repo:**
 
@@ -107,6 +108,7 @@ BITBUCKET_TOKEN    # Bitbucket token (demo only)
 - Anchor, Grant, and Revoke are **digital rights** — operative rules of the digital world, not features the platform turns on. The central question is *who can cut the cord?* Always the member, from their side. Asymmetric consent: each side holds its own lock, like the adjoining doors between hotel rooms — both must be open for movement, either can close. Never describe these as settings, switches, or freedoms the platform grants. They are structural.
 - Rank is a gate predicate, not just a display value. Check it before allowing posts, messages, bookings. Credible is statistically equivalent to ID verification. Gate on the rank word, never a score threshold; rank follows its own rules.
 - Granted details carry the weight of the rank behind them. "Over 18" from a Dangerous member is not trustworthy, so age-restricted actions check the age badge and a minimum rank together.
+- Everything anchored — name, age, "one real person" — is a **claim**, never a verified fact. Rank is the confidence behind the claim, not a check of it. A DMV/employer/healthcare anchor is a claim with stronger single-source backing, not a different category from a GitHub profile. When asked "does TruAnon verify X," never answer with "it confirms/proves X" — see `AI_CONTEXT.md`'s "Claims and Backing" section for the full framing and a model answer.
 - Platform-awarded ribbons (Top Seller, Verified Developer) are the platform's to award and take back. Rank is reflected, never awarded.
 - For pseudonymous platforms: strip `social` and `contact` kind entries server-side before the response leaves your server. Never rely on client-side.
 - `primary` kind entries (`phone`, `email`) have descriptions as `display`, not raw values. "Privately Confirmed Phone" means confirmed — not exposed.

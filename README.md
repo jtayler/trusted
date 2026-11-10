@@ -34,6 +34,10 @@ Rank and score is a reflection, a mirror, not a meter. It tabulates depth of his
 
 Unknown is off-axis, not the bottom of the ladder. It covers two indistinguishable states by design — never anchored, and anchored-but-revoked. Any anchored member can return to Unknown at any time; that is the right to revoke made structural. Credible → Reliable → Genuine is a continuum of depth. Cautioned and Dangerous are different in kind, not just lower rungs — Cautioned is mendable, Dangerous is abandonment.
 
+**Claims, not facts.** TruAnon is not an authority, and rank is not a verification layer. It doesn't hold documents, doesn't run identity checks, and doesn't declare a name, an age, or a person "true." Every anchored detail is a claim — your name is a claim, your age is a claim, being one person behind an account is a claim. Rank is the confidence behind those claims, built from how much independent, visible, long-lived backing already exists for them, never a check performed on them. Some anchors carry more weight as a single source — a DMV, employer, or healthcare anchor more than one public profile — but the model underneath is the same top to bottom: claims with backing, not facts with proof.
+
+This isn't a lesser standard than ID — it's a better fit for where identity actually gets used now. A physical ID card has real reliance in person, because someone trained is holding it, checking a photo against a face, under conditions that are hard to fake. Online, that same ID is just a photograph or a typed string: trivial to fake, trivial to steal, and nobody is there to check it against anything. A name held consistently across years of commits, posts, and a personal domain carries more real confidence online than an uploaded ID ever can — because it can actually be reviewed, by anyone, at any time, just by looking.
+
 ---
 
 ## The Badge
