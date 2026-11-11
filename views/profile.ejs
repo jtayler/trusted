@@ -85,12 +85,10 @@
          .rank-pill.is-live[href] {
             cursor: pointer;
          }
-         .rank-pill.is-live[href]:hover {
-            filter: brightness(0.95);
-         }
          .rank-pill.is-live:not([href]) {
-            cursor: default;
-            filter: brightness(0.85);
+            cursor: default !important;
+            filter: brightness(0.85) !important;
+            text-decoration: none !important;
          }
        </style>
       <div class="container-xxl my-md-4 bd-layout" >
@@ -138,14 +136,43 @@
                                    <button class="btn btn-primary ">Follow</button>
                                    <button class="btn btn-outline-primary">Message</button>
                                   </div>
-                                 <div id="github-badge-anchor"></div>
                               </div>
                            </div>
                         </div>
                      </div>
+                     <div id="github-badge-anchor">
+                        <% if (!(user.is_anchored && user.switch_state === 'on')) { %>
+                           <div class="card text-center p-3 m-3 border-warning">
+                              <span class="text-warning fas fa-meh fa-10x mb-2 pt-2"></span>
+                              <h5 class="card-title text-warning mb-1 pt-4">Engineering Badge Unavailable</h5>
+                              <p class="card-text text-muted">No anchored identity — this member's GitHub activity can't be verified, so clients can't confirm real engineering credibility here.</p>
+                           </div>
+                        <% } %>
+                     </div>
                   </div>
-                  <div id="personal-space" class="col-md-8"> 
-                     <div id="new-slot"></div>
+                  <div id="personal-space" class="col-md-8">
+                     <div id="new-slot">
+                        <% if (!(user.is_anchored && user.switch_state === 'on')) { %>
+                           <% if (user.show_personal === undefined || user.show_personal !== 0) { %>
+                              <div class="card mb-3">
+                                 <div class="card-header text-center h5 text-secondary">Personal Details</div>
+                                 <div class="card-body text-center text-muted">No personal details have been shared.</div>
+                              </div>
+                           <% } %>
+                           <% if (user.show_contact === undefined || user.show_contact !== 0) { %>
+                              <div class="card mb-3">
+                                 <div class="card-header text-center h5 text-secondary">Verified Contacts</div>
+                                 <div class="card-body text-center text-muted">No contacts have been verified yet.</div>
+                              </div>
+                           <% } %>
+                           <% if (user.show_social === undefined || user.show_social !== 0) { %>
+                              <div class="card mb-3">
+                                 <div class="card-header text-center h5 text-secondary">Social Transparency</div>
+                                 <div class="card-body text-center text-muted">No social profiles have been connected.</div>
+                              </div>
+                           <% } %>
+                        <% } %>
+                     </div>
                   </div>
                </div>
             </div>
@@ -309,9 +336,9 @@
             var newSlot = document.getElementById("new-slot");
             newSlot.innerHTML = '';
 
-            if (showPersonal && filteredPersonal.length) newSlot.appendChild(createInfoCard("Personal Details", filteredPersonal));
-            if (showContact  && filteredContact.length)  newSlot.appendChild(createInfoCard("Verified Contacts",  filteredContact));
-            if (showSocial   && filteredSocial.length)   newSlot.appendChild(createSocialCard(filteredSocial));
+            if (showPersonal) newSlot.appendChild(createInfoCard("Personal Details", filteredPersonal, "No personal details have been shared."));
+            if (showContact)  newSlot.appendChild(createInfoCard("Verified Contacts",  filteredContact, "No contacts have been verified yet."));
+            if (showSocial)   newSlot.appendChild(createSocialCard(filteredSocial, "No social profiles have been connected."));
 
             // === GITHUB BADGE (after TruAnon data is available) ===
             var githubConfig = (verifiedDetails.anchors || []).find(function(c) {
@@ -389,7 +416,7 @@
             });
     }
 
-    function createInfoCard(title, filteredData) {
+    function createInfoCard(title, filteredData, emptyMessage) {
         var card = document.createElement("div");
         card.classList.add("card", "mb-3");
         var header = document.createElement("div");
@@ -399,6 +426,11 @@
         var cardBody = document.createElement("div");
         cardBody.classList.add("card-body");
         card.appendChild(cardBody);
+        if (!filteredData.length) {
+            cardBody.classList.add("text-center", "text-muted");
+            cardBody.innerText = emptyMessage;
+            return card;
+        }
         filteredData.forEach(function(dataConfig, index) {
             var row = document.createElement("div");
             row.classList.add("row");
@@ -419,18 +451,25 @@
         return card;
     }
 
-    function createSocialCard(filteredData) {
+    function createSocialCard(filteredData, emptyMessage) {
         var card = document.createElement("div");
         card.classList.add("card", "mb-3");
         var header = document.createElement("div");
         header.classList.add("card-header", "text-center", "h5", "text-secondary");
         header.innerText = "Social Transparency";
         card.appendChild(header);
-        var grid = document.createElement("div");
-        grid.classList.add("d-flex", "flex-wrap", "text-center", "p-2");
         var display = filteredData.filter(function(c) {
             return c.type !== "github" && c.type !== "trusted";
         });
+        if (!display.length) {
+            var emptyBody = document.createElement("div");
+            emptyBody.classList.add("card-body", "text-center", "text-muted");
+            emptyBody.innerText = emptyMessage;
+            card.appendChild(emptyBody);
+            return card;
+        }
+        var grid = document.createElement("div");
+        grid.classList.add("d-flex", "flex-wrap", "text-center", "p-2");
         display.forEach(function(dataConfig) {
             var item = document.createElement("div");
             item.classList.add("text-secondary", "p-2", "m-1");
