@@ -342,6 +342,18 @@ const db = new sqlite3.Database(dbFilePath, sqlite3.OPEN_READWRITE, (err) => {
         if (err && !err.message.includes('duplicate column')) console.error('Migration error:', err.message);
     }));
 
+    db.run(`CREATE TABLE IF NOT EXISTS follows (
+        follower_username TEXT NOT NULL,
+        followee_username TEXT NOT NULL,
+        PRIMARY KEY (follower_username, followee_username)
+    )`, err => { if (err) console.error('Migration error (follows):', err.message); });
+
+    db.run(`CREATE TABLE IF NOT EXISTS likes (
+        liker_username TEXT NOT NULL,
+        liked_username TEXT NOT NULL,
+        PRIMARY KEY (liker_username, liked_username)
+    )`, err => { if (err) console.error('Migration error (likes):', err.message); });
+
     // Backfill: anyone with a real rank gets anchored + identity on
     db.run(
         `UPDATE users SET switch_state = 'on', is_anchored = 1
@@ -476,18 +488,88 @@ app.post('/login', (req, res) => {
 app.get('/users/:username', (req, res) => {
     const { username } = req.params;
     const userId = req.session.userId;
+    const viewerUsername = req.session.user ? req.session.user.username : null;
 
     db.get('SELECT * FROM users WHERE username = ?', [username], (err, user) => {
         if (err) return res.status(500).send(err.message);
         if (!user) return res.status(404).send('User not found');
 
-        res.render('profile', {
-            user,
-            isCurrentUser: userId === user.id,
-            displayData: app.locals.getUserDisplayData(user),
-            lastFiveUsers: req.app.locals.lastFiveUsers,
+        db.get('SELECT COUNT(*) AS count FROM likes WHERE liked_username = ?', [username], (err, likeRow) => {
+            if (err) return res.status(500).send(err.message);
+
+            const isFollowing = viewerUsername
+                ? new Promise((resolve, reject) => {
+                    db.get('SELECT 1 FROM follows WHERE follower_username = ? AND followee_username = ?',
+                        [viewerUsername, username], (err, row) => err ? reject(err) : resolve(!!row));
+                  })
+                : Promise.resolve(false);
+
+            const isLiked = viewerUsername
+                ? new Promise((resolve, reject) => {
+                    db.get('SELECT 1 FROM likes WHERE liker_username = ? AND liked_username = ?',
+                        [viewerUsername, username], (err, row) => err ? reject(err) : resolve(!!row));
+                  })
+                : Promise.resolve(false);
+
+            Promise.all([isFollowing, isLiked]).then(([following, liked]) => {
+                res.render('profile', {
+                    user,
+                    isCurrentUser: userId === user.id,
+                    displayData: app.locals.getUserDisplayData(user),
+                    lastFiveUsers: req.app.locals.lastFiveUsers,
+                    isFollowing: following,
+                    isLiked: liked,
+                    likeCount: likeRow.count,
+                });
+            }).catch(e => res.status(500).send(e.message));
         });
     });
+});
+
+// Follow/like toggles — simple per-viewer state, no notifications, just a working UI
+app.post('/users/:username/follow', (req, res) => {
+    const follower = req.session.user ? req.session.user.username : null;
+    const { username: followee } = req.params;
+    if (!follower) return res.status(401).json({ error: 'Log in to follow' });
+    if (follower === followee) return res.status(400).json({ error: "Can't follow yourself" });
+
+    db.get('SELECT 1 FROM follows WHERE follower_username = ? AND followee_username = ?',
+        [follower, followee], (err, row) => {
+            if (err) return res.status(500).json({ error: err.message });
+
+            const sql = row
+                ? 'DELETE FROM follows WHERE follower_username = ? AND followee_username = ?'
+                : 'INSERT INTO follows (follower_username, followee_username) VALUES (?, ?)';
+
+            db.run(sql, [follower, followee], err => {
+                if (err) return res.status(500).json({ error: err.message });
+                res.json({ following: !row });
+            });
+        });
+});
+
+app.post('/users/:username/like', (req, res) => {
+    const liker = req.session.user ? req.session.user.username : null;
+    const { username: liked } = req.params;
+    if (!liker) return res.status(401).json({ error: 'Log in to like' });
+    if (liker === liked) return res.status(400).json({ error: "Can't like yourself" });
+
+    db.get('SELECT 1 FROM likes WHERE liker_username = ? AND liked_username = ?',
+        [liker, liked], (err, row) => {
+            if (err) return res.status(500).json({ error: err.message });
+
+            const sql = row
+                ? 'DELETE FROM likes WHERE liker_username = ? AND liked_username = ?'
+                : 'INSERT INTO likes (liker_username, liked_username) VALUES (?, ?)';
+
+            db.run(sql, [liker, liked], err => {
+                if (err) return res.status(500).json({ error: err.message });
+                db.get('SELECT COUNT(*) AS count FROM likes WHERE liked_username = ?', [liked], (err, countRow) => {
+                    if (err) return res.status(500).json({ error: err.message });
+                    res.json({ liked: !row, likeCount: countRow.count });
+                });
+            });
+        });
 });
 
 // TruAnon live data — called client-side after page loads, like the /github endpoint

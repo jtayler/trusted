@@ -132,10 +132,12 @@
                                  </div>
                                  <p id="username" class="text-secondary mb-1">Full Stack Developer</p>
                                  <p id="location" class="text-muted font-size-sm">Bay Area, San Francisco, CA</p>
+                                 <% if (!isCurrentUser) { %>
                                  <div   class="pb-3 ">
-                                   <button class="btn btn-primary ">Follow</button>
-                                   <button class="btn btn-outline-primary">Message</button>
+                                   <button id="follow-btn" class="btn <%= isFollowing ? 'btn-primary' : 'btn-outline-primary' %>" data-username="<%= user.username %>"><%= isFollowing ? 'Following' : 'Follow' %></button>
+                                   <button id="like-btn" class="btn <%= isLiked ? 'btn-danger' : 'btn-outline-danger' %>" data-username="<%= user.username %>"><span class="fas fa-heart"></span> <span id="like-count"><%= likeCount %></span></button>
                                   </div>
+                                 <% } %>
                               </div>
                            </div>
                         </div>
@@ -511,6 +513,35 @@
 <script>
     photo.attr('src', "<%= displayData.photo %>");
     photo.attr('class', 'rounded-circle border custom-border-4 border-' + "<%= displayData.borderColor %>");
+</script>
+
+<script>
+    // Simple working UI, no notifications: just toggles state and remembers each viewer's choice.
+    var followBtn = document.getElementById('follow-btn');
+    if (followBtn) {
+        followBtn.addEventListener('click', function() {
+            fetch('/users/' + followBtn.dataset.username + '/follow', { method: 'POST' })
+                .then(function(r) { return r.json().then(function(data) { return { ok: r.ok, data: data }; }); })
+                .then(function(result) {
+                    if (!result.ok) { alert(result.data.error || 'Could not follow'); return; }
+                    followBtn.textContent = result.data.following ? 'Following' : 'Follow';
+                    followBtn.className = 'btn ' + (result.data.following ? 'btn-primary' : 'btn-outline-primary');
+                });
+        });
+    }
+
+    var likeBtn = document.getElementById('like-btn');
+    if (likeBtn) {
+        likeBtn.addEventListener('click', function() {
+            fetch('/users/' + likeBtn.dataset.username + '/like', { method: 'POST' })
+                .then(function(r) { return r.json().then(function(data) { return { ok: r.ok, data: data }; }); })
+                .then(function(result) {
+                    if (!result.ok) { alert(result.data.error || 'Could not like'); return; }
+                    likeBtn.className = 'btn ' + (result.data.liked ? 'btn-danger' : 'btn-outline-danger');
+                    document.getElementById('like-count').textContent = result.data.likeCount;
+                });
+        });
+    }
 </script>
 
 
