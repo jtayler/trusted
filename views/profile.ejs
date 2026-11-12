@@ -172,7 +172,7 @@
                            <% if (user.show_contact === undefined || user.show_contact !== 0) { %>
                               <div class="card mb-3">
                                  <div class="card-header text-center h5 text-secondary">Verified Contacts</div>
-                                 <div class="card-body text-center text-muted">No contacts have been verified yet.</div>
+                                 <div class="card-body text-center text-muted">No contacts have been shared.</div>
                               </div>
                            <% } %>
                            <% if (user.show_social === undefined || user.show_social !== 0) { %>
@@ -347,7 +347,7 @@
             newSlot.innerHTML = '';
 
             if (showPersonal) newSlot.appendChild(createInfoCard("Personal Details", filteredPersonal, "No personal details have been shared."));
-            if (showContact)  newSlot.appendChild(createInfoCard("Verified Contacts",  filteredContact, "No contacts have been verified yet."));
+            if (showContact)  newSlot.appendChild(createInfoCard("Verified Contacts",  filteredContact, "No contacts have been shared."));
             if (showSocial)   newSlot.appendChild(createSocialCard(filteredSocial, "No social profiles have been connected."));
 
             // === GITHUB BADGE (after TruAnon data is available) ===
