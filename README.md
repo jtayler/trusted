@@ -397,6 +397,8 @@ So TruAnon takes nothing out. It brokers a connection, and the question is asked
 
 **Public proof** requires nothing from the property. Any visible field only the account holder can alter — a bio, a post, an about-me line — carries a key that TruAnon reads. Control is proven. A porch light: we can see it is their house. This is how LinkedIn, X, and anything else that never agreed to anything gets anchored.
 
+Not every porch light is on the same house, though — a `.edu` domain is a sharper example than most. In the US, `.edu` registration is strictly regulated by EDUCAUSE and only granted to accredited postsecondary institutions. Proving control of one — a meta tag published at `alumni.<university>.edu`, say — isn't a self-asserted claim the way a bio line is; it inherits EDUCAUSE's own accreditation vetting. An alumni association can show your accreditation this way: you own it because you validated control of the domain, not because you listed a degree and asked people to take your word for it.
+
 **The switch** is what a property gets by integrating these APIs — the flow this entire document describes. Cleaner and easier than a public proclamation, and the only route for a property with no public-facing surface at all: a patient portal, an employee directory, a licensing board.
 
 Anchoring is permanent; visibility is revocable. A member who revokes returns to `Unknown` and cannot re-anchor a fresh account to escape a history.
